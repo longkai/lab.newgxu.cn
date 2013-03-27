@@ -1,1 +1,10 @@
 target/
+.settings/
+.classpath
+.project
+*~
+*swp
+*.~
+*.swp
+.springBeans
+rebel.xml
