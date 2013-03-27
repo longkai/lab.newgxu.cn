@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>cn.newgxu</groupId>
+	<artifactId>lab</artifactId>
+	<version>${lab.version}</version>
+	<packaging>pom</packaging>
+
+	<developers>
+		<developer>
+			<id>longkai</id>
+			<name>龙凯</name>
+			<email>im.longkai@gmail.com</email>
+			<url>https://github.com/longkai</url>
+			<timezone>8</timezone>
+			<organization>newgxu</organization>
+			<organizationUrl>https://github.com/organizations/newgxu</organizationUrl>
+			<roles>
+				<role>master</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<name>parent</name>
+	<url>https://github.com/longkai/lab.newgxu.cn</url>
+
+	<modules>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<lab.version>0.1-beta</lab.version>
+		<java.version>1.6</java.version>
+		<spring.version>3.2.2.RELEASE</spring.version>
+		<hibernate.version>4.2.0.Final</hibernate.version>
+		<slf4j.version>1.7.5</slf4j.version>
+		<logback.version>1.0.11</logback.version>
+		<jdbc.mysql.version>5.1.24</jdbc.mysql.version>
+		<jetty.version>8.1.8.v20121106</jetty.version>
+		<junit.version>4.11</junit.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- slf4j -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			
+			<!-- slf4j-api -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			
+			<!-- logback -->
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>${logback.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-api</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			
+			<!-- mysql -->
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>${jdbc.mysql.version}</version>
+			</dependency>
+			
+			<!-- junit -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<finalName>lab.newgxu.cn</finalName>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>
