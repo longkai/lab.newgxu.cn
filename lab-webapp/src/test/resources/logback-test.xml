@@ -5,7 +5,7 @@
 	<!-- server -->
 	<!-- <property name="LOG_HOME" value="/newgxu/tomcat/logs/logback/" /> -->
 	<!-- local -->
-	<property name="logHome" value="target/logs" />
+	<property name="LOG_HOME" value="target/logs" />
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- 
