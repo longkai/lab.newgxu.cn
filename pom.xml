@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>cn.newgxu</groupId>
@@ -26,23 +26,44 @@
 	<url>https://github.com/longkai/lab.newgxu.cn</url>
 
 	<modules>
-	</modules>
+    <module>lab-webapp</module>
+  </modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<lab.version>0.1-beta</lab.version>
-		<java.version>1.6</java.version>
 		<spring.version>3.2.2.RELEASE</spring.version>
-		<hibernate.version>4.2.0.Final</hibernate.version>
-		<slf4j.version>1.7.5</slf4j.version>
+		<aopalliance.version>1.0</aopalliance.version>
+		<json.version>20090211</json.version>
+		<freemarker.version>2.3.19</freemarker.version>
 		<logback.version>1.0.11</logback.version>
-		<jdbc.mysql.version>5.1.24</jdbc.mysql.version>
+		<slf4j.version>1.7.5</slf4j.version>
+		<servlet-api.version>3.0.1</servlet-api.version>
+		<commons-dbcp.version>1.4</commons-dbcp.version>
+		<commons-pool.version>1.6</commons-pool.version>
+		<hibernate.version>4.2.0.Final</hibernate.version>
+		<mysql.jdbc.version>5.1.24</mysql.jdbc.version>
+		<inject.version>1</inject.version>
 		<jetty.version>8.1.8.v20121106</jetty.version>
 		<junit.version>4.11</junit.version>
+		<java.version>1.6</java.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- spring -->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			
 			<!-- slf4j -->
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -68,13 +89,6 @@
 						<artifactId>slf4j-api</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			
-			<!-- mysql -->
-			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>${jdbc.mysql.version}</version>
 			</dependency>
 			
 			<!-- junit -->
