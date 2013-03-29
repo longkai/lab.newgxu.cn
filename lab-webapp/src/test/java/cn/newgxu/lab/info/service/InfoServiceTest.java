@@ -116,6 +116,15 @@ public class InfoServiceTest {
 		testCreate();
 		assertThat(infoService.find(info.getId()).getTitle(), is(info.getTitle()));
 	}
+	
+	@Test
+	public void testView() {
+		testCreate();
+		assertThat(info.getClickTimes(), is(0L));
+		infoService.view(info.getId());
+		infoService.view(info.getId());
+		assertThat(info.getClickTimes(), is(2L));
+	}
 
 	@Test
 	public void testTotal() {
@@ -142,9 +151,9 @@ public class InfoServiceTest {
 	public void testIsLatest() {
 //		只要能够测试出服务器存在比客户端大的id键即可
 		long localId = 0L;
-		assertThat(infoService.isLatest(localId), is(false));
+		assertThat(infoService.newerCount(localId), is(0));
 		testCreate();
-		assertThat(infoService.isLatest(localId), is(true));
+		assertThat(infoService.newerCount(localId), is(1));
 	}
 
 }

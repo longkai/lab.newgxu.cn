@@ -51,7 +51,7 @@ public class InfoDaoImpl extends AbstractCommonDaoImpl<Information> implements I
 	}
 
 	@Override
-	public boolean hasNew(long pk) {
+	public int newerCount(long pk) {
 		long l = 0L;
 		try {
 			l = em.createNamedQuery("Information.has_new", Long.class)
@@ -59,9 +59,8 @@ public class InfoDaoImpl extends AbstractCommonDaoImpl<Information> implements I
 					.getSingleResult();
 		} catch (Exception e) {
 			L.error("查询是否有更新时异常！", e);
-			return false;
 		}
-		return l > 0L ? true : false;
+		return Long.valueOf(l).intValue();
 	}
 
 }

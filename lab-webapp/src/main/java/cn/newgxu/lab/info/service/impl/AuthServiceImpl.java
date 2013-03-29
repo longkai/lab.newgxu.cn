@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.core.util.DateTime;
 import cn.newgxu.lab.core.util.Encryptor;
 import cn.newgxu.lab.info.config.Config;
@@ -45,8 +46,7 @@ import cn.newgxu.lab.info.service.AuthService;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Throwable.class)
 public class AuthServiceImpl implements AuthService {
 
-	private static final Logger	L	= LoggerFactory
-											.getLogger(AuthServiceImpl.class);
+	private static final Logger	L	= LoggerFactory.getLogger(AuthServiceImpl.class);
 
 	@Inject
 	private AuthDao				authDao;
@@ -54,6 +54,9 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void create(AuthorizedUser user) {
+		Assert.notEmpty("组织或者单位不能为空！", user.getOrg());
+		Assert.notEmpty("显示名称不能为空！", user.getAuthorizedName());
+		
 		// 设置密码
 		if (user.getPassword() != null) {
 			String plainText = user.getPassword().trim();
@@ -65,10 +68,12 @@ public class AuthServiceImpl implements AuthService {
 			user.setPassword(Encryptor.MD5(Config.DEFAULT_PASSWORD));
 		}
 
+		Date now = new Date();
+		
 		// 设置账号
 		if (user.getAccount() == null) {
 			// 如果是没有指定账号，那么我们就按照时间来，这样肯定不会有重复
-			user.setAccount(Config.DEFAULT_ACCOUNT_PREFIX + DateTime.format(new Date(), Config.DEFAULT_ACCOUNT_SUFFIX));
+			user.setAccount(Config.DEFAULT_ACCOUNT_PREFIX + DateTime.format(now, Config.DEFAULT_ACCOUNT_SUFFIX));
 		} else {
 //			检查账号名是否存在！
 			if (authDao.has(user.getAccount())) {
@@ -76,15 +81,7 @@ public class AuthServiceImpl implements AuthService {
 			}
 		}
 		
-		if (user.getOrg() == null || user.getOrg().trim().equals("")) {
-			throw new RuntimeException("组织或者单位不能为空！");
-		}
-
-		if (user.getAuthorizedName() == null || user.getAuthorizedName().trim().equals("")) {
-			throw new RuntimeException("显示名称不能为空！");
-		}
-
-		user.setJoinTime(new Date());
+		user.setJoinTime(now);
 
 		authDao.persist(user);
 
@@ -98,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
 		AuthorizedUser u = authDao.find(user.getId());
 		u.setPassword(Encryptor.MD5(user.getPassword()));
 		authDao.merge(u);
-		L.info("用户：{} 修改信息成功！", user.getAuthorizedName());
+		L.info("用户：{} 修改个人信息成功！", user.getAuthorizedName());
 		return u;
 	}
 
@@ -107,6 +104,7 @@ public class AuthServiceImpl implements AuthService {
 	public void block(AuthorizedUser user) {
 		user.setBlocked(true);
 		authDao.merge(user);
+		L.info("用户：{} 账号被成功冻结！", user.getAuthorizedName());
 	}
 
 	@Override
@@ -138,8 +136,11 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<AuthorizedUser> list(int NO, int howMany) {
-		return authDao.list(NO, Config.DEFAULT_USER_LIST_COUNT);
+	public List<AuthorizedUser> list(int offset, int howMany) {
+		if (howMany <= 0) {
+			howMany = Config.DEFAULT_USER_LIST_COUNT;
+		}
+		return authDao.list(offset, howMany);
 	}
 
 }

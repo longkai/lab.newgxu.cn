@@ -77,6 +77,11 @@ public class InfoServiceImpl implements InfoService {
 		
 		Information i = infoDao.find(info.getId());
 		
+//		检测信息的作者是否为同一人
+		if (!i.getUser().equals(info.getUser())) {
+			throw new RuntimeException("对不起，这条信息不是您发布的，您无权修改它！");
+		}
+		
 		i.setLastModifiedDate(new Date());
 		i.setTitle(info.getTitle());
 		i.setContent(info.getContent());
@@ -92,6 +97,14 @@ public class InfoServiceImpl implements InfoService {
 	public Information find(long pk) {
 		return infoDao.find(pk);
 	}
+	
+	@Override
+	public Information view(long pk) {
+		Information info = infoDao.find(pk);
+		info.setClickTimes(info.getClickTimes() + 1);
+		infoDao.merge(info);
+		return info;
+	}
 
 	@Override
 	public long total() {
@@ -100,7 +113,10 @@ public class InfoServiceImpl implements InfoService {
 
 	@Override
 	public List<Information> list(int NO, int howMany) {
-		return infoDao.list(NO, Config.DEFAULT_INFO_LIST_COUNT);
+		if (howMany <= 0) {
+			howMany = Config.DEFAULT_INFO_LIST_COUNT;
+		}
+		return infoDao.list(NO, howMany);
 	}
 
 	@Override
@@ -117,8 +133,8 @@ public class InfoServiceImpl implements InfoService {
 	}
 
 	@Override
-	public boolean isLatest(long pk) {
-		return infoDao.hasNew(pk);
+	public int newerCount(long pk) {
+		return infoDao.newerCount(pk);
 	}
 
 }

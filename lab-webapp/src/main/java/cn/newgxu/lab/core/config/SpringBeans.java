@@ -46,15 +46,18 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * @version 0.1
  */
 @Configuration
-@ComponentScan({"cn.newgxu.lab.core",
-				"cn.newgxu.lab.info"})
+@ComponentScan({
+	"cn.newgxu.lab.core",
+	"cn.newgxu.lab.info"
+})
 @EnableTransactionManagement
 @EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
 public class SpringBeans {
 	
-	public static final String[] entityPackages = 
-		{"cn.newgxu.lab.core.entity",
-		 "cn.newgxu.lab.info.entity"};
+	public static final String[] entityPackages = {
+		"cn.newgxu.lab.core.entity",
+		"cn.newgxu.lab.info.entity"
+	};
 
 	@Bean(destroyMethod = "close")
 	public DataSource dataSource() {

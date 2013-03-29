@@ -28,6 +28,9 @@ public class Config {
 	/** 应用名称 */
 	public static final String APP = "info";
 	
+	/** session属性的认证用户 */
+	public static final String SESSION_USER = APP + "_user";
+	
 	/** 多文档的urls分隔符 */
 	public static final String DOC_URL_DELIMITER = "|";
 	

@@ -28,6 +28,7 @@ import cn.newgxu.lab.info.entity.Information;
  */
 public interface InfoDao extends CommonDao<Information> {
 
-	boolean hasNew(long pk);
+	/** 比pk更新的记录数 */
+	int newerCount(long pk);
 	
 }

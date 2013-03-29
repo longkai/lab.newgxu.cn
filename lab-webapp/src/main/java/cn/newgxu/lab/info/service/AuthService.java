@@ -47,6 +47,6 @@ public interface AuthService {
 	/** 账号名是否存在 */
 	boolean exists(String account);
 	
-	List<AuthorizedUser> list(int NO, int howMany);
+	List<AuthorizedUser> list(int offset, int howMany);
 	
 }

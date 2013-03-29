@@ -36,6 +36,9 @@ public interface InfoService {
 	Information update(Information info);
 
 	Information find(long pk);
+	
+	/** 区别于find，这个会增加1的点击率 */
+	Information view(long pk);
 
 	long total();
 
@@ -52,6 +55,6 @@ public interface InfoService {
 	 * @param pk 客户端上最新的主键
 	 * @return true or false
 	 */
-	boolean isLatest(long pk);
+	int newerCount(long pk);
 
 }
