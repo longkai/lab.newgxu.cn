@@ -58,7 +58,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 	"cn.newgxu.lab.info"
 })
 @EnableTransactionManagement
-//@EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
+@EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
 public class SpringBeans {
 	
 	public static final String[] entityPackages = {

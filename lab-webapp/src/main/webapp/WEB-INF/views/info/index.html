@@ -1,0 +1,22 @@
+<#include "macro.ftl" />
+
+<@head title="信息发布平台 - 雨无声实验室">
+<style type="text/css">
+h1 {
+	color: olive;
+}
+</style>
+</@head>
+<body>
+<h1>hello, world!</h1>
+<div id="test">我是龙凯！</div>
+</body>
+<@script>
+<script type="text/javascript">
+$(function() {
+	$('#test').click(function() {
+		alert("hello, world!");
+	})
+})
+</script>
+</@script>
