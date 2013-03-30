@@ -37,10 +37,13 @@ import cn.newgxu.lab.info.entity.AuthorizedUser;
 public interface AuthService {
 
 	/** 创建用户，假如没有明确账号密码，那么系统就会自动生成唯一的账号与密码。 */
-	void create(AuthorizedUser user);
+	void create(AuthorizedUser user, String _pwd);
 	
-	/** 目前仅支持修改密码 */
-	AuthorizedUser update(AuthorizedUser user);
+	/** 修改密码 */
+	AuthorizedUser resetPassword(AuthorizedUser user, String _pwd);
+	
+	/** 修改个人信息 */
+	AuthorizedUser update(AuthorizedUser au);
 
 	/** 将一个用户账号冻结掉。*/
 	void block(AuthorizedUser user);

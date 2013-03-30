@@ -49,8 +49,7 @@ import cn.newgxu.lab.info.config.AccountType;
 @NamedQueries({
 		@NamedQuery(name = "AuthorizedUser.login", query = "FROM AuthorizedUser au WHERE au.account = :account AND au.password = :password"),
 		@NamedQuery(name = "AuthorizedUser.account", query = "FROM AuthorizedUser au WHERE au.account = :account"),
-		@NamedQuery(name = "AuthorizedUser.list", query = "FROM AuthorizedUser au")
-})
+		@NamedQuery(name = "AuthorizedUser.list", query = "FROM AuthorizedUser au") })
 public class AuthorizedUser {
 
 	@Id
@@ -65,6 +64,10 @@ public class AuthorizedUser {
 
 	/** 组织，单位，或者个人 */
 	private String		org;
+	/** 简要信息（可选） */
+	private String		about;
+	/** 联系方式（可选） */
+	private String		contact;
 
 	@Column(name = "join_time")
 	private Date		joinTime;
@@ -105,6 +108,22 @@ public class AuthorizedUser {
 
 	public void setOrg(String org) {
 		this.org = org;
+	}
+
+	public String getAbout() {
+		return about;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
+	}
+
+	public String getContact() {
+		return contact;
+	}
+
+	public void setContact(String contact) {
+		this.contact = contact;
 	}
 
 	public Date getJoinTime() {

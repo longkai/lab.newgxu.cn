@@ -59,16 +59,19 @@ public class InfoServiceTest {
 	private AuthorizedUser au;
 	
 	private Information info;
+	private String _pwd;
 	
 	@Before
 	public void init() {
+		_pwd = "123456";
+		
 		au = new AuthorizedUser();
 		au.setAccount("longkai");
 		au.setPassword("123456");
 		au.setAuthorizedName("广西大学雨无声网站");
 		au.setOrg("广西大学雨无声网站");
 //		初始化一个测试用户，并使之处于持久化状态
-		authService.create(au);
+		authService.create(au, _pwd);
 		
 //		初始化一条信息记录
 		info = new Information();

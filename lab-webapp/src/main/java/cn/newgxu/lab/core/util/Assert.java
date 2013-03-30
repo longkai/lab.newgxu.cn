@@ -47,6 +47,21 @@ public class Assert {
 	}
 	
 	/**
+	 * 断言字符串是否大于等于指定的长度，同样的，会主动截取两边的空白符。
+	 * @param message
+	 * @param str
+	 * @param length
+	 */
+	public static void hasLength(String message, String str, int length) {
+		Assert.notNull(message, str);
+		
+		str = str.trim();
+		if (str.length() < length) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+	
+	/**
 	 * 断言对象不为空。
 	 * @param message
 	 * @param object

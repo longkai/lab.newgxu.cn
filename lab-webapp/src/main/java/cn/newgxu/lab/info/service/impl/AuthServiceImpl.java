@@ -57,20 +57,27 @@ public class AuthServiceImpl implements AuthService {
 
 	@Inject
 	private AuthDao				authDao;
+	
+	/** 检测两次密码输入是否相符 */
+	private void checkPassword(String p1, String p2) {
+//		检测一次就好
+		Assert.hasLength("用户密码不能为空！", p1, Config.MIN_PASSWORD_LENGTH);
+		Assert.notEmpty("认证密码不能为空！", p2);
+		if (!p1.equals(p2)) {
+			throw new IllegalArgumentException("两次输入密码不一致！");
+		}
+	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public void create(AuthorizedUser user) {
+	public void create(AuthorizedUser user, String _pwd) {
 		Assert.notEmpty("组织或者单位不能为空！", user.getOrg());
 		Assert.notEmpty("显示名称不能为空！", user.getAuthorizedName());
 		
 		// 设置密码
 		if (user.getPassword() != null) {
-			String plainText = user.getPassword().trim();
-			if (plainText.equals("")) {
-				throw new RuntimeException("密码不能为空！");
-			}
-			user.setPassword(Encryptor.MD5(plainText));
+			checkPassword(user.getPassword(), _pwd);
+			user.setPassword(Encryptor.MD5(_pwd));
 		} else {
 			user.setPassword(Encryptor.MD5(Config.DEFAULT_PASSWORD));
 		}
@@ -98,14 +105,27 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public AuthorizedUser update(AuthorizedUser user) {
+	public AuthorizedUser resetPassword(AuthorizedUser user, String _pwd) {
+		checkPassword(user.getPassword(), _pwd);
+		
 		AuthorizedUser u = authDao.find(user.getId());
-		u.setPassword(Encryptor.MD5(user.getPassword()));
+		u.setPassword(Encryptor.MD5(_pwd));
 		authDao.merge(u);
-		L.info("用户：{} 修改个人信息成功！", user.getAuthorizedName());
+		L.info("认证用户：{} 修改个人密码成功！", user.getAuthorizedName());
 		return u;
 	}
 
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+	public AuthorizedUser update(AuthorizedUser au) {
+		AuthorizedUser u = authDao.find(au.getId());
+		u.setAbout(au.getAbout());
+		u.setContact(au.getContact());
+		authDao.merge(u);
+		L.info("认证用户：{} 修改个人信息成功！", au.getAuthorizedName());
+		return u;
+	}
+	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void block(AuthorizedUser user) {

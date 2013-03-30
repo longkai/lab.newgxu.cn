@@ -56,4 +56,7 @@ public class Config {
 	/** 默认的一次信息列表请求抓取数量 */
 	public static final int DEFAULT_INFO_LIST_COUNT = 5;
 	
+	/** 密码的最小长度 */
+	public static final int MIN_PASSWORD_LENGTH = 6;
+	
 }

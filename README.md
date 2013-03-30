@@ -16,6 +16,6 @@ Java(springmvc, jpa等)
 Email: im.longkai@gmail.com
 
 ## License
-雨无声实验室在MIT license [MIT license][]下发布。
+雨无声实验室在[MIT license][]下发布。
 
 [MIT License]: http://opensource.org/licenses/mit-license.php

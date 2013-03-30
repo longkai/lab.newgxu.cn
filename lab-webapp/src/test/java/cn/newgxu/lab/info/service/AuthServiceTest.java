@@ -56,8 +56,12 @@ public class AuthServiceTest {
 	private AuthorizedUser au2;
 	private AuthorizedUser au3;
 	
+	private String _pwd;
+	
 	@Before
 	public void init() {
+		_pwd = "123456";
+		
 		au1 = new AuthorizedUser();
 		au1.setAccount("im.longkai");
 		au1.setPassword("123456");
@@ -74,7 +78,7 @@ public class AuthServiceTest {
 	@Test
 	public void testCreate() {
 		assertThat(au1.getId() == 0L, is(true));
-		authService.create(au1);
+		authService.create(au1, _pwd);
 		assertThat(au1.getId() != 0L, is(true));
 	}
 	
@@ -82,7 +86,7 @@ public class AuthServiceTest {
 	@Test
 	public void testCreate2() {
 		assertThat(au2.getId() == 0L, is(true));
-		authService.create(au2);
+		authService.create(au2, null);
 		assertThat(au2.getId() != 0L, is(true));
 	}
 	
@@ -90,14 +94,22 @@ public class AuthServiceTest {
 	@Test(expected = RuntimeException.class)
 	public void testCreate3() {
 		assertThat(au3.getId() == 0L, is(true));
-		authService.create(au3);
+		authService.create(au3, null);
 	}
 	
 	@Test
 	public void testUpdate() {
 		testCreate();
 		au1.setPassword("654321");
-		authService.update(au1);
+		authService.resetPassword(au1, "654321");
+		assertThat(authService.find(au1.getId()).getPassword(), is("c33367701511b4f6020ec61ded352059"));
+	}
+	
+	@Test(expected = RuntimeException.class)
+	public void testUpdate2() {
+		testCreate();
+		au1.setPassword("654321");
+		authService.resetPassword(au1, "654321x");
 		assertThat(authService.find(au1.getId()).getPassword(), is("c33367701511b4f6020ec61ded352059"));
 	}
 

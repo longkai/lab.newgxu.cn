@@ -67,9 +67,9 @@ public class AuthController {
 
 	@RequestMapping(value = "/auth", method = RequestMethod.POST, produces = AjaxConstants.MEDIA_TYPE_JSON)
 	@ResponseBody
-	public String auth(AuthorizedUser au) throws JSONException {
+	public String auth(AuthorizedUser au, @RequestParam(value = "_pwd", defaultValue = "") String _pwd) throws JSONException {
 		L.info("尝试认证用户！单位（组织）：{}，名称：{}", au.getOrg(), au.getAuthorizedName());
-		authService.create(au);
+		authService.create(au, _pwd);
 		return AjaxConstants.JSON_STATUS_OK;
 	}
 
@@ -103,16 +103,26 @@ public class AuthController {
 		return Config.APP + "/update";
 	}
 
-	@RequestMapping(value = "/user/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/user/update/{type}", method = RequestMethod.POST)
 	@ResponseBody
-	public String update(@RequestParam("pwd") String newPwd, HttpSession session) {
-		AuthorizedUser au = (AuthorizedUser) session
+	public String resetPwd(@PathVariable("type") String type, AuthorizedUser au, @RequestParam(value = "_pwd", defaultValue = "") String pwd, HttpSession session) {
+		AuthorizedUser sau = (AuthorizedUser) session
 				.getAttribute(Config.SESSION_USER);
-		au.setPassword(newPwd);
-		authService.update(au);
+		if (type.equals("password")) {
+			sau.setPassword(au.getPassword());
+			sau = authService.resetPassword(sau, null);
+		} else if (type.equals("profile")) {
+			sau.setContact(au.getContact());
+			sau.setAbout(au.getAbout());
+			sau = authService.update(sau);
+		} else {
+			throw new UnsupportedOperationException("不存在的操作！");
+		}
+//		重新把更新后的user设置到session中。
+		session.setAttribute(Config.SESSION_USER, sau);
 		return AjaxConstants.JSON_STATUS_OK;
 	}
-
+	
 	@RequestMapping(value = "/user/list/{offset}/{count}", produces = AjaxConstants.MEDIA_TYPE_JSON)
 	@ResponseBody
 	public String list(@PathVariable("offset") int offset,
