@@ -2,14 +2,135 @@
 
 <@head title="信息发布平台 - 雨无声实验室">
 <style type="text/css">
-h1 {
-	color: olive;
+body {
+	padding: 60px 0 40px 0;
+}
+.carousel-caption {
+	background: none;
+	margin-bottom: 30px;
+}
+#buttons {
+	padding: 0 0 0 50px;
 }
 </style>
 </@head>
 <body>
-<h1>hello, world!</h1>
-<div id="test">我是龙凯！</div>
+<div class="navbar navbar-inverse navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			<a href="#" class="brand">信息发布平台</a>
+			<div class="nav-collapse collapse">
+				<ul class="nav">
+					<li class="active"><a href="#">首页</a></li>
+					<li><a href="#">关于</a></li>
+					<li><a href="#">认证</a></li>
+					<li><a href="#">认证列表</a></li>
+					<li><a href="#">服务条款</a></li>
+					<li><a href="#">更新说明</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">雨无声实验室 <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="/">首页</a></li>
+							<li><a href="/about.html">关于实验室</a></li>
+						</ul>
+					</li>
+				</ul>
+<#if Session.info_user??>
+				<div class="btn-group pull-right">
+				  <a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i> User</a>
+				  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+				  <ul class="dropdown-menu">
+				    <li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
+				    <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+				    <li><a href="#"><i class="icon-ban-circle"></i> Ban</a></li>
+				    <li class="divider"></li>
+				    <li><a href="#"><i class="i"></i> Make admin</a></li>
+				  </ul>
+				</div>
+<#else>				
+				<form action="/info/login" class="navbar-form pull-right" method="post">
+					<input type="text" class="span2" placeholder="用户名" />
+					<input type="text" class="span2" placeholder="密码" />
+					<button type="button" class="btn">登陆</button>
+				</form>
+</#if>		
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container">
+	<div class="carousel">
+    <div class="item active">
+      <img src="/resources/images/info.jpg" class="img-rounded" alt="">
+      <div class="container">
+        <div class="carousel-caption">
+          <!-- <p class="" style="width: 60%;">雨无声信息发布平台是一个服务于广西大学师生的网站。任何校内的组织，学院，比如协会经过认证后都可以在这上面发布信息。任何人都可以通过信息发布平台和Android客户端获取到信息:)</p> -->
+          <span id="buttons"><a href="#" class="btn btn-info btn-large">详细介绍</a>&nbsp;&nbsp;<a href="#" class="btn btn-success btn-large">申请认证</a></span>
+        </div>
+      </div>
+    </div>
+   </div>
+</div>
+
+<div class="container">
+	<div class="row">
+		<div class="span3">
+			<ul class="nav nav-list">
+			  <li class="nav-header">最新认证</li>
+			  <li><a href="#">雨无声技术部</a></li>
+			  <li><a href="#">雨无声新闻部</a></li>
+			  <li><a href="#">雨无声网管部</a></li>
+			  <li><a href="#">雨无声编辑部</a></li>
+			  <li><a href="#">雨无声行政部</a></li>
+			  <li><a href="#">雨无声外事部</a></li>
+			</ul>
+			<a href="#" class="btn btn-block btn-info">查看更多</a>
+		</div>
+		<div class="row">
+			<div class="span3">
+				<h4>雨无声实验室成立了！</h4>
+	      <p>不管怎么样，界面好不好看，雨无声实验室还是发布了！ </p>
+	      <p><a class="btn" href="#">详细 &raquo;</a></p>
+			</div>
+			<div class="span3">
+				<h4>雨无声实验室成立了！</h4>
+	      <p>不管怎么样，界面好不好看，雨无声实验室还是发布了！ </p>
+	      <p><a class="btn" href="#">详细 &raquo;</a></p>
+			</div>
+			<div class="span3">
+				<h4>雨无声实验室成立了！</h4>
+	      <p>不管怎么样，界面好不好看，雨无声实验室还是发布了！ </p>
+	      <p><a class="btn" href="#">详细 &raquo;</a></p>
+			</div>
+			<div class="span3">
+				<h4>雨无声实验室成立了！</h4>
+	      <p>不管怎么样，界面好不好看，雨无声实验室还是发布了！ </p>
+	      <p><a class="btn" href="#">详细 &raquo;</a></p>
+			</div>
+			<div class="span3">
+				<h4>雨无声实验室成立了！</h4>
+	      <p>不管怎么样，界面好不好看，雨无声实验室还是发布了！ </p>
+	      <p><a class="btn" href="#">详细 &raquo;</a></p>
+			</div>
+			<div class="span3">
+				<h4>雨无声实验室成立了！</h4>
+	      <p>不管怎么样，界面好不好看，雨无声实验室还是发布了！ </p>
+	      <p><a class="btn" href="#">详细 &raquo;</a></p>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="span9 offset3">
+			<p><a href="#" class="btn btn-block">查看更多</a></p>
+		</div>
+	</div>
+</div>
+<div class="container">
+	<footer>
+	  <p>&copy; 2001-2013 newgxu.cn &middot;All Rights Reserved.</p>
+	</footer>
+</div>
 </body>
 <@script>
 <script type="text/javascript">

@@ -6,7 +6,7 @@
 <meta charset="utf-8" />
 <title>${title}</title>
 <meta name="keywords" content="${keywords} 雨无声实验室 广西大学 广西大学雨无声网站 ${author} ${email}" />
-<meta name="description" content="${description} 雨无声实验室 广西大学 广西大学雨无声网站 ${author} ${email} @爱因斯坦的狗" />
+<meta name="description" content="${description} 雨无声实验室 广西大学 广西大学雨无声网站 ${author} ${email}" />
 <meta name="author" content="${author}" />
 <meta name="email" content="${email}" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />

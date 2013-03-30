@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import cn.newgxu.lab.core.util.Assert;
-import cn.newgxu.lab.core.util.DateTime;
 import cn.newgxu.lab.core.util.Encryptor;
 import cn.newgxu.lab.info.config.Config;
 import cn.newgxu.lab.info.entity.AuthorizedUser;
@@ -57,12 +56,14 @@ public class AuthServiceImpl implements AuthService {
 
 	@Inject
 	private AuthDao				authDao;
-	
+
 	/** 检测两次密码输入是否相符 */
 	private void checkPassword(String p1, String p2) {
-//		检测一次就好
-		Assert.hasLength("用户密码不能为空！", p1, Config.MIN_PASSWORD_LENGTH);
-		Assert.notEmpty("认证密码不能为空！", p2);
+		// 检测一次就好
+		Assert.hasLength("用户密码不能为空或者少于?位！"
+				.replace("?", Config.MIN_PASSWORD_LENGTH + ""),
+					p1,Config.MIN_PASSWORD_LENGTH);
+		Assert.notEmpty("确认密码不能为空！", p2);
 		if (!p1.equals(p2)) {
 			throw new IllegalArgumentException("两次输入密码不一致！");
 		}
@@ -73,29 +74,19 @@ public class AuthServiceImpl implements AuthService {
 	public void create(AuthorizedUser user, String _pwd) {
 		Assert.notEmpty("组织或者单位不能为空！", user.getOrg());
 		Assert.notEmpty("显示名称不能为空！", user.getAuthorizedName());
-		
+
 		// 设置密码
-		if (user.getPassword() != null) {
-			checkPassword(user.getPassword(), _pwd);
-			user.setPassword(Encryptor.MD5(_pwd));
-		} else {
-			user.setPassword(Encryptor.MD5(Config.DEFAULT_PASSWORD));
+		checkPassword(user.getPassword(), _pwd);
+		user.setPassword(Encryptor.MD5(_pwd));
+		// 设置账号
+		Assert.hasLength(
+				"账号长度必须大于?位".replace("?", Config.MIN_ACCOUNT_LENGTH + ""),
+				user.getAccount(), Config.MIN_ACCOUNT_LENGTH);
+		if (authDao.has(user.getAccount())) {
+			throw new RuntimeException("账号已经存在！");
 		}
 
-		Date now = new Date();
-		
-		// 设置账号
-		if (user.getAccount() == null) {
-			// 如果是没有指定账号，那么我们就按照时间来，这样肯定不会有重复
-			user.setAccount(Config.DEFAULT_ACCOUNT_PREFIX + DateTime.format(now, Config.DEFAULT_ACCOUNT_SUFFIX));
-		} else {
-//			检查账号名是否存在！
-			if (authDao.has(user.getAccount())) {
-				throw new RuntimeException("用户名已经存在！");
-			}
-		}
-		
-		user.setJoinTime(now);
+		user.setJoinTime(new Date());
 
 		authDao.persist(user);
 
@@ -107,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public AuthorizedUser resetPassword(AuthorizedUser user, String _pwd) {
 		checkPassword(user.getPassword(), _pwd);
-		
+
 		AuthorizedUser u = authDao.find(user.getId());
 		u.setPassword(Encryptor.MD5(_pwd));
 		authDao.merge(u);
@@ -125,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
 		L.info("认证用户：{} 修改个人信息成功！", au.getAuthorizedName());
 		return u;
 	}
-	
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void block(AuthorizedUser user) {

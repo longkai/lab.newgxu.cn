@@ -41,15 +41,6 @@ public class Config {
 	/** 多文档的urls分隔符 */
 	public static final String DOC_URL_DELIMITER = "|";
 	
-	/** 默认的初始密码 */
-	public static final String DEFAULT_PASSWORD = "yws123456";
-	
-	/** 默认的账户名前缀 */
-	public static final String DEFAULT_ACCOUNT_PREFIX = "yws_info_";
-	
-	/** 默认的账户名后缀 */
-	public static final String DEFAULT_ACCOUNT_SUFFIX = "yyyyMMddHHmmss";
-	
 	/** 默认的一次用户列表请求抓取数量 */
 	public static final int DEFAULT_USER_LIST_COUNT = 10;
 	
@@ -58,5 +49,8 @@ public class Config {
 	
 	/** 密码的最小长度 */
 	public static final int MIN_PASSWORD_LENGTH = 6;
+	
+	/** 账号的最小长度 */
+	public static final int MIN_ACCOUNT_LENGTH = 6;
 	
 }

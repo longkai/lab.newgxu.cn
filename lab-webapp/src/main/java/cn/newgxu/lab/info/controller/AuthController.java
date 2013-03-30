@@ -60,8 +60,7 @@ import cn.newgxu.lab.info.service.AuthService;
 @Scope("session")
 public class AuthController {
 
-	private static final Logger	L	= LoggerFactory
-											.getLogger(AuthController.class);
+	private static final Logger	L	= LoggerFactory.getLogger(AuthController.class);
 
 	@Inject
 	private AuthService			authService;
@@ -69,9 +68,11 @@ public class AuthController {
 	@RequestMapping(value = "/auth", method = RequestMethod.POST, produces = AjaxConstants.MEDIA_TYPE_JSON)
 	@ResponseBody
 	public String auth(AuthorizedUser au, @RequestParam(value = "_pwd", defaultValue = "") String _pwd) throws JSONException {
-		L.info("尝试认证用户！单位（组织）：{}，名称：{}", au.getOrg(), au.getAuthorizedName());
+		L.info("尝试认证用户！单位（组织）：{}，名称：{}，密码：{}", au.getOrg(), au.getAuthorizedName(), au.getPassword());
 		authService.create(au, _pwd);
-		return AjaxConstants.JSON_STATUS_OK;
+		JSONObject json = new JSONObject(au);
+		json.putOnce(AjaxConstants.AJAX_STATUS, "ok");
+		return json.toString();
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST, produces = AjaxConstants.MEDIA_TYPE_JSON)
