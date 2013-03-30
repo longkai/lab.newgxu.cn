@@ -9,7 +9,6 @@
 		<mvc:interceptor>
 			<mvc:mapping path="/info/info/create" />
 			<mvc:mapping path="/info/info/modify" />
-			<mvc:mapping path="/info/user/update" />
 			<mvc:mapping path="/info/user/update/*" />
 			
 			<bean class="cn.newgxu.lab.info.interceptors.LoginInterceptor" />

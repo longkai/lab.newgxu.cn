@@ -30,6 +30,7 @@ import javax.servlet.http.HttpSession;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -121,6 +122,13 @@ public class AuthController {
 //		重新把更新后的user设置到session中。
 		session.setAttribute(Config.SESSION_USER, sau);
 		return AjaxConstants.JSON_STATUS_OK;
+	}
+	
+	@RequestMapping(value = "/user/profile/{uid}", produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@ResponseBody
+	public String profile(@PathVariable("uid") long uid) {
+		AuthorizedUser au = authService.find(uid);
+		return new JSONObject(au).toString();
 	}
 	
 	@RequestMapping(value = "/user/list/{offset}/{count}", produces = AjaxConstants.MEDIA_TYPE_JSON)
