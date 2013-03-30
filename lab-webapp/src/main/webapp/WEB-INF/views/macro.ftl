@@ -1,10 +1,11 @@
 <#-- html头部的定义，这里嵌套了内联得到css -->
-<#macro head author="龙凯 longkai" email="im.longkai@gmail.com" title="" description="" bootstrap="2.3.1">
+<#macro head author="龙凯 longkai @爱因斯坦的狗" email="im.longkai@gmail.com" title="" keywords="" description="" bootstrap="2.3.1">
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
 <title>${title}</title>
+<meta name="keywords" content="${keywords} 雨无声实验室 广西大学 广西大学雨无声网站 ${author} ${email}" />
 <meta name="description" content="${description} 雨无声实验室 广西大学 广西大学雨无声网站 ${author} ${email} @爱因斯坦的狗" />
 <meta name="author" content="${author}" />
 <meta name="email" content="${email}" />
