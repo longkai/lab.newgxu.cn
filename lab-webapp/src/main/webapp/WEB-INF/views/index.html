@@ -1,0 +1,132 @@
+<#include "macro.ftl" />
+
+<@head title="雨无声实验室">
+<style type="text/css">
+body {
+  padding: 40px 0 40px 0;
+}
+.carousel {
+  margin-bottom: 60px;
+  margin-top: 5px;
+}
+
+.carousel .container {
+  position: relative;
+  z-index: 9;
+}
+
+.carousel-control {
+  height: 80px;
+  margin-top: 0;
+  font-size: 120px;
+  text-shadow: 0 1px 1px rgba(0,0,0,.4);
+  background-color: transparent;
+  border: 0;
+  z-index: 10;
+}
+
+.carousel .item {
+  height: 360px;
+}
+.carousel img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+}
+
+.featurette {
+  padding-bottom: 60px; 
+  overflow: hidden; 
+}
+    
+</style>
+</@head>
+<body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a href="#" class="brand">雨无声实验室</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="active"><a href="#">首页</a></li>
+          <li><a href="#">关于</a></li>
+          <li><a href="#">服务条款</a></li>
+          <li><a href="#">更新说明</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">实验室产品 <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="//share.newgxu.cn">分享平台</a></li>
+              <li><a href="/info/">信息发布平台</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="btn-group pull-right">
+        <a class="btn btn-success" href="#"><i class="icon-home icon-white"></i> 雨无声</a>
+        <a class="btn btn-success dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="//www.newgxu.cn"><i class="icon-home"></i> 首页</a></li>
+          <li><a href="//bbs.newgxu.cn"><i class="icon-hand-right"></i> 雨无声论坛</a></li>
+          <li><a href="//www.newgxu.cn/7.0/html/zxkd/"><i class="icon-hand-right"></i> 雨无声新闻网</a></li>
+          <li><a href="//www.newgxu.cn/7.0/html/sjw/"><i class="icon-hand-right"></i> 雨无声视界网</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="myCarousel" class="carousel slide">
+  <div class="carousel-inner">
+    <div class="item active">
+      <img src="/resources/images/lab/index/lab.jpg" alt="">
+    </div>
+    <div class="item">
+      <img src="/resources/images/lab/index/share.jpg" alt="">
+    </div>
+    <div class="item">
+      <img src="/resources/images/lab/index/info.jpg" alt="">
+    </div>
+  </div>
+  <a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+  <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
+</div><!-- /.carousel -->
+
+<div class="container">
+
+<div class="featurette">
+  <img class="featurette-image pull-right" src="/resources/images/lab/index/lab_feature.png">
+  <h2 class="featurette-heading">雨无声实验室 <span class="muted">创意与创造的地方</span></h2>
+  <p class="lead">雨无声实验室是广西大学雨无声网站推出的一个展现新技术，新产品的平台。 目的在于开发出更多服务于或者方便于西大学生的产品，也给热爱技术的同学们提供一个展现自己的平台。 我们希望在这个实验室里毕业出很多优秀的产品，提供优质的服务。</p>
+</div>
+
+
+<div class="featurette">
+  <img class="featurette-image pull-left" src="/resources/images/lab/index/info_feature.png">
+  <h2 class="featurette-heading">雨无声信息发布平台<span class="muted"> 轻松获取校园一手信息</span></h2>
+  <p class="lead">雨无声信息发布平台是一个服务于广西大学师生的网站。任何校内的组织，学院，比如协会经过认证后都可以在这上面发布信息。任何人都可以通过信息发布平台和Android客户端获取到信息:)</p>
+</div>
+
+
+<div class="featurette">
+  <img class="featurette-image pull-right" src="/resources/images/lab/index/share_feature.png">
+  <h2 class="featurette-heading">雨文分享平台 <span class="muted">西大文库，你值得拥有！</span></h2>
+  <p class="lead">雨文分享平台是一个由西大人共建，共享的一个专门服务于广西大学师生的文档分享平台。同学们可以把自己日常生活，学习，与考试中相关的资料放在这里与大家共享，共同进步，共同打造我们具有西大特色的西大文库！</p>
+</div>
+
+</div>
+<div class="container">
+  <footer>
+    <p>&copy; 2001-2013 newgxu.cn &middot;All Rights Reserved.</p>
+  </footer>
+</div>
+</body>
+<@script>
+<script>
+!function ($) {
+  $(function(){
+    $('#myCarousel').carousel()
+  })
+}(window.jQuery)
+</script>
+</@script>

@@ -138,7 +138,7 @@ public class AuthServiceImpl implements AuthService {
 			user = authDao.find(account, Encryptor.MD5(password));
 		} catch (Exception e) {
 			L.error("用户登录异常！", e);
-			throw new RuntimeException("用户登录异常！", e);
+			throw new RuntimeException("用户名密码错误！", e);
 		}
 		return user;
 	}

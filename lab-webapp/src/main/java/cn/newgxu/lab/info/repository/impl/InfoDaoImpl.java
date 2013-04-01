@@ -54,14 +54,16 @@ public class InfoDaoImpl extends AbstractCommonDaoImpl<Information> implements I
 
 	@Override
 	public List<Information> list(int offset, int number) {
-		return super.executeQuery("FROM Information i", Information.class, offset, number);
+		return em.createNamedQuery("Information.list", Information.class)
+				.setFirstResult(offset).setMaxResults(number)
+				.getResultList();
 	}
 
 	@Override
 	public int newerCount(long pk) {
 		long l = 0L;
 		try {
-			l = em.createNamedQuery("Information.has_new", Long.class)
+			l = em.createNamedQuery("Information.has_new_count", Long.class)
 					.setParameter("id", pk)
 					.getSingleResult();
 		} catch (Exception e) {

@@ -24,7 +24,6 @@ package cn.newgxu.lab.info.entity;
 
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -48,7 +47,11 @@ import javax.persistence.Table;
 @Table(name = "info_info")
 @NamedQueries({ 
 	@NamedQuery(name = "Information.user", query = "FROM Information i WHERE i.user = :user"),
-	@NamedQuery(name = "Information.has_new", query = "SELECT COUNT(*) FROM Information i WHERE i.id > :id")
+	@NamedQuery(name = "Information.has_new", query = "SELECT COUNT(*) FROM Information i WHERE i.id > :id"),
+	@NamedQuery(name = "Information.list", query = "FROM Information i ORDER BY i.id DESC"),
+	@NamedQuery(name = "Information.list_new_count", query = "FROM Information i WHERE i.id > :id ORDER BY i.id DESC"),
+	@NamedQuery(name = "Information.list_old", query = "FROM Information i WHERE i.id < :id ORDER BY i.id DESC"),
+	@NamedQuery(name = "Information.list_user", query = "FROM Information i WHERE i.user = :user AND i.blocked is FALSE ORDER BY i.id DESC")
 })
 public class Information {
 
@@ -56,6 +59,7 @@ public class Information {
 	@GeneratedValue
 	private long			id;
 	private String			title;
+	@Column(length = 10000)
 	private String			content;
 	@Column(name = "click_times")
 	private long			clickTimes;
@@ -67,7 +71,7 @@ public class Information {
 	/** 是否被屏蔽 */
 	private boolean			blocked;
 
-	@ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "auth_user_id")
 	private AuthorizedUser	user;
 

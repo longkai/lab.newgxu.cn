@@ -50,7 +50,7 @@ public interface InfoService {
 	long total();
 
 	List<Information> list(int NO, int howMany);
-
+	
 	/**
 	 * 屏蔽信息。
 	 * @param info 欲屏蔽的信息对象

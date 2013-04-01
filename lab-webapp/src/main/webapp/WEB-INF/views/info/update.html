@@ -1,0 +1,176 @@
+<#include "macro.ftl" />
+
+<@head title="修改认证信息 - 雨无声实验室">
+<style type="text/css">
+body {
+	padding: 60px 0 40px 0;
+}
+#update {
+  max-width: 680px;
+  margin: 20px auto;
+}
+.alert {
+	display: none;
+}
+#auth_info {
+	border: 1px solid #f4f4f4;
+}
+#pwd_update {
+	border: 1px solid #f4f4f4;
+}
+</style>
+</@head>
+<body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			<a href="#" class="brand">信息发布平台</a>
+			<div class="nav-collapse collapse">
+				<ul class="nav">
+					<li><a href="/info/">首页</a></li>
+					<li><a href="/resources/html/info/about.html">关于</a></li>
+					<li><a href="/resources/html/info/auth.html">认证</a></li>
+					<!-- <li><a href="#">认证列表</a></li> -->
+					<li><a href="#">服务条款</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">雨无声实验室 <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="/">首页</a></li>
+							<li><a href="/about.html">关于实验室</a></li>
+						</ul>
+					</li>
+				</ul>
+				<div class="btn-group pull-right">
+				  <a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i> ${Session.info_user.authorizedName}</a>
+				  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+				  <ul class="dropdown-menu">
+				    <li><a href="/resources/html/info/new_info.html"><i class="icon-pencil"></i> 发表信息</a></li>
+				    <li><a href="/info/user/update/${Session.info_user.id}"><i class="icon-edit"></i> 修改个人信息</a></li>
+				    <li><a href="#"><i class="icon-th-list"></i> 查看我发表的信息</a></li>
+				    <li class="divider"></li>
+				    <li id="logout"><a href="/info/logout"><i class="i"></i> 退出</a></li>
+				  </ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container" id="update">
+	<div class="alert alert-success" id="success">
+		<p>修改成功！</p>
+	</div>
+	<div class="alert alert-error" id="error">
+		<p>修改失败！<span id="msg"></span> <span id="reason"></span></p>
+	</div>
+	<form class="form-horizontal" method="post" action="#" id="profile_form">
+	  <p class="text-center text-info">修改认证信息</p>
+	  <div class="control-group">
+	  	<label class="control-label" for="contact">联系方式</label>
+	    <div class="controls">
+	      <input type="text" id="contact" name="contact" value="${au.contact}" required />
+	    </div>
+	  </div>
+	  <div class="control-group">
+	  	<label class="control-label" for="about">关于自己</label>
+	    <div class="controls">
+	      <textarea rows="3" name="about">${au.about}</textarea>
+	    </div>
+	  </div>
+	  <div class="control-group">
+	  	<label class="control-label" for="password">请键入您的密码</label>
+	    <div class="controls">
+	      <input type="password" id="password" name="password" placeholder="" />
+	    </div>
+	  </div>
+	  <div class="control-group">
+	    <div class="controls">
+				<a href="#" role="button" class="btn btn-success" id="update_profile">确认修改！</a>
+	    </div>
+	  </div>
+	</form>
+	<hr />
+	<form action="" class="form-horizontal" id="pwd_update">
+	  <p class="text-center text-info">修改密码</p>
+		<div class="control-group">
+	  	<label class="control-label" for="password">旧密码</label>
+	    <div class="controls">
+	      <input type="password" id="password" name="password" placeholder="" required />
+	    </div>
+	  </div>
+	  <div class="control-group">
+	  	<label class="control-label" for="pwd1">新密码</label>
+	    <div class="controls">
+	      <input type="password" id="pwd1" name="pwd1" placeholder="密码至少6位" required />
+	    </div>
+	  </div>
+	  <div class="control-group">
+	  	<label class="control-label" for="pwd2">确认新密码</label>
+	    <div class="controls">
+	      <input type="password" id="pwd2" name="pwd2" placeholder="密码至少6位" required />
+	    </div>
+	  </div>
+	  <div class="control-group">
+	    <div class="controls">
+				<a href="#" role="button" id="update_pwd" class="btn btn-success">确认修改！</a>
+	    </div>
+	  </div>
+	</form>
+</div>
+</body>
+<@script>
+<script type="text/javascript">
+$(function() {
+	$('#update_pwd').click(function() {
+		$('.alert').hide();
+		$.ajax({
+			url: '/info/user/update/password',
+			type: 'POST',
+			data: $('#pwd_update').serialize(),
+			dataType: 'json',
+			success: function(data) {
+				if (data.status === 'ok') {
+					$('#success').show();
+				} else if (data.status === 'no') {
+					$('#msg').text(data.msg);
+					$('#reason').text(data.reason);
+					$('#error').show();
+				} else {
+					$('#error').show();
+				}
+			},
+			error: function() {
+				$('#error').show();
+			}
+		})
+		$('input[type="password"]').val('');
+		return false;
+	})
+
+	$('#update_profile').click(function() {
+		$('.alert').hide();
+		$.ajax({
+			url: '/info/user/update/profile',
+			type: 'POST',
+			data: $('#profile_form').serialize(),
+			dataType: 'json',
+			success: function(data) {
+				if (data.status === 'ok') {
+					$('#success').show();
+				} else if (data.status === 'no') {
+					$('#msg').text(data.msg);
+					$('#reason').text(data.reason);
+					$('#error').show();
+				} else {
+					$('#error').show();
+				}
+			},
+			error: function() {
+				$('#error').show();
+			}
+		})
+		$('input[type="password"]').val('');
+		return false;
+	})
+})
+</script>
+</@script>

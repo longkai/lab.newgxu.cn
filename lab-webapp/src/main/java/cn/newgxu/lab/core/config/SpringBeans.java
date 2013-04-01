@@ -39,8 +39,12 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfig;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
@@ -59,12 +63,19 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 })
 @EnableTransactionManagement
 @EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
-public class SpringBeans {
+public class SpringBeans extends WebMvcConfigurerAdapter {
 	
 	public static final String[] entityPackages = {
 		"cn.newgxu.lab.core.entity",
 		"cn.newgxu.lab.info.entity"
 	};
+
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
+		registry.addResourceHandler("/favicon.ico").addResourceLocations("/");
+		registry.addResourceHandler("/robots.txt").addResourceLocations("/");
+	}
 
 	@Bean(destroyMethod = "close")
 	public DataSource dataSource() {
@@ -84,13 +95,10 @@ public class SpringBeans {
 		entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 
 		Properties properties = new Properties();
-//		properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+//		properties.setProperty("hibernate.hbm2ddl.auto", "none");
 		properties.setProperty("hibernate.hbm2ddl.auto", "update");
 		entityManagerFactoryBean.setJpaProperties(properties);
 
-//		entityManagerFactoryBean.setPackagesToScan
-//				("cn.newgxu.lab.core.entity",
-//				 "cn.newgxu.lab.app1.entity");
 		entityManagerFactoryBean.setPackagesToScan(entityPackages);
 		return entityManagerFactoryBean;
 	}
@@ -102,9 +110,8 @@ public class SpringBeans {
 //		jpaVendorAdapter.setShowSql(false);
 		jpaVendorAdapter.setDatabase(Database.MYSQL);
 		jpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQL5InnoDBDialect");
-		jpaVendorAdapter.setGenerateDdl(true);
-
-//		jpaVendorAdapter.setGenerateDdl(false);
+//		这里不管怎么设置，实际上最终还是依赖于jpaProperties的相关设置
+		jpaVendorAdapter.setGenerateDdl(false);
 		return jpaVendorAdapter;
 	}
 
@@ -152,6 +159,13 @@ public class SpringBeans {
 		settings.setProperty("template_exception_handler", "ignore");
 		configurer.setFreemarkerSettings(settings);
 		return configurer;
+	}
+	
+//	文件上传
+	@Bean
+	public MultipartResolver multipartResolver() {
+		CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+		return resolver;
 	}
 	
 }

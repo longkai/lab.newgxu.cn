@@ -64,6 +64,7 @@ public class InfoServiceImpl implements InfoService {
 	}
 	
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void create(Information info) {
 		validate(info);
 		
@@ -79,6 +80,7 @@ public class InfoServiceImpl implements InfoService {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public Information update(Information info) {
 		validate(info);
 		
@@ -106,6 +108,7 @@ public class InfoServiceImpl implements InfoService {
 	}
 	
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public Information view(long pk) {
 		Information info = infoDao.find(pk);
 		info.setClickTimes(info.getClickTimes() + 1);
@@ -127,6 +130,7 @@ public class InfoServiceImpl implements InfoService {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public Information block(Information info) {
 		validate(info);
 		

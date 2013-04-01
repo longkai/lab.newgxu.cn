@@ -40,11 +40,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import cn.newgxu.lab.core.common.AjaxConstants;
 import cn.newgxu.lab.info.config.Config;
 import cn.newgxu.lab.info.entity.AuthorizedUser;
 import cn.newgxu.lab.info.entity.Information;
+import cn.newgxu.lab.info.service.AuthService;
 import cn.newgxu.lab.info.service.InfoService;
 
 /**
@@ -60,14 +62,21 @@ import cn.newgxu.lab.info.service.InfoService;
 @Scope("session")
 public class InfoController {
 
-	private static final Logger L = LoggerFactory.getLogger(InfoController.class);
+	private static final Logger L =
+			LoggerFactory.getLogger(InfoController.class);
 	
 	@Inject
 	private InfoService infoService;
 	
+	@Inject
+	private AuthService authService;
+	
 	@RequestMapping({"/", "index", "home"})
 	public String index(Model model) {
-		model.addAttribute("info_list", infoService.list(0, Config.DEFAULT_INFO_LIST_COUNT));
+		List<Information> list = 
+				infoService.list(0, Config.DEFAULT_INFO_LIST_COUNT);
+		model.addAttribute("auth_list", authService.list(0, 5));
+		model.addAttribute("info_list", list);
 		return Config.APP + "/index";
 	}
 	
@@ -79,20 +88,31 @@ public class InfoController {
 	}
 	
 //	REST API!
-	@RequestMapping(value = "/info/{id}", produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@RequestMapping(
+		value	 = "/info/{id}",
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
 	public String view(@PathVariable("id") long id) {
 		Information info = infoService.find(id);
 		return new JSONObject(info).toString();
 	}
 	
-	@RequestMapping(value = "/info/create", method = RequestMethod.POST, produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@RequestMapping(
+		value 		= "/info/create",
+		method 		= RequestMethod.POST,
+		produces 	= AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
-	public String create(Information info, HttpSession session) throws JSONException {
-		AuthorizedUser au = (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+	public String create(
+			Information info,
+			@RequestParam("doc") MultipartFile[] files,
+			HttpSession session) throws JSONException {
+		AuthorizedUser au = 
+				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
 		info.setUser(au);
+		info.setContent(info.getContent());
 		infoService.create(info);
-		
 		JSONObject json = new JSONObject(info);
 		json.put(AjaxConstants.AJAX_STATUS, "ok");
 		return json.toString();
@@ -106,10 +126,16 @@ public class InfoController {
 		return Config.APP + "/modify";
 	}
 	
-	@RequestMapping(value = "/info/modify", method = RequestMethod.POST, produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@RequestMapping(
+		value	 = "/info/modify",
+		method	 = RequestMethod.POST,
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
-	public String modify(Information info, HttpSession session) throws JSONException {
-		AuthorizedUser au = (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+	public String modify(Information info, HttpSession session)
+			throws JSONException {
+		AuthorizedUser au = 
+				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
 		L.info("用户：{} 尝试更新信息:{}", au.getAuthorizedName(), info.getTitle());
 		info.setUser(au);
 		infoService.update(info);
@@ -119,23 +145,49 @@ public class InfoController {
 		return AjaxConstants.JSON_STATUS_OK;
 	}
 	
-	@RequestMapping(value = "/info/newer_than/{local_id}", produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@RequestMapping(
+		value	 = "/info/newer_than/{local_id}",
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
-	public String hasNew(@PathVariable("local_id") long id) throws JSONException {
+	public String hasNew(@PathVariable("local_id") long id)
+			throws JSONException {
 		int count = infoService.newerCount(id);
 		if (count != 0) {
 			JSONObject json = new JSONObject();
 			json.put(AjaxConstants.AJAX_STATUS, "ok");
 			json.put("count", count);
+			return json.toString();
 		}
 		return AjaxConstants.JSON_STATUS_NO;
 	}
 	
-	@RequestMapping(value = "/info/list/{offset}/{count}", produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@RequestMapping(
+		value	 = "/info/list/{offset}/{count}",
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
-	public String list(@PathVariable("offset") int offset, @PathVariable("count") int count) {
+	public String list(
+			@PathVariable("offset") int offset,
+			@PathVariable("count") int count) {
 		List<Information> list = infoService.list(offset, count);
 		return new JSONArray(list).toString();
 	}
+	
+	@RequestMapping(
+		value	 = "/info/list/user/{uid}/{offset}/{count}",
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
+	@ResponseBody
+	public String list(
+			@PathVariable("uid") long uid,
+			@PathVariable("offset") int offset,
+			@PathVariable("count") int count) {
+//		TODO: 查找认证用户所发的信息。
+		List<Information> list = infoService.list(offset, count);
+		return new JSONArray(list).toString();
+	}
+	
+	
 	
 }

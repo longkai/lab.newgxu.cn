@@ -60,25 +60,40 @@ import cn.newgxu.lab.info.service.AuthService;
 @Scope("session")
 public class AuthController {
 
-	private static final Logger	L	= LoggerFactory.getLogger(AuthController.class);
+	private static final Logger	L =
+			LoggerFactory.getLogger(AuthController.class);
 
 	@Inject
 	private AuthService			authService;
 
-	@RequestMapping(value = "/auth", method = RequestMethod.POST, produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@RequestMapping(
+		value	 = "/auth",
+		method	 = RequestMethod.POST,
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
-	public String auth(AuthorizedUser au, @RequestParam(value = "_pwd", defaultValue = "") String _pwd) throws JSONException {
-		L.info("尝试认证用户！单位（组织）：{}，名称：{}，密码：{}", au.getOrg(), au.getAuthorizedName(), au.getPassword());
+	public String auth(
+			AuthorizedUser au,
+			@RequestParam(value = "_pwd", defaultValue = "") String _pwd)
+					throws JSONException {
+		L.info("尝试认证用户！单位（组织）：{}，名称：{}，密码：{}",
+				au.getOrg(), au.getAuthorizedName(), au.getPassword());
 		authService.create(au, _pwd);
 		JSONObject json = new JSONObject(au);
-		json.putOnce(AjaxConstants.AJAX_STATUS, "ok");
+		json.put(AjaxConstants.AJAX_STATUS, "ok");
 		return json.toString();
 	}
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST, produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@RequestMapping(
+		value	 = "/login",
+		method	 = RequestMethod.POST,
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
-	public String login(@RequestParam("account") String account,
-			@RequestParam("pwd") String password, HttpServletRequest request) {
+	public String login(
+			@RequestParam("account") String account,
+			@RequestParam("pwd") String password,
+			HttpServletRequest request) {
 		AuthorizedUser au = authService.login(account, password);
 		if (au != null) {
 			request.getSession().setAttribute(Config.SESSION_USER, au);
@@ -88,7 +103,10 @@ public class AuthController {
 		return AjaxConstants.JSON_STATUS_OK;
 	}
 
-	@RequestMapping(value = "/logout", produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@RequestMapping(
+		value	 = "/logout",
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
 	public String logout(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
@@ -107,37 +125,53 @@ public class AuthController {
 
 	@RequestMapping(value = "/user/update/{type}", method = RequestMethod.POST)
 	@ResponseBody
-	public String resetPwd(@PathVariable("type") String type, AuthorizedUser au, @RequestParam(value = "_pwd", defaultValue = "") String pwd, HttpSession session) {
+	public String resetPwd(@PathVariable("type") String type,
+			@RequestParam("password") String password,
+			@RequestParam(value = "contact", required = false) String contact,
+			@RequestParam(value = "about", required = false) String about,
+			@RequestParam(value = "pwd1", required = false) String pwd1,
+			@RequestParam(value = "pwd2", required = false) String pwd2,
+			HttpSession session) {
 		AuthorizedUser sau = (AuthorizedUser) session
 				.getAttribute(Config.SESSION_USER);
+//		首先验证一下密码是否正确。
+		if (authService.login(sau.getAccount(), password) == null) {
+			throw new IllegalArgumentException("原来的密码错误！");
+		}
 		if (type.equals("password")) {
-			sau.setPassword(au.getPassword());
-			sau = authService.resetPassword(sau, null);
+			sau.setPassword(pwd1);
+			sau = authService.resetPassword(sau, pwd2);
 		} else if (type.equals("profile")) {
-			sau.setContact(au.getContact());
-			sau.setAbout(au.getAbout());
+			sau.setContact(contact);
+			sau.setAbout(about);
 			sau = authService.update(sau);
 		} else {
 			throw new UnsupportedOperationException("不存在的操作！");
 		}
-//		重新把更新后的user设置到session中。
+		// 重新把更新后的user设置到session中。
 		session.setAttribute(Config.SESSION_USER, sau);
 		return AjaxConstants.JSON_STATUS_OK;
 	}
-	
-	@RequestMapping(value = "/user/profile/{uid}", produces = AjaxConstants.MEDIA_TYPE_JSON)
+
+	@RequestMapping(
+		value	 = "/user/profile/{uid}",
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
 	public String profile(@PathVariable("uid") long uid) {
 		AuthorizedUser au = authService.find(uid);
 		return new JSONObject(au).toString();
 	}
-	
-	@RequestMapping(value = "/user/list/{offset}/{count}", produces = AjaxConstants.MEDIA_TYPE_JSON)
+
+	@RequestMapping(
+		value	 = "/user/list/{offset}/{count}",
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
 	@ResponseBody
 	public String list(@PathVariable("offset") int offset,
 			@PathVariable("count") int count) {
 		List<AuthorizedUser> list = authService.list(offset, count);
 		return new JSONArray(list).toString();
 	}
-
+	
 }

@@ -63,7 +63,7 @@ body {
 	    </div>
 	  </div>
 	  <div class="control-group">
-	  	<label class="control-label" for="org">来自</label>
+	  	<label class="control-label" for="org">我是</label>
 	    <div class="controls">
 	      <input type="text" id="org" name="org" placeholder="组织，单位，或者个人" required />
 	    </div>
@@ -77,19 +77,19 @@ body {
 	  <div class="control-group">
 	  	<label class="control-label" for="account">登陆账号</label>
 	    <div class="controls">
-	      <input type="text" id="account" name="account" placeholder="可选，由系统生成" />
+	      <input type="text" id="account" name="account" placeholder="不少于6个字符" />
 	    </div>
 	  </div>
 	  <div class="control-group">
 	  	<label class="control-label" for="password">密码</label>
 	    <div class="controls">
-	      <input type="password" id="password" name="password" placeholder="可选，由系统生成" />
+	      <input type="password" id="password" name="password" placeholder="不少于6个字符" />
 	    </div>
 	  </div>
 	  <div class="control-group">
 	  	<label class="control-label" for="inputPassword">确认密码</label>
 	    <div class="controls">
-	      <input type="password" id="inputPassword" name="_pwd" placeholder="可选，由系统生成" />
+	      <input type="password" id="inputPassword" name="_pwd" placeholder="不少于6个字符" />
 	    </div>
 	  </div>
 	  <div class="control-group">
@@ -110,7 +110,13 @@ body {
 		    <h3 id="myModalLabel">雨无声信息发布条款</h3>
 		  </div>
 		  <div class="modal-body">
-		    <p>雨无声信息发布条款！</p>
+		    <p>请阅读雨无声信息发布条款</p>
+		    <ol>
+		    	<li>发布信息时请认真审核</li>
+		    	<li>雨无声不会做任何修改</li>
+		    	<li>认证用户发布的信息不代表雨无声的立场</li>
+		    	<li>雨无声保留最终解释权</li>
+		    </ol>
 		  </div>
 		  <div class="modal-footer">
 		    <button class="btn btn-danger" id="no" data-dismiss="modal" aria-hidden="true">拒绝</button>
@@ -137,9 +143,6 @@ $(function() {
 			success: function(data) {
 				if (data.status === 'ok') {
 					$('#account').text(data.account);
-					if (data.auto_pwd === 'yes') {
-						$('#_pwd').text('系统生成密码为 ' + data.password + ' 请尽快修改！');
-					}
 					$('#success').fadeIn();
 				} else if (data.status === 'no') {
 					$('#info').text(data.msg);
@@ -153,6 +156,7 @@ $(function() {
 				$('#error').fadeIn();
 			}
 		})
+		return true;
 	})
 })
 </script>

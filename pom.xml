@@ -41,6 +41,7 @@
 		<servlet-api.version>3.0.1</servlet-api.version>
 		<commons-dbcp.version>1.4</commons-dbcp.version>
 		<commons-pool.version>1.6</commons-pool.version>
+		<commons-fileupload.version>1.3</commons-fileupload.version>
 		<hibernate.version>4.2.0.Final</hibernate.version>
 		<mysql.jdbc.version>5.1.24</mysql.jdbc.version>
 		<inject.version>1</inject.version>
