@@ -35,7 +35,13 @@ import cn.newgxu.lab.info.entity.AuthorizedUser;
  * @version 0.1
  */
 public interface AuthService {
-
+	
+	/** 查询最新的列表 */
+	int LIST_LATEST = 1;
+	
+	/** 用于获取更多用户 */
+	int LIST_MORE = 2;
+	
 	/** 创建用户，假如没有明确账号密码，那么系统就会自动生成唯一的账号与密码。 */
 	void create(AuthorizedUser user, String _pwd);
 	
@@ -57,6 +63,8 @@ public interface AuthService {
 	/** 账号名是否存在 */
 	boolean exists(String account);
 	
-	List<AuthorizedUser> list(int offset, int howMany);
+	List<AuthorizedUser> latest();
+	
+	List<AuthorizedUser> more(long lastUid, int count);
 	
 }

@@ -1,0 +1,76 @@
+<#include "macro.ftl" />
+<#include "info/macro.ftl" />
+<@head title="修改信息 - 雨无声实验室">
+<link rel="stylesheet" href="/resources/libs/pagedown/1.1.0/pagedown.css" media="screen" />
+<style type="text/css">
+body {
+	padding: 60px 0 40px 0;
+}
+footer {
+	margin: 20px 0;
+}
+</style>
+</@head>
+<body>
+<@header />
+
+<form action="/info/info/modify?id=${info.id}" method="post" enctype="multipart/form-data" id="info_form">
+<div class="container" id="new">
+	<div class="control-group">
+		<label class="control-label" for="title">信息标题</label>
+		<div class="controls">
+			<input type="text" id="title" name="title" placeholder="信息标题" value="${info.title}" required />
+		</div>
+	</div>
+	<div class="wmd-panel">
+		<div id="wmd-button-bar"></div>
+		<textarea class="wmd-input" id="wmd-input" name="content">${info.content}</textarea>
+		<div class="control-group" id="fileupload">
+			<label for="name">给文件一个名称吧~</label>
+			<input type="text" name="name" id="name" value="${info.docName}" />
+		</div>
+		<div class="control-group" id="fileupload">
+			<input type="file" name="file" />
+		</div>
+		<div class="control-group">
+			<p class="text-info">提示：重新上传文件会把原来上传的文件删除，若确认不需修改上传文件，请留空</p>
+			<p class="text-info">提示：最多只能上传一个文件（单个文件最大5M），超过一个请自行压缩。</p>
+		</div>
+		<div class="control-group" id="fileupload">
+			<input type="submit" value="发布！" id="submit" class="btn btn-success" />
+		</div>
+	</div>
+	<hr />
+	<div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+</div>
+</form>
+<div class="container">
+	<footer>
+		<p>&copy; 2001-2013 newgxu.cn &middot;All Rights Reserved.</p>
+	</footer>
+</div>
+</body>
+<@script>
+<script type="text/javascript" src="/resources/libs/pagedown/1.1.0/Markdown.Converter.js"></script>
+<script type="text/javascript" src="/resources/libs/pagedown/1.1.0/Markdown.Sanitizer.js"></script>
+<script type="text/javascript" src="/resources/libs/pagedown/1.1.0/Markdown.Editor.js"></script>
+<script type="text/javascript">
+(function () {
+	var converter1 = Markdown.getSanitizingConverter();
+	
+	converter1.hooks.chain("preBlockGamut", function (text, rbg) {
+		return text.replace(/^ {0,3}""" *\n((?:.*?\n)+?) {0,3}""" *$/gm, function (whole, inner) {
+			return "<blockquote>" + rbg(inner) + "</blockquote>\n";
+		});
+	});
+
+	var editor1 = new Markdown.Editor(converter1);
+	editor1.run();
+})();
+
+$(function() {
+	// 消除include的影响
+	$('#_index').removeClass('active');
+})
+</script>
+</@script>

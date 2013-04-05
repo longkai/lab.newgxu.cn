@@ -1,91 +1,80 @@
 <#include "macro.ftl" />
-
-<@head title="信息发布平台 - 雨无声实验室">
+<#include "info/macro.ftl" />
+<@head title="${info.title} - 信息发布平台">
 <style type="text/css">
 body {
 	padding: 60px 0 40px 0;
 }
 .container-narrow {
-  margin: 0 auto;
-  max-width: 700px;
+	margin: 0 auto;
+	max-width: 700px;
 }
 .container-narrow > hr {
-  margin: 30px 0;
-}
-.jumbotron {
-  /*margin: 60px 0;*/
+	margin: 30px 0;
 }
 .jumbotron h1 {
-  font-size: 72px;
-  line-height: 1;
+	font-size: 72px;
+	line-height: 1;
 }
 .jumbotron .btn {
-  font-size: 21px;
-  padding: 14px 24px;
+	font-size: 21px;
+	padding: 14px 24px;
 }
-#author {
-	color: red;
+#content {
+	padding: 10px 0;
 }
 #alert {
 	display: none;
 }
+footer {
+	margin: 40px 0;
+}
 </style>
 </@head>
 <body>
-<div class="navbar navbar-inverse navbar-fixed-top">
-	<div class="navbar-inner">
-		<div class="container">
-			<a href="#" class="brand">信息发布平台</a>
-			<div class="nav-collapse collapse">
-				<ul class="nav">
-					<li><a href="/info/">首页</a></li>
-					<li><a href="/resources/html/info/about.html">关于</a></li>
-					<li><a href="/resources/html/info/auth.html">认证</a></li>
-					<!-- <li><a href="#">认证列表</a></li> -->
-					<li><a href="#">服务条款</a></li>
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown">雨无声实验室 <b class="caret"></b></a>
-						<ul class="dropdown-menu">
-							<li><a href="/">首页</a></li>
-							<li><a href="/about.html">关于实验室</a></li>
-						</ul>
-					</li>
-				</ul>
-<#if Session.info_user??>
-				<div class="btn-group pull-right">
-				  <a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i> ${Session.info_user.authorizedName}</a>
-				  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-				  <ul class="dropdown-menu">
-				    <li><a href="/resources/html/info/new_info.html"><i class="icon-pencil"></i> 发表信息</a></li>
-				    <li><a href="/info/user/update/${Session.info_user.id}"><i class="icon-edit"></i> 修改个人信息</a></li>
-				    <li><a href="#"><i class="icon-th-list"></i> 查看我发表的信息</a></li>
-				    <li class="divider"></li>
-				    <li id="logout"><a href="/info/logout"><i class="i"></i> 退出</a></li>
-				  </ul>
-				</div>
-<#else>				
-				<form action="#" class="navbar-form pull-right" method="post" id="login_form">
-					<input type="text" class="span2" name="account" placeholder="账号" required />
-					<input type="password" class="span2" name="pwd" placeholder="密码" required />
-					<button type="button" class="btn">登陆</button>
-				</form>
-</#if>		
-			</div>
+<@header />
+<div class="alert alert-error" id="alert">
+	<p class="text-center"><span id="status"></span><span id="info"></span> <span id="reason"></span></p>
+</div>
+<div class="container-narrow">
+<#-- 假如是来自新建信息后跳转后过来的 -->
+<#if "${RequestParameters.from}" == "-1">
+	<#if "${RequestParameters.status}" == "ok"> <#-- ok，发表正常 -->
+	<div class="alert">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+		<strong>操作成功！</strong>
+	</div>
+	<@view_info />
+	<#else> <#-- no，发表失败 -->
+	<div class="alert" id="info_error">
+		<strong>操作失败！</strong>
+		<div>
+			<a href="javascript:history.go(-1)" class="btn btn-info">返回上一步</a>
+		</div>
+	</div>
+	</#if>
+<#else> <#-- 正常的浏览信息 -->
+	<@view_info />
+</#if>
+</div>
+<div id="modal_profile" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal_profileLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="modal_profileLabel"></h3>
+	</div>
+	<div class="modal-body">
+		<div id="profile">
+			<p>Ta是： <span id="auth_name"></span></p>
+			<p>来自： <span id="org"></span></p>
+			<p>关于Ta： <span id="about"></span></p>
+			<p>联系Ta吧： <span id="contact"></span></p>
 		</div>
 	</div>
 </div>
-
-<div class="container-narrow">
-<div class="jumbotron">
-	<div class="alert alert-error" id="alert">
-		<p class="text-center"><span id="status"></span><span id="info"></span> <span id="reason"></span></p>
-	</div>
-  <h1>${info.title}</h1>
-  <p class="pull-right"><span id="author">${info.user.authorizedName}</span> 发表于 <span class="time">${info.addDate?string('MM-dd HH:mm')}</span></p>
-  <p id="content"></p>
-  <p class="pull-right">最后修改于 <span class="time">${info.lastModifiedDate?string('MM-dd HH:mm')}</span></p>
-</div>
-
+<div class="container">
+	<footer>
+		<p>&copy; 2001-2013 <a href="//www.newgxu.cn">newgxu.cn</a> &middot;All Rights Reserved.</p>
+	</footer>
 </div>
 </body>
 <@script>
@@ -97,9 +86,12 @@ window.onload = function() {
 	$('#content').html(html);
 }
 $(function() {
-	$('#login_form button').click(function() {
+	$('#_index').removeClass('active');
+	$('#login_form button').click(function(e) {
+		e.preventDefault();
 		$('#alert').hide();
 		var params = $('#login_form').serialize();
+		$('#login_form input[type="password"]').val('');
 		$.ajax({
 			type: 'POST',
 			url: '/info/login',
@@ -123,10 +115,10 @@ $(function() {
 				$('#alert').fadeIn();
 			}
 		})
-		return false;
 	})
 
-	$('#logout').click(function() {
+	$('#logout').click(function(e) {
+		e.preventDefault();
 		$('#alert').hide();
 		$.ajax({
 			type: 'GET',
@@ -136,7 +128,27 @@ $(function() {
 		return false;
 	})
 })
+function userDetail(uid) {
+	var url = '/info/user/profile/' + uid;
+	$.ajax({
+		type: 'GET',
+		url: url,
+		dataType: 'json',
+		success: function(data) {
+			if (data.status) {
+				alert('没有找到该用户！');
+				return;
+			}
+			$('#auth_name').text(data.authorizedName);
+			$('#org').text(data.org);
+			$('#about').text(data.about);
+			$('#contact').text(data.contact);
+		},
+		error: function() {
+			alert('没有找到该用户！');
+		}
+	})
+	$('#modal_profile').modal();
+}
 </script>
 </@script>
-
-

@@ -105,8 +105,10 @@ public abstract class AbstractCommonDaoImpl<T> implements CommonDao<T> {
 	 */
 	protected T executeQuery(String hql, Class<T> clazz, Map<String, Object> params) {
 		TypedQuery<T> query = em.createQuery(hql, clazz);
-		for (String name : params.keySet()) {
-			query.setParameter(name, params.get(name));
+		if (params != null) {
+			for (String name : params.keySet()) {
+				query.setParameter(name, params.get(name));
+			}
 		}
 		return query.getSingleResult();
 	}
@@ -122,7 +124,7 @@ public abstract class AbstractCommonDaoImpl<T> implements CommonDao<T> {
 	 */
 	protected List<T> executeQuery(String hql, Class<T> clazz, int offset, int number, Object...objects) {
 		offset = rangeCheck(offset, clazz);
-		TypedQuery<T> query = em.createQuery(hql, clazz);
+		TypedQuery<T> query = em.createNamedQuery(hql, clazz);
 		if (objects != null) {
 			for (int i = 0; i < objects.length; i++) {
 				query.setParameter(i + 1, objects[i]);
@@ -142,9 +144,11 @@ public abstract class AbstractCommonDaoImpl<T> implements CommonDao<T> {
 	 */
 	protected List<T> executeQuery(String hql, Class<T> clazz, int offset, int number, Map<String, Object> params) {
 		offset = rangeCheck(offset, clazz);
-		TypedQuery<T> query = em.createQuery(hql, clazz);
-		for (String name : params.keySet()) {
-			query.setParameter(name, params.get(name));
+		TypedQuery<T> query = em.createNamedQuery(hql, clazz);
+		if (params != null) {
+			for (String name : params.keySet()) {
+				query.setParameter(name, params.get(name));
+			}
 		}
 		return query.setFirstResult(offset).setMaxResults(number).getResultList();
 	}

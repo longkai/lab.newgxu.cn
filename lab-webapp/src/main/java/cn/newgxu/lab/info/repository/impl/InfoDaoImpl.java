@@ -24,6 +24,7 @@ package cn.newgxu.lab.info.repository.impl;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
@@ -53,18 +54,16 @@ public class InfoDaoImpl extends AbstractCommonDaoImpl<Information> implements I
 	}
 
 	@Override
-	public List<Information> list(int offset, int number) {
-		return em.createNamedQuery("Information.list", Information.class)
-				.setFirstResult(offset).setMaxResults(number)
-				.getResultList();
+	public List<Information> list(String query, Map<String, Object> params, int offset, int number) {
+		return super.executeQuery(query, Information.class, offset, number, params);
 	}
 
 	@Override
 	public int newerCount(long pk) {
 		long l = 0L;
 		try {
-			l = em.createNamedQuery("Information.has_new_count", Long.class)
-					.setParameter("id", pk)
+			l = em.createNamedQuery("Information.newer_count", Long.class)
+					.setParameter("last_id", pk)
 					.getSingleResult();
 		} catch (Exception e) {
 			L.error("查询是否有更新时异常！", e);

@@ -45,13 +45,13 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "info_info")
-@NamedQueries({ 
-	@NamedQuery(name = "Information.user", query = "FROM Information i WHERE i.user = :user"),
-	@NamedQuery(name = "Information.has_new", query = "SELECT COUNT(*) FROM Information i WHERE i.id > :id"),
-	@NamedQuery(name = "Information.list", query = "FROM Information i ORDER BY i.id DESC"),
-	@NamedQuery(name = "Information.list_new_count", query = "FROM Information i WHERE i.id > :id ORDER BY i.id DESC"),
-	@NamedQuery(name = "Information.list_old", query = "FROM Information i WHERE i.id < :id ORDER BY i.id DESC"),
-	@NamedQuery(name = "Information.list_user", query = "FROM Information i WHERE i.user = :user AND i.blocked is FALSE ORDER BY i.id DESC")
+@NamedQueries({
+		@NamedQuery(name = "Information.newer_count", query = "SELECT COUNT(*) FROM Information i WHERE i.id > :last_id AND i.blocked IS FALSE"),
+		@NamedQuery(name = "Information.list_newer", query = "FROM Information i WHERE i.id > :last_id ORDER BY i.id DESC"),
+		@NamedQuery(name = "Information.latest", query = "FROM Information i WHERE i.blocked IS FALSE ORDER BY i.id DESC"),
+		@NamedQuery(name = "Information.list_more", query = "FROM Information i WHERE i.id < :last_id AND i.blocked IS FALSE ORDER BY i.id DESC"),
+		@NamedQuery(name = "Information.list_user_latest", query = "FROM Information i WHERE i.user = :user ORDER BY i.id DESC"),
+		@NamedQuery(name = "Information.list_user_more", query = "FROM Information i WHERE i.user = :user AND i.id < :last_id ORDER BY i.id DESC")
 })
 public class Information {
 
@@ -76,8 +76,11 @@ public class Information {
 	private AuthorizedUser	user;
 
 	/** 上传文档的存放路径，采用分隔符来分隔多个文档 */
-	@Column(name = "doc_urls")
-	private String			docUrls;
+	@Column(name = "doc_url")
+	private String			docUrl;
+
+	@Column(name = "doc_name")
+	private String			docName;
 
 	public long getId() {
 		return id;
@@ -143,12 +146,20 @@ public class Information {
 		this.user = user;
 	}
 
-	public String getDocUrls() {
-		return docUrls;
+	public String getDocUrl() {
+		return docUrl;
 	}
 
-	public void setDocUrls(String docUrls) {
-		this.docUrls = docUrls;
+	public void setDocUrl(String docUrl) {
+		this.docUrl = docUrl;
+	}
+
+	public String getDocName() {
+		return docName;
+	}
+
+	public void setDocName(String docName) {
+		this.docName = docName;
 	}
 
 	@Override

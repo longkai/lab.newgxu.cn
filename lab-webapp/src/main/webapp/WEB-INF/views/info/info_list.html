@@ -1,49 +1,192 @@
 <#include "macro.ftl" />
-
+<#include "info/macro.ftl" />
 <@head title="信息列表 - 雨无声实验室">
 <style type="text/css">
 body {
 	padding: 60px 0 40px 0;
 }
+#template {
+	display: none;
+}
+#alert {
+	margin: 20px 0;
+}
+footer {
+	margin: 20px 0;
+}
 </style>
 </@head>
 <body>
-<div class="navbar navbar-inverse navbar-fixed-top">
-	<div class="navbar-inner">
-		<div class="container">
-			<a href="#" class="brand">信息发布平台</a>
-			<div class="nav-collapse collapse">
-				<ul class="nav">
-					<li><a href="/info/">首页</a></li>
-					<li><a href="/resources/html/info/about.html">关于</a></li>
-					<li><a href="/resources/html/info/auth.html">认证</a></li>
-					<!-- <li><a href="#">认证列表</a></li> -->
-					<li><a href="#">服务条款</a></li>
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown">雨无声实验室 <b class="caret"></b></a>
-						<ul class="dropdown-menu">
-							<li><a href="/">首页</a></li>
-							<li><a href="/about.html">关于实验室</a></li>
-						</ul>
-					</li>
-				</ul>
-				<div class="btn-group pull-right">
-				  <a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i> ${Session.info_user.authorizedName}</a>
-				  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-				  <ul class="dropdown-menu">
-				    <li><a href="/resources/html/info/new_info.html"><i class="icon-pencil"></i> 发表信息</a></li>
-				    <li><a href="/info/user/update/${Session.info_user.id}"><i class="icon-edit"></i> 修改个人信息</a></li>
-				    <li><a href="#"><i class="icon-th-list"></i> 查看我发表的信息</a></li>
-				    <li class="divider"></li>
-				    <li id="logout"><a href="/info/logout"><i class="i"></i> 退出</a></li>
-				  </ul>
-				</div>
-			</div>
-		</div>
+<@header />
+
+<div class="container">
+	<table class="table table-striped" id="info_list">
+		<tr class="success">
+			<td>#</td>
+			<td>标题</td>
+			<td>发表日期</td>
+			<td>修改日期</td>
+			<td>上传文件</td>
+			<td>查看次数</td>
+			<td>状态</td>
+			<td>需要修改？</td>
+		</tr>
+<#list info_list as info>
+		<tr>
+			<td>${info_index + 1}</td>
+			<td><code class="title"><a href="/info/info?id=${info.id}" target="_blank">${info.title}</a></code></td>
+			<td><code class="text-info add-date">${info.addDate}</code></td>
+			<td><code class="text-warning modify-date">${info.lastModifiedDate}</code></td>
+	<#if info.docUrl??>
+			<td><code class="upload-file"><a class="text-success" target="_blank" href="${info.docUrl}">${info.docName?default('文件')}</a></code></td>
+	<#else>
+			<td><code class="upload-file">没有上传</code></td>
+	</#if>
+			<td><code class="click-times">${info.clickTimes}</code></td>
+	<#if info.blocked>
+			<td><code class="status">屏蔽</code> <code><a href="/info/info/block/unblock/${info.id}" class="action unblock text-error">解蔽之</a></code></td>
+	<#else>
+			<td><code class="status">正常</code> <code><a href="/info/info/block/block/${info.id}" class="action block text-error">屏蔽之</a></code></td>
+	</#if>
+			<td><code><a href="/info/info/modify?id=${info.id}">走起~</a></code></td>
+		</tr>
+</#list>
+	</table>
+	<button id="more" class="btn btn-block" uid="${Session.info_user.id}" count="3" last_info_id="${last_info_id}">查看更多！</button>
+	<div class="alert alert-error hide" id="alert" full="0">
+		<p class="text-center text-error lead"><span id="msg"></span> <span id="reason"></span></p>
 	</div>
 </div>
 
+<table id="template">
+	<tbody class="item">
+		<tr>
+			<td class="index"></td>
+			<td><code class="title"></code></td>
+			<td><code class="text-info add-date"></code></td>
+			<td><code class="text-warning modify-date"></code></td>
+			<td><code class="upload-file"></code></td>
+			<td><code class="click-times"></code></td>
+			<td><code class="status"></code> <code class="action text-error"</code></td>
+			<td><code class="modify"><a href="#">走起~</a></code></td>
+		</tr>
+	</tbody>
+</table>
+<div class="container">
+	<footer>
+		<p>&copy; 2001-2013 <a href="//www.newgxu.cn">newgxu.cn</a> &middot;All Rights Reserved.</p>
+	</footer>
+</div>
 </body>
 <@script>
+<script type="text/javascript">
+$(function() {
+	$('#_index').removeClass('active');
 
+	$('#more').click(function(e) {
+		e.preventDefault();
+		var isFull = $('#alert').attr('full');
+		if (isFull == 1) {
+			return;
+		}
+		var this$ = $(this);
+		var uid = this$.attr('uid');
+		var last_info_id = this$.attr('last_info_id');
+		var count = this$.attr('count');
+		var url = '/info/info/list/user/' + uid + '/' + last_info_id + '/' + 3;
+		$.ajax({
+			url: url,
+			type: 'GET',
+			dataType: 'json',
+			success: function(data) {
+				if (data.length === 0) {
+					$('#msg').text('没有更多啦！');
+					$('#alert').attr('full', 1).fadeIn();
+					return;
+				}
+				$.each(data, function(i, item) {
+					count++;
+					var _item$ = $('#template .item').children().clone();
+					_item$.find('.index').text(count);
+					_item$.find('.title').append($('<a>').attr('href', '/info/info?id=' + item.id).attr('target', '_blank').text(item.title));
+					_item$.find('.add-date').text(item.addDate.replace(/\.\d$/g, ''));
+					_item$.find('.modify-date').text(item.lastModifiedDate.replace(/\.\d$/g, ''));
+					if (item.docUrl) {
+						var docLink$ = $('<a>').addClass('text-success').attr('href', item.docUrl).attr('target', '_blank');
+						if (item.docName) {
+							docLink$.text(item.docName);
+						} else {
+							docLink$.text('文件');
+						}
+						_item$.find('.upload-file').append(docLink$);
+					} else {
+						_item$.find('.upload-file').text('没有上传');
+					}
+					_item$.find('.click-times').text(item.clickTimes);
+					if (item.blocked) {
+						_item$.find('.status').text('屏蔽');
+						_item$.find('.action').append($('<a>').attr('href', '/info/info/block/unblock/' + item.id).text('解蔽之').addClass('text-error unblock'));
+					} else {
+						_item$.find('.status').text('正常');
+						_item$.find('.action').append($('<a>').attr('href', '/info/info/block/block/' + item.id).text('屏蔽之').addClass('text-error block'));
+					}
+					_item$.find('.modify a').attr('href', '/info/info/modify?id=' + item.id);
+					_item$.appendTo('#info_list');
+
+					if (data.length === i + 1) {
+						this$.attr('last_info_id', item.id);
+					}
+				})
+				this$.attr('count', count);
+			},
+			error: function() {
+				$('#msg').text('加载时出错啦-_-，请稍后再试或者联系管理员');
+			}
+		})
+	})
+
+	$('.action').click(function(e) {
+		e.preventDefault();
+		var this$ = $(this);
+		var url = this$.attr('href');
+		var action = '';
+		if (this$.hasClass('block')) {
+			action = '屏蔽';
+		} else if (this$.hasClass('unblock')) {
+			action = '解蔽';
+		} else {
+			// 不可能出错，除非xx
+			alert('呃-_-，出错了，请您稍后再试！');
+			return;
+		}
+		var msg = '确定要{}吗？'.replace('{}', action);
+		if (!confirm(msg)) {
+			return;
+		}
+
+		$.ajax({
+			url: url,
+			type: 'GET',
+			dataType: 'json',
+			success: function(data) {
+				if (data.status === 'ok') {
+					this$.closest('code').prev().text(action === '屏蔽' ? '屏蔽' : '正常');
+					this$.text(action === '屏蔽' ? '解蔽之' : '屏蔽之');
+					var info_id = url.match(/[0-9]+$/g);
+					this$.attr('href', action === '屏蔽' ? '/info/info/block/unblock/' + info_id : '/info/info/block/block/' + info_id);
+					this$.removeClass(action === '屏蔽' ? 'block' : 'unblock');
+					this$.addClass(action === '屏蔽' ? 'unblock' : 'block');
+				} else if (data.status === 'no') {
+					alert('出错了-_-，错误信息：' + data.msg + ', 原因：' + data.reason);
+				} else {
+					alert('见鬼了-_-，这都能出错，请您稍后再试或者联系管理员！');
+				}
+			},
+			error: function() {
+				alert('见鬼了-_-，这都能出错，请您稍后再试或者联系管理员！');
+			}
+		})
+	})
+})
+</script>
 </@script>

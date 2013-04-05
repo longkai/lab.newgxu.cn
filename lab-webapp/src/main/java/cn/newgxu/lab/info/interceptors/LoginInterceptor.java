@@ -22,6 +22,8 @@
  */
 package cn.newgxu.lab.info.interceptors;
 
+import java.io.PrintWriter;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -48,7 +50,9 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 		HttpSession session = request.getSession(false);
 		if (session == null || session.getAttribute(Config.SESSION_USER) == null) {
 			response.setCharacterEncoding("UTF-8");
-			response.getWriter().write(AjaxConstants.JSON_STATUS_NON_LOGIN);
+			PrintWriter writer = response.getWriter();
+			writer.write(AjaxConstants.JSON_STATUS_NON_LOGIN);
+			writer.close();
 			return false;
 		}
 		return true;

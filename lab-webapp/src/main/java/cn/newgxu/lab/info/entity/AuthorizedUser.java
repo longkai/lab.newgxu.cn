@@ -49,7 +49,8 @@ import cn.newgxu.lab.info.config.AccountType;
 @NamedQueries({
 	@NamedQuery(name = "AuthorizedUser.login", query = "FROM AuthorizedUser au WHERE au.account = :account AND au.password = :password"),
 	@NamedQuery(name = "AuthorizedUser.account", query = "FROM AuthorizedUser au WHERE au.account = :account"),
-	@NamedQuery(name = "AuthorizedUser.list", query = "FROM AuthorizedUser au ORDER BY au.id DESC")
+	@NamedQuery(name = "AuthorizedUser.list_latest", query = "FROM AuthorizedUser au ORDER BY au.id DESC"),
+	@NamedQuery(name = "AuthorizedUser.list_more", query = "FROM AuthorizedUser au WHERE au.id < :last_id ORDER BY au.id DESC")
 })
 public class AuthorizedUser {
 

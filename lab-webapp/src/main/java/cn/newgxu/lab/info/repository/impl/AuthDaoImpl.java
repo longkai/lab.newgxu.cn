@@ -24,6 +24,7 @@ package cn.newgxu.lab.info.repository.impl;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.NoResultException;
 
@@ -55,8 +56,8 @@ public class AuthDaoImpl extends AbstractCommonDaoImpl<AuthorizedUser> implement
 	}
 
 	@Override
-	public List<AuthorizedUser> list(int offset, int number) {
-		return executeQuery("FROM AuthorizedUser au", AuthorizedUser.class, offset, number);
+	public List<AuthorizedUser> list(String query, Map<String, Object> params, int offset, int number) {
+		return super.executeQuery(query, AuthorizedUser.class, offset, number, params);
 	}
 
 	@Override

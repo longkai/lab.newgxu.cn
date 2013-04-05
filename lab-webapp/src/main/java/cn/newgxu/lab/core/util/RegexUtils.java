@@ -84,4 +84,33 @@ public class RegexUtils {
 		return null;
 	}
 	
+	/**
+	 * 文件是否可以上传，这里只是简单地通过文件的后缀名判断（不区分大小写）。
+	 * 默认允许上传的类型有zip, rar, 7z, doc, docx, txt, xls, xlsx, pdf, ppt, pptx, jpg, jpeg, png, gif,
+	 * @param fileName
+	 * @return true or false
+	 */
+	public static boolean uploadable(String fileName) {
+		if (contains(fileName, "(?i)(\\.rar$|\\.zip$|\\.doc$|\\.pdf$|" +
+				"\\.xls$|\\.jpg$|\\.jpeg$|\\.png$|\\.gif$|\\.7z$|" +
+				"\\.docx$|\\.xlsx$|\\.ppt$|\\.pptx$|\\.txt$)")) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 返回文件的扩展名。
+	 * @param fileName
+	 * @return 扩展名，没有则为空串。
+	 */
+	public static String getFileExt(String fileName) {
+		init("\\..+$", fileName);
+		if (matcher.find()) {
+			return matcher.group();
+		}
+//		没有扩展名
+		return "";
+	}
+	
 }

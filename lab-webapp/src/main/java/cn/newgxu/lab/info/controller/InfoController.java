@@ -22,6 +22,9 @@
  */
 package cn.newgxu.lab.info.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -41,8 +44,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import cn.newgxu.lab.core.common.AjaxConstants;
+import cn.newgxu.lab.core.util.Assert;
+import cn.newgxu.lab.core.util.RegexUtils;
 import cn.newgxu.lab.info.config.Config;
 import cn.newgxu.lab.info.entity.AuthorizedUser;
 import cn.newgxu.lab.info.entity.Information;
@@ -74,15 +80,21 @@ public class InfoController {
 	@RequestMapping({"/", "index", "home"})
 	public String index(Model model) {
 		List<Information> list = 
-				infoService.list(0, Config.DEFAULT_INFO_LIST_COUNT);
-		model.addAttribute("auth_list", authService.list(0, 5));
+				infoService.latest();
+		List<AuthorizedUser> auths = authService.latest();
+		model.addAttribute("last_info_id", list.get(list.size() - 1).getId());
+		model.addAttribute("last_user_id", auths.get(auths.size() - 1).getId());
+		model.addAttribute("auth_list", auths);
 		model.addAttribute("info_list", list);
 		return Config.APP + "/index";
 	}
 	
 	@RequestMapping("/info")
 	public String view(@RequestParam("id") long id, Model model) {
-		Information info = infoService.find(id);
+		Information info = infoService.view(id);
+		if (info == null) {
+			throw new IllegalArgumentException("对不起，您所查找的信息不存在！");
+		}
 		model.addAttribute("info", info);
 		return Config.APP + "/view";
 	}
@@ -103,45 +115,81 @@ public class InfoController {
 		method 		= RequestMethod.POST,
 		produces 	= AjaxConstants.MEDIA_TYPE_JSON
 	)
-	@ResponseBody
 	public String create(
 			Information info,
-			@RequestParam("doc") MultipartFile[] files,
-			HttpSession session) throws JSONException {
+			@RequestParam("name") String fileName,
+			@RequestParam("file") MultipartFile file,
+			HttpSession session, RedirectAttributes attributes
+			) throws JSONException {
+
+		fileUpload(info, fileName, file);
+		
 		AuthorizedUser au = 
 				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
 		info.setUser(au);
 		info.setContent(info.getContent());
 		infoService.create(info);
-		JSONObject json = new JSONObject(info);
-		json.put(AjaxConstants.AJAX_STATUS, "ok");
-		return json.toString();
+//		重定向，避免用户刷新重复提交。
+		attributes.addFlashAttribute("from", "-1");
+		attributes.addAttribute("status", "ok");
+		attributes.addAttribute("id", info.getId());
+		return "redirect:/" + Config.APP + "/info";
 	}
-	
+
 	@RequestMapping(value = "/info/modify", method = RequestMethod.GET)
 	public String modify(@RequestParam("id") long id, Model model) {
 		L.info("请求修改发布信息id：{}", id);
 		Information info = infoService.find(id);
+		if (info == null) {
+			throw new IllegalArgumentException("对不起，您所修改的信息不存在！");
+		}
 		model.addAttribute("info", info);
-		return Config.APP + "/modify";
+		return Config.APP + "/modify_info";
 	}
 	
 	@RequestMapping(
 		value	 = "/info/modify",
-		method	 = RequestMethod.POST,
-		produces = AjaxConstants.MEDIA_TYPE_JSON
+		method	 = RequestMethod.POST
+//		produces = AjaxConstants.MEDIA_TYPE_JSON
 	)
-	@ResponseBody
-	public String modify(Information info, HttpSession session)
+	public String modify(Information info,
+			@RequestParam("name") String fileName,
+			@RequestParam("file") MultipartFile file,
+			HttpSession session, RedirectAttributes attributes)
 			throws JSONException {
+		fileUpload(info, fileName, file);
 		AuthorizedUser au = 
 				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		L.info("用户：{} 尝试更新信息:{}", au.getAuthorizedName(), info.getTitle());
 		info.setUser(au);
 		infoService.update(info);
 		
-		JSONObject json = new JSONObject(info);
-		json.put(AjaxConstants.AJAX_STATUS, "ok");
+		attributes.addFlashAttribute("from", "-1");
+		attributes.addAttribute("status", "ok");
+		attributes.addAttribute("id", info.getId());
+		return "redirect:/" + Config.APP + "/info";
+	}
+	
+	@RequestMapping(
+		value	 = "/info/block/{type}/{id}",
+		produces = AjaxConstants.MEDIA_TYPE_JSON
+	)
+	@ResponseBody
+	public String block(@PathVariable("type") String type,
+			@PathVariable("id") long id,
+			HttpSession session) {
+		Assert.notNull("操作类型不能为空！", type);
+		AuthorizedUser au
+			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+		Information info = new Information();
+		info.setId(id);
+		info.setUser(au);
+		if (type.equals("block")) {
+			infoService.block(info, true);
+		} else if (type.equals("unblock")) {
+			infoService.block(info, false);
+		} else {
+			throw new UnsupportedOperationException("不支持的操作！");
+		}
 		return AjaxConstants.JSON_STATUS_OK;
 	}
 	
@@ -163,31 +211,103 @@ public class InfoController {
 	}
 	
 	@RequestMapping(
-		value	 = "/info/list/{offset}/{count}",
+		value	 = "/info/list/{last_id}/{count}",
 		produces = AjaxConstants.MEDIA_TYPE_JSON
 	)
 	@ResponseBody
 	public String list(
-			@PathVariable("offset") int offset,
+			@PathVariable("last_id") long lastId,
 			@PathVariable("count") int count) {
-		List<Information> list = infoService.list(offset, count);
-		return new JSONArray(list).toString();
+		List<Information> list = infoService.more(lastId, count);
+		return new JSONArray(list, false).toString();
 	}
 	
 	@RequestMapping(
-		value	 = "/info/list/user/{uid}/{offset}/{count}",
+		value	 = "/info/list/user/{uid}/{last_id}/{count}",
 		produces = AjaxConstants.MEDIA_TYPE_JSON
 	)
 	@ResponseBody
 	public String list(
 			@PathVariable("uid") long uid,
-			@PathVariable("offset") int offset,
-			@PathVariable("count") int count) {
-//		TODO: 查找认证用户所发的信息。
-		List<Information> list = infoService.list(offset, count);
-		return new JSONArray(list).toString();
+			@PathVariable("last_id") int lastId,
+			@PathVariable("count") int count,
+			HttpSession session) {
+		AuthorizedUser au
+			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+		List<Information> list = infoService.moreByUser(au, lastId, count);
+		return new JSONArray(list, false).toString();
 	}
 	
+	@RequestMapping("/info/list/user/{uid}")
+	public String list(@PathVariable("uid") long uid, Model model,
+			HttpSession session) {
+		AuthorizedUser au 
+			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+		List<Information> list
+			= infoService.listByUser(au, Config.DEFAULT_INFO_LIST_COUNT);
+		model.addAttribute("info_list", list);
+		model.addAttribute("last_info_id", list.get(list.size() - 1).getId());
+		return Config.APP + "/info_list";
+	}
 	
+	private boolean uploadable(MultipartFile file) {
+		if (file.getSize() > Config.MAX_FILE_SIZE) {
+			throw new IllegalArgumentException("上传文件大于5M！上传失败！");
+		}
+		
+		String fileName = file.getOriginalFilename();
+		if (RegexUtils.uploadable(fileName)) {
+			return true;
+		}
+		throw new IllegalArgumentException("上传文件类型不符合规则，上传失败！");
+	}
+	
+	private void fileUpload(Information info, String fileName,
+			MultipartFile file) {
+		try {
+			if (!file.isEmpty()) {
+//				处理之前传过的文件，如果有
+				fileDelete(info);
+				
+				uploadable(file);
+				String originName = file.getOriginalFilename();
+				Calendar now = Calendar.getInstance();
+				String path = now.get(Calendar.YEAR)
+						+ "/" + (now.get(Calendar.MONTH) + 1);
+				File dir = new File(Config.UPLOAD_ABSOLUTE_DIR 
+						+ Config.UPLOAD_RELATIVE_DIR + path + "/");
+				if (!dir.exists()) {
+					if (!dir.mkdirs()) {
+						throw new RuntimeException("写入文件时出错！请联系管理员！");
+					}
+				}
+				
+				String savedFileName = now.getTimeInMillis()
+						+ RegexUtils.getFileExt(originName);
+				file.transferTo(new File(dir.getAbsolutePath()
+						+ "/" + savedFileName));
+				info.setDocUrl(Config.UPLOAD_RELATIVE_DIR
+						+ path + "/" + savedFileName);
+				info.setDocName(fileName);
+			}
+		} catch (IllegalStateException e) {
+			L.error("文件上传失败！", e);
+			throw new RuntimeException("文件上传失败！", e);
+		} catch (IOException e) {
+			L.error("文件上传失败！", e);
+			throw new RuntimeException("文件上传失败！", e);
+		}
+	}
+
+	private void fileDelete(Information info) throws RuntimeException {
+		Information origin = infoService.find(info.getId());
+		Assert.notNull("对不起，您所请求的资源不存在！", origin);
+		if (origin.getDocUrl() != null) {
+			File f = new File(Config.UPLOAD_ABSOLUTE_DIR + origin.getDocUrl());
+			if (!f.delete()) {
+				throw new RuntimeException("删除原有的文件失败！请稍后再试或者联系管理员！");
+			}
+		}
+	}
 	
 }

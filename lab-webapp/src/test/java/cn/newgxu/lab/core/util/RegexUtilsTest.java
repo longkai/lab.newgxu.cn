@@ -20,37 +20,43 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.core.common;
+package cn.newgxu.lab.core.util;
+
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+
+import org.junit.Test;
 
 /**
- * 一些常量，一般都是lab中约定的。
  * 
  * @author longkai
  * @email im.longkai@gmail.com
- * @since 2013-3-29
+ * @since 2013-4-4
  * @version 0.1
  */
-public class AjaxConstants {
+public class RegexUtilsTest {
+
+	@Test
+	public void testUploadable() {
+		String file1 = "hello/t.txt";
+		String file2 = "你好.DOC";
+		String file3 = "ps.hello.psd";
+		String file4 = "test.js.jpeg";
+		
+		assertThat(RegexUtils.uploadable(file1), is(true));
+		assertThat(RegexUtils.uploadable(file2), is(true));
+		assertThat(RegexUtils.uploadable(file3), is(false));
+		assertThat(RegexUtils.uploadable(file4), is(true));
+	}
 	
-	/** json格式，包含utf8编码 */
-	public static final String MEDIA_TYPE_JSON = "application/json;charset=utf-8";
-	
-	/** ajax请求的状态 */
-	public static final String AJAX_STATUS = "status";
-	
-	/** ajax请求返回的信息键 */
-	public static final String AJAX_MESSAGE = "msg";
-	
-	/** 产生异常的原因 */
-	public static final String EXP_REASON = "reason";
-	
-	/** 默认的ajax请求成功标记 */
-	public static final String JSON_STATUS_OK = "{\"status\":\"ok\"}";
-	
-	/** 默认的ajax请求失败标记 */
-	public static final String JSON_STATUS_NO = "{\"status\":\"no\"}";
-	
-	/** 默认的登录拦截成功信息 */
-	public static final String JSON_STATUS_NON_LOGIN = "{\"status\":\"no\",\"msg\":\"non_login\",\"reason\":\"请您登陆后再进行相关操作！\"}";
-	
+	@Test
+	public void testFileExt() {
+		String f1 = "/resources/images/hello.jpg";
+		String ext1 = RegexUtils.getFileExt(f1);
+		assertThat(ext1, is(".jpg"));
+		String f2 = "hello";
+		String ext2 = RegexUtils.getFileExt(f2);
+		assertThat(ext2, is(""));
+	}
+
 }

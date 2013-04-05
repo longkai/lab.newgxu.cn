@@ -1,5 +1,5 @@
 <#include "macro.ftl" />
-
+<#include "info/macro.ftl" />
 <@head title="信息发布平台 - 雨无声实验室">
 <style type="text/css">
 body {
@@ -15,113 +15,94 @@ body {
 .alert {
 	display: none;
 }
+.info {
+	overflow: hidden;
+	height: 200px;
+}
 </style>
 </@head>
 <body>
-<div class="navbar navbar-inverse navbar-fixed-top">
-	<div class="navbar-inner">
-		<div class="container">
-			<a href="#" class="brand">信息发布平台</a>
-			<div class="nav-collapse collapse">
-				<ul class="nav">
-					<li class="active"><a href="/info/">首页</a></li>
-					<li><a href="/resources/html/info/about.html">关于</a></li>
-					<li><a href="/resources/html/info/auth.html">认证</a></li>
-					<!-- <li><a href="#">认证列表</a></li> -->
-					<li><a href="#">服务条款</a></li>
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown">雨无声实验室 <b class="caret"></b></a>
-						<ul class="dropdown-menu">
-							<li><a href="/home">首页</a></li>
-							<li><a href="/resources/html/about.html">关于实验室</a></li>
-						</ul>
-					</li>
-				</ul>
-<#if Session.info_user??>
-				<div class="btn-group pull-right">
-				  <a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i> ${Session.info_user.authorizedName}</a>
-				  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-				  <ul class="dropdown-menu">
-				    <li><a href="/resources/html/info/new_info.html"><i class="icon-pencil"></i> 发表信息</a></li>
-				    <li><a href="/info/user/update/${Session.info_user.id}"><i class="icon-edit"></i> 修改个人信息</a></li>
-				    <li><a href="#"><i class="icon-th-list"></i> 查看我发表的信息</a></li>
-				    <li class="divider"></li>
-				    <li id="logout"><a href="#"><i class="i"></i> 退出</a></li>
-				  </ul>
+<@header />
+<div class="container">
+	<div class="alert alert-error" id="alert">
+			<p class="text-center"><span id="status"></span><span id="info"></span> <span id="reason"></span></p>
+	</div>
+	<div class="carousel">
+		<div class="item active">
+			<img src="/resources/images/info.jpg" class="img-rounded" alt="">
+			<div class="container">
+				<div class="carousel-caption">
+					<!-- <p class="" style="width: 60%;">雨无声信息发布平台是一个服务于广西大学师生的网站。任何校内的组织，学院，比如协会经过认证后都可以在这上面发布信息。任何人都可以通过信息发布平台和Android客户端获取到信息:)</p> -->
+					<span id="buttons"><a href="/resources/html/info/auth.html" class="btn btn-info btn-large">详细介绍</a>&nbsp;&nbsp;<a href="/resources/html/info/auth.html" class="btn btn-success btn-large">申请认证</a></span>
 				</div>
-<#else>				
-				<form action="#" class="navbar-form pull-right" method="post" id="login_form">
-					<input type="text" class="span2" name="account" placeholder="账号" required />
-					<input type="password" class="span2" name="pwd" placeholder="密码" required />
-					<button type="button" class="btn">登陆</button>
-				</form>
-</#if>		
 			</div>
 		</div>
 	</div>
-</div>
-<div class="container">
-<div class="alert alert-error" id="alert">
-		<p class="text-center"><span id="status"></span><span id="info"></span> <span id="reason"></span></p>
-</div>
-	<div class="carousel">
-    <div class="item active">
-      <img src="/resources/images/info.jpg" class="img-rounded" alt="">
-      <div class="container">
-        <div class="carousel-caption">
-          <!-- <p class="" style="width: 60%;">雨无声信息发布平台是一个服务于广西大学师生的网站。任何校内的组织，学院，比如协会经过认证后都可以在这上面发布信息。任何人都可以通过信息发布平台和Android客户端获取到信息:)</p> -->
-          <span id="buttons"><a href="/resources/html/info/auth.html" class="btn btn-info btn-large">详细介绍</a>&nbsp;&nbsp;<a href="#" class="btn btn-success btn-large">申请认证</a></span>
-        </div>
-      </div>
-    </div>
-   </div>
 </div>
 
 <div class="container">
 	<div class="row">
 		<div class="span3">
-			<ul class="nav nav-list">
-			  <li class="nav-header">最新认证</li>
-<#list auth_list as u>			  
-			  <li><a href="#">${u.authorizedName}</a></li>
-</#list>			  
+			<ul class="nav nav-list" id="latest_auth_list">
+				<li class="nav-header">最新认证</li>
+<#list auth_list as au>
+				<li><a href="#" uid="${au.id}" class="view_profile">${au.authorizedName}</a></li>
+</#list>
 			</ul>
-			<a href="#" class="btn btn-block btn-info">查看更多</a>
+			<a id="more_user" last_user_id="${last_user_id}" href="#" class="btn btn-block btn-info">查看更多</a>
+			<div class="alert" id="more_error">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				<strong></strong>
+			</div>
 		</div>
 		<div class="span9">
-			<div class="row">
-<#list info_list as i>				
-				<div class="span3">
-					<h4>${i.title}</h4>
-	<#if i.content?length lt 100>					
-		      <p>${i.content} </p>
-	<#else>
-					<p>${i.content[0..99]} </p>
-	</#if>		      
-		      <p><a class="btn" href="/info/info?id=${i.id}">详细 &raquo;</a></p>
+			<div class="row" id="info_list">
+<#list info_list as info>
+				<div class="span3 info">
+					<h4>${info.title}</h4>
+					<p>${info.content?html}</p>
+					<p><a class="btn" href="/info/info?id=21">详细 &raquo;</a></p>
 				</div>
-</#list>			
+</#list>
+			</div>
+			<a href="#" id="more_info" last_info_id="${last_info_id}" class="btn btn-block">查看更多</a>
+			<div class="alert" id="more_info_error">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				<strong></strong>
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="span9 offset3">
-			<p><a href="#" class="btn btn-block">查看更多</a></p>
+
+	<div id="modal_profile" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal_profileLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="modal_profileLabel"></h3>
+		</div>
+		<div class="modal-body">
+			<div id="profile">
+				<p>Ta是： <span id="auth_name"></span></p>
+				<p>来自： <span id="org"></span></p>
+				<p>关于Ta： <span id="about"></span></p>
+				<p>联系Ta吧： <span id="contact"></span></p>
+			</div>
 		</div>
 	</div>
 </div>
 <div class="container">
 	<footer>
-	  <p>&copy; 2001-2013 newgxu.cn &middot;All Rights Reserved.</p>
+		<p>&copy; 2001-2013 <a href="//www.newgxu.cn">newgxu.cn</a> &middot;All Rights Reserved.</p>
 	</footer>
 </div>
 </body>
 <@script>
 <script type="text/javascript">
 $(function() {
-	$('#login_form button').click(function() {
+	$('#profile span').addClass('text-info');
+	$('#login_form button').click(function(e) {
+		e.preventDefault();
 		$('#alert').hide();
 		var params = $('#login_form').serialize();
+		$('#login_form input[type="password"]').val('');
 		$.ajax({
 			type: 'POST',
 			url: '/info/login',
@@ -145,18 +126,109 @@ $(function() {
 				$('#alert').fadeIn();
 			}
 		})
-		return false;
 	})
 
-	$('#logout').click(function() {
+	$('#logout').click(function(e) {
+		e.preventDefault();
 		$('#alert').hide();
 		$.ajax({
 			type: 'GET',
 			url: '/info/logout',
 		})
 		location.reload();
-		return false;
+	})
+
+	$('#latest_auth_list > li > a').click(function(e) {
+		e.preventDefault();
+		var uid = $(this).attr('uid');
+		userDetail(uid);
+	})
+
+	$('#more_user').click(function(e) {
+		e.preventDefault();
+		var last = $(this).attr('last_user_id');
+		$.ajax({
+			url: '/info/user/list/' + last + '/' + 5,
+			success: function(data) {
+				if (data.length === 0) {
+					$('#more_error strong').text('没有更多啦！');
+					$('#more_error').show();
+					return;
+				}
+				$.each(data, function(i, item) {
+					var html = '<li><a href="javascript:userDetail({id})" uid="{id}" class="view_profile">{name}</a></li>';
+					html = html.replace('{id}', item.id).replace('{name}', item.authorizedName);
+					$(html).appendTo('#latest_auth_list');
+					if (i === data.length - 1) {
+						$('#more_user').attr('last_user_id', item.id);
+					}
+				})
+			},
+			error: function() {
+				alert('出错啦！请稍后再试');
+				return;
+			}
+		})
+	})
+
+	$('#more_info').click(function(e) {
+		e.preventDefault();
+		var last = $(this).attr('last_info_id');
+		$('#more_info_error').hide();
+		$.ajax({
+			url: '/info/info/list/' + last + '/' + 3,
+			type: 'GET',
+			dataType: 'json',
+			success: function(data) {
+				if (data.length === 0) {
+					$('#more_info_error strong').text('没有更多啦！');
+					$('#more_info_error').show();
+				} else {
+					$.each(data, function(i, item) {
+						var content = '';
+						if (item.content.length < 100) {
+							content = item.content;
+						} else {
+							content = item.content.substring(0, 99);
+						}
+						$('<div>').addClass('span3 info').append($('<h4>').text(item.title)).append($('<p>').text(content))
+							.append($('<p>').append($('<a>').addClass('btn').attr('href', '/info/info?id=' + item.id).html('详细 &raquo;'))).appendTo('#info_list');
+
+						if (i === data.length - 1) {
+							$('#more_info').attr('last_info_id', item.id);
+						}
+					})
+				}
+			},
+			error: function() {
+				$('#more_info_error strong').text('出错啦！请稍后再试');
+				$('#more_info_error').show();
+			}
+		})
 	})
 })
+
+function userDetail(uid) {
+	var url = '/info/user/profile/' + uid;
+	$.ajax({
+		type: 'GET',
+		url: url,
+		dataType: 'json',
+		success: function(data) {
+			if (data.status) {
+				alert('没有找到该用户！');
+				return;
+			}
+			$('#auth_name').text(data.authorizedName);
+			$('#org').text(data.org);
+			$('#about').text(data.about);
+			$('#contact').text(data.contact);
+		},
+		error: function() {
+			alert('没有找到该用户！');
+		}
+	})
+	$('#modal_profile').modal();
+}
 </script>
 </@script>

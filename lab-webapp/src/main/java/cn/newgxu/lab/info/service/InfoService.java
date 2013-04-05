@@ -24,6 +24,7 @@ package cn.newgxu.lab.info.service;
 
 import java.util.List;
 
+import cn.newgxu.lab.info.entity.AuthorizedUser;
 import cn.newgxu.lab.info.entity.Information;
 
 /**
@@ -49,13 +50,22 @@ public interface InfoService {
 
 	long total();
 
-	List<Information> list(int NO, int howMany);
+	List<Information> latest();
+	
+	List<Information> more(long lastId, int count);
+	
+	List<Information> listByUser(AuthorizedUser au, int count);
+	
+	List<Information> moreByUser(AuthorizedUser au, long lastId, int count);
+	
+	List<Information> listNewer(long lastId, int count);
 	
 	/**
 	 * 屏蔽信息。
-	 * @param info 欲屏蔽的信息对象
+	 * @param info 欲屏蔽或者解蔽的信息对象
+	 * @param blocked 你懂的
 	 */
-	Information block(Information info);
+	Information block(Information info, boolean blocked);
 
 	/**
 	 * 是否有更新，判断是否有比传过来的参数更大的主键 

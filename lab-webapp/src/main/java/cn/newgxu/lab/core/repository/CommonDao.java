@@ -24,6 +24,7 @@ package cn.newgxu.lab.core.repository;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 通用的数据访问接口，包含简单的增删改查列表和总记录数方法。
@@ -68,10 +69,12 @@ public interface CommonDao<T> {
 	
 	/**
 	 * 获取实体类对象的列表。
+	 * @param query 查询hql
+	 * @param params 查询参数
 	 * @param offset 偏移量，即，从第几条记录开始取
 	 * @param number 抓取数，即，抓取多少条记录
 	 * @return 实体类对象列表
 	 */
-	List<T> list(int offset, int number);
+	List<T> list(String query, Map<String, Object> params, int offset, int number);
 	
 }

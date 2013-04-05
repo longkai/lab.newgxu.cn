@@ -23,7 +23,9 @@
 package cn.newgxu.lab.info.service.impl;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.info.config.Config;
+import cn.newgxu.lab.info.entity.AuthorizedUser;
 import cn.newgxu.lab.info.entity.Information;
 import cn.newgxu.lab.info.repository.InfoDao;
 import cn.newgxu.lab.info.service.InfoService;
@@ -61,6 +64,17 @@ public class InfoServiceImpl implements InfoService {
 		Assert.notNull("认证用户不能为空！", info.getUser());
 		Assert.notEmpty("信息标题不能为空！", info.getTitle());
 		Assert.notEmpty("信息内容不能为空！", info.getContent());
+//		文件名和路径绝对不能是空串
+		if (info.getDocName() != null) {
+			if (info.getDocName().trim().equals("")) {
+				throw new IllegalArgumentException("文件名不能是空的啊亲！");
+			}
+		}
+		if (info.getDocUrl() != null) {
+			if (info.getDocUrl().trim().equals("")) {
+				throw new IllegalArgumentException("文件路径不能是空的啊亲！");
+			}
+		}
 	}
 	
 	@Override
@@ -86,16 +100,18 @@ public class InfoServiceImpl implements InfoService {
 		
 		Information i = infoDao.find(info.getId());
 		
-//		检测信息的作者是否为同一人
-		if (!i.getUser().equals(info.getUser())) {
-			throw new RuntimeException("对不起，这条信息不是您发布的，您无权修改它！");
-		}
+		safeCheck(info, i);
 		
 		i.setLastModifiedDate(new Date());
 		i.setTitle(info.getTitle());
 		i.setContent(info.getContent());
-//		TODO: 如何更优雅地处理文件的上传管理（crud）
-		i.setDocUrls(info.getDocUrls());
+//		文件上传处理
+		if (info.getDocName() != null) {
+			i.setDocName(info.getDocName());
+		}
+		if (info.getDocUrl() != null) {
+			i.setDocUrl(info.getDocUrl());
+		}
 		
 		infoDao.merge(i);
 		L.info("信息：{} 修改成功！", info.getTitle());
@@ -122,30 +138,77 @@ public class InfoServiceImpl implements InfoService {
 	}
 
 	@Override
-	public List<Information> list(int NO, int howMany) {
-		if (howMany <= 0) {
-			howMany = Config.DEFAULT_INFO_LIST_COUNT;
-		}
-		return infoDao.list(NO, howMany);
+	public List<Information> latest() {
+		return infoDao.list("Information.latest", null, 0, Config.DEFAULT_INFO_LIST_COUNT);
+	}
+	
+	@Override
+	public List<Information> more(long lastId, int count) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("last_id", lastId);
+		return infoDao.list("Information.list_more", param, 0, count);
+	}
+	
+	@Override
+	public List<Information> listByUser(AuthorizedUser au, int count) {
+		Map<String, Object> param = new HashMap<String, Object>(1);
+		param.put("user", au);
+		return infoDao.list("Information.list_user_latest", param, 0, count);
+	}
+
+	@Override
+	public List<Information> moreByUser(AuthorizedUser au, long lastId,
+			int count) {
+		Map<String, Object> params = new HashMap<String, Object>(2);
+		params.put("user", au);
+		params.put("last_id", lastId);
+		return infoDao.list("Information.list_user_more", params, 0, count);
+	}
+
+	@Override
+	public List<Information> listNewer(long lastId, int count) {
+		Map<String, Object> param = new HashMap<String, Object>(1);
+		param.put("last_id", lastId);
+		return infoDao.list("Information.list_newer", param, 0, count);
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public Information block(Information info) {
-		validate(info);
-		
+	public Information block(Information info, boolean blocked) {
 		Information i = infoDao.find(info.getId());
-		i.setBlocked(true);
+		
+		safeCheck(info, i);
+		
+		if (blocked) {
+			i.setBlocked(true);
+		} else {
+			i.setBlocked(false);
+		}
 		
 		infoDao.merge(i);
 		
-		L.info("信息：{} 屏蔽成功！", i.getTitle());
+		L.info("信息：{} 屏蔽?：{}成功！", i.getTitle(), blocked);
 		return i;
+	}
+
+	/**
+	 * 1，检查数据库是否存在该信息；2，检查信息的发布者是否是同一人
+	 * @param info
+	 * @param i
+	 * @throws SecurityException
+	 */
+	private void safeCheck(Information info, Information i)
+			throws SecurityException {
+		Assert.notNull("对不起，您所访问的信息不存在！", i);
+		
+		if (!i.getUser().equals(info.getUser())) {
+			throw new SecurityException("对不起，这条信息不是您发布的，您无权对其进行操作！");
+		}
 	}
 
 	@Override
 	public int newerCount(long pk) {
 		return infoDao.newerCount(pk);
 	}
-
+	
 }

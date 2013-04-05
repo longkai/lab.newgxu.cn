@@ -120,7 +120,7 @@ public class AuthController {
 	public String update(@PathVariable("uid") int uid, Model model) {
 		AuthorizedUser au = authService.find(uid);
 		model.addAttribute("au", au);
-		return Config.APP + "/update";
+		return Config.APP + "/update_user";
 	}
 
 	@RequestMapping(value = "/user/update/{type}", method = RequestMethod.POST)
@@ -164,14 +164,15 @@ public class AuthController {
 	}
 
 	@RequestMapping(
-		value	 = "/user/list/{offset}/{count}",
+		value	 = "/user/list/{last_uid}/{count}",
 		produces = AjaxConstants.MEDIA_TYPE_JSON
 	)
 	@ResponseBody
-	public String list(@PathVariable("offset") int offset,
+	public String list(@PathVariable("last_uid") long lastUid,
 			@PathVariable("count") int count) {
-		List<AuthorizedUser> list = authService.list(offset, count);
-		return new JSONArray(list).toString();
+		List<AuthorizedUser> list = authService.more(lastUid, count);
+//		直接用list构造json失败的话可以使用这个构造方法。
+		return new JSONArray(list, false).toString();
 	}
 	
 }

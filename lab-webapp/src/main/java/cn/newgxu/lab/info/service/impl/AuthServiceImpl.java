@@ -23,7 +23,9 @@
 package cn.newgxu.lab.info.service.impl;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -154,11 +156,15 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<AuthorizedUser> list(int offset, int howMany) {
-		if (howMany <= 0) {
-			howMany = Config.DEFAULT_USER_LIST_COUNT;
-		}
-		return authDao.list(offset, howMany);
+	public List<AuthorizedUser> latest() {
+		return authDao.list("AuthorizedUser.list_latest", null, 0, Config.DEFAULT_USER_LIST_COUNT);
+	}
+
+	@Override
+	public List<AuthorizedUser> more(long lastUid, int count) {
+		Map<String, Object> param = new HashMap<String, Object>(1);
+		param.put("last_id", lastUid);
+		return authDao.list("AuthorizedUser.list_more", param, 0, count);
 	}
 
 }

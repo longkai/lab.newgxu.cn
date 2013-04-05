@@ -42,15 +42,33 @@ public class Config {
 	public static final String DOC_URL_DELIMITER = "|";
 	
 	/** 默认的一次用户列表请求抓取数量 */
-	public static final int DEFAULT_USER_LIST_COUNT = 10;
+	public static final int DEFAULT_USER_LIST_COUNT = 5;
+	
+	/** 一次性最多抓取的用户列表数 */
+	public static final int MAX_USER_LIST_COUNT = 50;
+	
+	/** 一次性最多抓取的信息列表数 */
+	public static final int MAX_INFO_LIST_COUNT = 20;
 	
 	/** 默认的一次信息列表请求抓取数量 */
-	public static final int DEFAULT_INFO_LIST_COUNT = 5;
+	public static final int DEFAULT_INFO_LIST_COUNT = 3;
 	
 	/** 密码的最小长度 */
 	public static final int MIN_PASSWORD_LENGTH = 6;
 	
 	/** 账号的最小长度 */
 	public static final int MIN_ACCOUNT_LENGTH = 6;
+	
+	/** 文件上传最大大小 5M */
+	public static final long MAX_FILE_SIZE = 1024 * 1000 * 5;
+	
+	/** 默认的上传文件保存模式 */
+	public static final String DEFAULT_FILE_NAME_PATTERN = "yyyyMMddHHmmss";
+	
+	/** 文件上传的绝对路径 */
+	public static final String UPLOAD_ABSOLUTE_DIR = "E:/usr/local/src/coding4fun/lab.newgxu.cn/lab-webapp/src/main/webapp";
+	
+	/** 文件上传存放的相对路径 */
+	public static final String UPLOAD_RELATIVE_DIR = "/resources/upload/info/";
 	
 }
