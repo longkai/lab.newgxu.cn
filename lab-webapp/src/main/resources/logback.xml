@@ -3,7 +3,7 @@
 	<contextName>log</contextName>
 
 	<!-- server -->
-	<!-- <property name="LOG_HOME" value="/newgxu/jetty-8.1.10/logs/logback/" /> -->
+	<!-- <property name="LOG_HOME" value="/newgxu/jetty-8.1.10/logs/logback/" />  -->
 	<!-- local -->
 	<property name="LOG_HOME" value="target/logs" />
 
@@ -98,8 +98,8 @@
 	
 	<!-- server -->
 	<!-- <root level="INFO">
-		<appender-ref ref="STDOUT" />
 		<appender-ref ref="DAILYFILE" />
+		<appender-ref ref="STDOUT" />
 		<appender-ref ref="STDERR" />
-	</root> -->
+	</root>  -->
 </configuration>

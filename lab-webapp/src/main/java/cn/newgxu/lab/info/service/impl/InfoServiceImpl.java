@@ -127,6 +127,7 @@ public class InfoServiceImpl implements InfoService {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public Information view(long pk) {
 		Information info = infoDao.find(pk);
+		Assert.notNull("对不起，您所访问的信息不存在！", info);
 		info.setClickTimes(info.getClickTimes() + 1);
 		infoDao.merge(info);
 		return info;

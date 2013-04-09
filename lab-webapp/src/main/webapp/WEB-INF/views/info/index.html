@@ -29,7 +29,7 @@ body {
 	</div>
 	<div class="carousel">
 		<div class="item active">
-			<img src="/resources/images/info.jpg" class="img-rounded" alt="">
+			<img src="/resources/images/info/info.jpg" class="img-rounded" alt="">
 			<div class="container">
 				<div class="carousel-caption">
 					<!-- <p class="" style="width: 60%;">雨无声信息发布平台是一个服务于广西大学师生的网站。任何校内的组织，学院，比如协会经过认证后都可以在这上面发布信息。任何人都可以通过信息发布平台和Android客户端获取到信息:)</p> -->
@@ -61,7 +61,7 @@ body {
 				<div class="span3 info">
 					<h4>${info.title}</h4>
 					<p>${info.content?html}</p>
-					<p><a class="btn" href="/info/info?id=21">详细 &raquo;</a></p>
+					<p><a class="btn" href="/info/info?id=${info.id}">详细 &raquo;</a></p>
 				</div>
 </#list>
 			</div>

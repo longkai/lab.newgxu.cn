@@ -13,6 +13,7 @@
 			<mvc:mapping path="/info/info/list/user/**" />
 			<mvc:mapping path="/info/user/update/*" />
 			
+			<mvc:mapping path="/jsonp" />
 			<bean class="cn.newgxu.lab.info.interceptors.LoginInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>

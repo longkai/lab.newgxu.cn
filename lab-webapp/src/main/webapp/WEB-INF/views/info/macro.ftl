@@ -10,6 +10,7 @@
 					<li><a href="/resources/html/info/about.html">关于</a></li>
 					<li><a href="/resources/html/info/auth.html">认证</a></li>
 					<li><a href="#">服务条款</a></li>
+					<li><a href="/resources/html/info/help.html">操作指南</a></li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">雨无声实验室 <b class="caret"></b></a>
 						<ul class="dropdown-menu">

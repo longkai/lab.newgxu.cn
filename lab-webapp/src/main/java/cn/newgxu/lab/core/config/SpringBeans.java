@@ -95,8 +95,8 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 
 		Properties properties = new Properties();
-//		properties.setProperty("hibernate.hbm2ddl.auto", "none");
-		properties.setProperty("hibernate.hbm2ddl.auto", "update");
+		properties.setProperty("hibernate.hbm2ddl.auto", "none");
+//		properties.setProperty("hibernate.hbm2ddl.auto", "update");
 		entityManagerFactoryBean.setJpaProperties(properties);
 
 		entityManagerFactoryBean.setPackagesToScan(entityPackages);
@@ -106,8 +106,8 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 	@Bean
 	public JpaVendorAdapter jpaVendorAdapter() {
 		HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-		jpaVendorAdapter.setShowSql(true);
-//		jpaVendorAdapter.setShowSql(false);
+//		jpaVendorAdapter.setShowSql(true);
+		jpaVendorAdapter.setShowSql(false);
 		jpaVendorAdapter.setDatabase(Database.MYSQL);
 		jpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQL5InnoDBDialect");
 //		这里不管怎么设置，实际上最终还是依赖于jpaProperties的相关设置

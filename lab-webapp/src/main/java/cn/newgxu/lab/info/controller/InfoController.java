@@ -82,8 +82,12 @@ public class InfoController {
 		List<Information> list = 
 				infoService.latest();
 		List<AuthorizedUser> auths = authService.latest();
-		model.addAttribute("last_info_id", list.get(list.size() - 1).getId());
-		model.addAttribute("last_user_id", auths.get(auths.size() - 1).getId());
+		if (list != null && list.size() > 0) {
+			model.addAttribute("last_info_id", list.get(list.size() - 1).getId());
+		}
+		if (auths != null && auths.size() > 0) {
+			model.addAttribute("last_user_id", auths.get(auths.size() - 1).getId());
+		}
 		model.addAttribute("auth_list", auths);
 		model.addAttribute("info_list", list);
 		return Config.APP + "/index";

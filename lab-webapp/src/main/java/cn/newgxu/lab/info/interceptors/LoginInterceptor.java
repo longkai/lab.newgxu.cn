@@ -47,14 +47,14 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
-		HttpSession session = request.getSession(false);
-		if (session == null || session.getAttribute(Config.SESSION_USER) == null) {
-			response.setCharacterEncoding("UTF-8");
-			PrintWriter writer = response.getWriter();
-			writer.write(AjaxConstants.JSON_STATUS_NON_LOGIN);
-			writer.close();
-			return false;
-		}
+//		HttpSession session = request.getSession(false);
+//		if (session == null || session.getAttribute(Config.SESSION_USER) == null) {
+//			response.setCharacterEncoding("UTF-8");
+//			PrintWriter writer = response.getWriter();
+//			writer.write(AjaxConstants.JSON_STATUS_NON_LOGIN);
+//			writer.close();
+//			return false;
+//		}
 		return true;
 	}
 
@@ -63,6 +63,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 			HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
 		// TODO Auto-generated method stub
+		System.err.println(modelAndView);
 		super.postHandle(request, response, handler, modelAndView);
 	}
 
@@ -71,6 +72,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 			HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
 		// TODO Auto-generated method stub
+		System.err.println(handler);
 		super.afterCompletion(request, response, handler, ex);
 	}
 

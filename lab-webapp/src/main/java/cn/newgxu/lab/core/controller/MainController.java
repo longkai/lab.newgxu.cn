@@ -22,8 +22,13 @@
  */
 package cn.newgxu.lab.core.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import cn.newgxu.lab.core.common.AjaxConstants;
 
 /**
  * 实验室的主控制器。
@@ -39,6 +44,13 @@ public class MainController {
 	@RequestMapping({"/", "/index", "/home"})
 	public String home() {
 		return "index";
+	}
+	
+	@RequestMapping(value = "/jsonp", produces = AjaxConstants.MEDIA_TYPE_JSON)
+	@ResponseBody
+	public String jsonp(HttpServletRequest request) {
+		String callback = request.getParameter("callback");
+		return callback + "({\"msg\":\"hello\"})";
 	}
 	
 }

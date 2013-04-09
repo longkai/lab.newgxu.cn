@@ -23,6 +23,7 @@
 package cn.newgxu.lab.core.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -66,7 +67,9 @@ public class GlobalExceptionHandler {
 			L.error("异常处理时出错！", e);
 		}
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(json.toString());
+		PrintWriter writer = response.getWriter();
+		writer.write(json.toString());
+		writer.close();
 	}
 	
 }

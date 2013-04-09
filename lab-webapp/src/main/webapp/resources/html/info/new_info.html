@@ -56,22 +56,60 @@ body {
 	<div class="wmd-panel">
 		<div id="wmd-button-bar"></div>
 		<textarea class="wmd-input" id="wmd-input" name="content">
-这里是 *标题*.
-------------------------------
+## 提示：请先阅读一下编写说明！！！
+Setext方式
+标题1
+=================
 
-这里是 **加粗**, 请记得我有几个 **星号** 哦亲:
+标题2
+-----------------
 
-换行需要间隔一行哦亲~
+Atx方式
+# 标题1
+## 标题2
+###### 标题6
 
-"""
-三个双引号冒号里面是引用哦亲~
-"""
+换行
+-----------------
+在文字的末尾使用两个或两个以上的空格来表示换行。
 
-"""
-1. 第一天
-2. 第二天
-3. 第三天
-"""</textarea>
+引用
+-----------------
+> 这是一个引用，
+> 这里木有换行，
+> 在这里换行了。
+> > 内部嵌套
+
+列表
+-----------------
+* Item 1
+* Item 2
+* Item 3
+
++ Item 1
++ Item 2
++ Item 3
+
+- Item 1
+- Item 2
+- Item 3
+
+1. Item 1
+2. Item 2
+3. Item 3
+
+强调
+-----------------
+单星号 = *斜体*
+单下划线 = _斜体_
+双星号 = **加粗**
+双下划线 = __加粗__
+
+链接
+-----------------
+这是一个Inline[示例](http://www.newgxu.cn "可选的title")。
+这是一个Reference[示例][ref]。
+[ref]: http://www.newgxu.cn</textarea>
 		<div class="control-group" id="fileupload">
 			<label for="name">给文件一个名称吧~</label>
 			<input type="text" name="name" id="name" />
