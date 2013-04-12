@@ -38,9 +38,6 @@ public class Config {
 	/** session属性的认证用户 */
 	public static final String SESSION_USER = APP + "_user";
 	
-	/** 多文档的urls分隔符 */
-	public static final String DOC_URL_DELIMITER = "|";
-	
 	/** 默认的一次用户列表请求抓取数量 */
 	public static final int DEFAULT_USER_LIST_COUNT = 5;
 	
@@ -61,9 +58,6 @@ public class Config {
 	
 	/** 文件上传最大大小 5M */
 	public static final long MAX_FILE_SIZE = 1024 * 1000 * 5;
-	
-	/** 默认的上传文件保存模式 */
-	public static final String DEFAULT_FILE_NAME_PATTERN = "yyyyMMddHHmmss";
 	
 	/** 文件上传的绝对路径 */
 	public static final String UPLOAD_ABSOLUTE_DIR = "E:/usr/local/src/coding4fun/lab.newgxu.cn/lab-webapp/src/main/webapp";

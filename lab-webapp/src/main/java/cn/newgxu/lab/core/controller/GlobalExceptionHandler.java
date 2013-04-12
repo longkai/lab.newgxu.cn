@@ -23,9 +23,6 @@
 package cn.newgxu.lab.core.controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,7 +49,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(Throwable.class)
 	@ResponseBody
-	public void exp(Throwable t, HttpServletResponse response) throws IOException {
+	public String exp(Throwable t) throws IOException {
 		L.error("异常处理中。。。", t);
 		JSONObject json = new JSONObject();
 		try {
@@ -66,10 +63,7 @@ public class GlobalExceptionHandler {
 		} catch (JSONException e) {
 			L.error("异常处理时出错！", e);
 		}
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter writer = response.getWriter();
-		writer.write(json.toString());
-		writer.close();
+		return json.toString();
 	}
 	
 }

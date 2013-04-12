@@ -305,7 +305,10 @@ public class InfoController {
 
 	private void fileDelete(Information info) throws RuntimeException {
 		Information origin = infoService.find(info.getId());
-		Assert.notNull("对不起，您所请求的资源不存在！", origin);
+//		如果没有，就代表是新建文档，直接返回吧- -
+		if (origin == null) {
+			return;
+		}
 		if (origin.getDocUrl() != null) {
 			File f = new File(Config.UPLOAD_ABSOLUTE_DIR + origin.getDocUrl());
 			if (!f.delete()) {
