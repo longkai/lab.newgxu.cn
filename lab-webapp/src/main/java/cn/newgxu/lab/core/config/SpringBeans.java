@@ -22,6 +22,10 @@
  */
 package cn.newgxu.lab.core.config;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -31,6 +35,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.http.MediaType;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -39,16 +44,22 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.accept.ContentNegotiationManager;
+import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfig;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
+import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
 
 /**
  * spring的beans配置文件。
@@ -83,6 +94,12 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		registry.addViewController("/").setViewName("index");
 		registry.addViewController("/index").setViewName("index");
 		registry.addViewController("/home").setViewName("index");
+	}
+
+	@Override
+	public void configureContentNegotiation(
+			ContentNegotiationConfigurer configurer) {
+		configurer.favorPathExtension(true).favorParameter(false).ignoreAcceptHeader(true);
 	}
 
 	@Bean(destroyMethod = "close")
@@ -174,6 +191,31 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 	public MultipartResolver multipartResolver() {
 		CommonsMultipartResolver resolver = new CommonsMultipartResolver();
 		return resolver;
+	}
+	
+	@Bean
+	public ContentNegotiationManager contentNegotiationManager() {
+		Map<String, MediaType> mediaTypes = new HashMap<String, MediaType>(2);
+		mediaTypes.put("json", MediaType.APPLICATION_JSON);
+		mediaTypes.put("jsonp", MediaType.parseMediaType("application/javascript"));
+		PathExtensionContentNegotiationStrategy strategy = new PathExtensionContentNegotiationStrategy(mediaTypes);
+		
+		ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager(strategy);
+		return contentNegotiationManager;
+	}
+	
+	@Bean
+	public ContentNegotiatingViewResolver contentNegotiatingViewResolver() {
+		ContentNegotiatingViewResolver viewResolver = new ContentNegotiatingViewResolver();
+		viewResolver.setOrder(1);
+		viewResolver.setContentNegotiationManager(contentNegotiationManager());
+		List<View> defaultViews = new ArrayList<View>(2);
+		View jsonView = new MappingJacksonJsonView();
+		View jsonpView = new MappingJacksonJsonpView();
+		defaultViews.add(jsonView);
+		defaultViews.add(jsonpView);
+		viewResolver.setDefaultViews(defaultViews);
+		return viewResolver;
 	}
 	
 }
