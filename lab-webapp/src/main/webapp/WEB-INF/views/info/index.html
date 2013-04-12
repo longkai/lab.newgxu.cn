@@ -60,7 +60,11 @@ body {
 <#list info_list as info>
 				<div class="span3 info">
 					<h4>${info.title}</h4>
-					<p>${info.content?html}</p>
+	<#if info.content?html?string?length gt 100>
+						<p>${info.content?html?string[0..99]}</p>
+	<#else>
+						<p>${info.content?html}</p>
+	</#if>
 					<p><a class="btn" href="/info/info?id=${info.id}">详细 &raquo;</a></p>
 				</div>
 </#list>
