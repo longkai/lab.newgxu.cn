@@ -34,6 +34,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import cn.newgxu.lab.info.config.AccountType;
 
 /**
@@ -59,9 +62,11 @@ public class AuthorizedUser {
 	private long		id;
 
 	@Enumerated(EnumType.STRING)
+	@JsonIgnore
 	private AccountType	type	= AccountType.DEFAULT;
 
-	@Column(name = "auth_name")
+	@Column(name = "authed_name")
+	@JsonProperty("authed_name")
 	private String		authorizedName;
 
 	/** 组织，单位，或者个人 */
@@ -72,12 +77,16 @@ public class AuthorizedUser {
 	private String		contact;
 
 	@Column(name = "join_time")
+	@JsonProperty("join_time")
 	private Date		joinTime;
 
 	/** 账号是否被封 */
+	@JsonIgnore
 	private boolean		blocked;
 
+	@JsonIgnore
 	private String		account;
+	@JsonIgnore
 	private String		password;
 
 	public long getId() {

@@ -35,6 +35,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * 信息。
  * 
@@ -58,17 +61,26 @@ public class Information {
 	@Id
 	@GeneratedValue
 	private long			id;
+	
 	private String			title;
+	
 	@Column(length = 10000)
 	private String			content;
+	
 	@Column(name = "click_times")
+	@JsonProperty("click_times")
 	private long			clickTimes;
+	
 	@Column(name = "add_date")
+	@JsonProperty("add_date")
 	private Date			addDate;
+	
 	@Column(name = "last_modified_date")
+	@JsonProperty("last_modified_date")
 	private Date			lastModifiedDate;
 
 	/** 是否被屏蔽 */
+	@JsonIgnore
 	private boolean			blocked;
 
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -77,9 +89,11 @@ public class Information {
 
 	/** 上传文档的存放路径，采用分隔符来分隔多个文档 */
 	@Column(name = "doc_url")
+	@JsonProperty("doc_url")
 	private String			docUrl;
 
 	@Column(name = "doc_name")
+	@JsonProperty("doc_name")
 	private String			docName;
 
 	public long getId() {
