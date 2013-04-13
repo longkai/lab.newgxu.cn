@@ -38,9 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.info.config.Config;
 import cn.newgxu.lab.info.entity.AuthorizedUser;
-import cn.newgxu.lab.info.entity.Information;
-import cn.newgxu.lab.info.repository.InfoDao;
-import cn.newgxu.lab.info.service.InfoService;
+import cn.newgxu.lab.info.entity.Notice;
+import cn.newgxu.lab.info.repository.NoticeDao;
+import cn.newgxu.lab.info.service.NoticeService;
 
 /**
  * 信息发布对外服务接口的实现。
@@ -52,15 +52,15 @@ import cn.newgxu.lab.info.service.InfoService;
  */
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Throwable.class)
-public class InfoServiceImpl implements InfoService {
+public class NoticeServiceImpl implements NoticeService {
 
-	private static final Logger L = LoggerFactory.getLogger(InfoServiceImpl.class);
+	private static final Logger L = LoggerFactory.getLogger(NoticeServiceImpl.class);
 	
 	@Inject
-	private InfoDao infoDao;
+	private NoticeDao noticeDao;
 	
 	/** 简单地验证信息是否合法 */
-	private void validate(Information info) {
+	private void validate(Notice info) {
 		Assert.notNull("认证用户不能为空！", info.getUser());
 		Assert.notEmpty("信息标题不能为空！", info.getTitle());
 		Assert.notEmpty("信息内容不能为空！", info.getContent());
@@ -79,26 +79,26 @@ public class InfoServiceImpl implements InfoService {
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public void create(Information info) {
+	public void create(Notice info) {
 		validate(info);
 		
 		info.setAddDate(new Date());
 		info.setLastModifiedDate(info.getAddDate());
-		infoDao.persist(info);
+		noticeDao.persist(info);
 		L.info("用户：{} 发表信息：{} 成功！", info.getUser().getAuthorizedName(), info.getTitle());
 	}
 
 	@Override
-	public void delete(Information info) {
+	public void delete(Notice info) {
 		throw new UnsupportedOperationException("对不起，暂不支持此操作！");
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public Information update(Information info) {
+	public Notice update(Notice info) {
 		validate(info);
 		
-		Information i = infoDao.find(info.getId());
+		Notice i = noticeDao.find(info.getId());
 		
 		safeCheck(info, i);
 		
@@ -113,70 +113,70 @@ public class InfoServiceImpl implements InfoService {
 			i.setDocUrl(info.getDocUrl());
 		}
 		
-		infoDao.merge(i);
+		noticeDao.merge(i);
 		L.info("信息：{} 修改成功！", info.getTitle());
 		return i;
 	}
 
 	@Override
-	public Information find(long pk) {
-		return infoDao.find(pk);
+	public Notice find(long pk) {
+		return noticeDao.find(pk);
 	}
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public Information view(long pk) {
-		Information info = infoDao.find(pk);
+	public Notice view(long pk) {
+		Notice info = noticeDao.find(pk);
 		Assert.notNull("对不起，您所访问的信息不存在！", info);
 		info.setClickTimes(info.getClickTimes() + 1);
-		infoDao.merge(info);
+		noticeDao.merge(info);
 		return info;
 	}
 
 	@Override
 	public long total() {
-		return infoDao.size();
+		return noticeDao.size();
 	}
 
 	@Override
-	public List<Information> latest() {
-		return infoDao.list("Information.latest", null, 0, Config.DEFAULT_INFO_LIST_COUNT);
+	public List<Notice> latest() {
+		return noticeDao.list("Notice.latest", null, 0, Config.DEFAULT_NOTICES_COUNT);
 	}
 	
 	@Override
-	public List<Information> more(long lastId, int count) {
+	public List<Notice> more(long lastId, int count) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("last_id", lastId);
-		return infoDao.list("Information.list_more", param, 0, count);
+		return noticeDao.list("Notice.list_more", param, 0, count);
 	}
 	
 	@Override
-	public List<Information> listByUser(AuthorizedUser au, int count) {
+	public List<Notice> listByUser(AuthorizedUser au, int count) {
 		Map<String, Object> param = new HashMap<String, Object>(1);
 		param.put("user", au);
-		return infoDao.list("Information.list_user_latest", param, 0, count);
+		return noticeDao.list("Notice.list_user_latest", param, 0, count);
 	}
 
 	@Override
-	public List<Information> moreByUser(AuthorizedUser au, long lastId,
+	public List<Notice> moreByUser(AuthorizedUser au, long lastId,
 			int count) {
 		Map<String, Object> params = new HashMap<String, Object>(2);
 		params.put("user", au);
 		params.put("last_id", lastId);
-		return infoDao.list("Information.list_user_more", params, 0, count);
+		return noticeDao.list("Notice.list_user_more", params, 0, count);
 	}
 
 	@Override
-	public List<Information> listNewer(long lastId, int count) {
+	public List<Notice> listNewer(long lastId, int count) {
 		Map<String, Object> param = new HashMap<String, Object>(1);
 		param.put("last_id", lastId);
-		return infoDao.list("Information.list_newer", param, 0, count);
+		return noticeDao.list("Notice.list_newer", param, 0, count);
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public Information block(Information info, boolean blocked) {
-		Information i = infoDao.find(info.getId());
+	public Notice block(Notice info, boolean blocked) {
+		Notice i = noticeDao.find(info.getId());
 		
 		safeCheck(info, i);
 		
@@ -186,7 +186,7 @@ public class InfoServiceImpl implements InfoService {
 			i.setBlocked(false);
 		}
 		
-		infoDao.merge(i);
+		noticeDao.merge(i);
 		
 		L.info("信息：{} 屏蔽?：{}成功！", i.getTitle(), blocked);
 		return i;
@@ -198,7 +198,7 @@ public class InfoServiceImpl implements InfoService {
 	 * @param i
 	 * @throws SecurityException
 	 */
-	private void safeCheck(Information info, Information i)
+	private void safeCheck(Notice info, Notice i)
 			throws SecurityException {
 		Assert.notNull("对不起，您所访问的信息不存在！", i);
 		
@@ -209,7 +209,7 @@ public class InfoServiceImpl implements InfoService {
 
 	@Override
 	public int newerCount(long pk) {
-		return infoDao.newerCount(pk);
+		return noticeDao.newerCount(pk);
 	}
 	
 }

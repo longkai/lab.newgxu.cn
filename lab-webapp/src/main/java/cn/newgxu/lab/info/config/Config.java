@@ -39,16 +39,16 @@ public class Config {
 	public static final String SESSION_USER = APP + "_user";
 	
 	/** 默认的一次用户列表请求抓取数量 */
-	public static final int DEFAULT_USER_LIST_COUNT = 5;
+	public static final int DEFAULT_USERS_COUNT = 5;
 	
 	/** 一次性最多抓取的用户列表数 */
-	public static final int MAX_USER_LIST_COUNT = 50;
+	public static final int MAX_USERS_COUNT = 50;
 	
 	/** 一次性最多抓取的信息列表数 */
-	public static final int MAX_INFO_LIST_COUNT = 20;
+	public static final int MAX_NOTICES_COUNT = 20;
 	
 	/** 默认的一次信息列表请求抓取数量 */
-	public static final int DEFAULT_INFO_LIST_COUNT = 3;
+	public static final int DEFAULT_NOTICES_COUNT = 3;
 	
 	/** 密码的最小长度 */
 	public static final int MIN_PASSWORD_LENGTH = 6;

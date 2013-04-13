@@ -29,8 +29,8 @@ import java.util.Map;
 import org.springframework.stereotype.Repository;
 
 import cn.newgxu.lab.core.repository.impl.AbstractCommonDaoImpl;
-import cn.newgxu.lab.info.entity.Information;
-import cn.newgxu.lab.info.repository.InfoDao;
+import cn.newgxu.lab.info.entity.Notice;
+import cn.newgxu.lab.info.repository.NoticeDao;
 
 /**
  * 信息发布的数据访问实现。
@@ -41,28 +41,28 @@ import cn.newgxu.lab.info.repository.InfoDao;
  * @version 0.1
  */
 @Repository
-public class InfoDaoImpl extends AbstractCommonDaoImpl<Information> implements InfoDao {
+public class NoticeDaoImpl extends AbstractCommonDaoImpl<Notice> implements NoticeDao {
 
 	@Override
-	public Information find(Serializable pk) {
-		return super.em.find(Information.class, pk);
+	public Notice find(Serializable pk) {
+		return super.em.find(Notice.class, pk);
 	}
 
 	@Override
 	public long size() {
-		return super.size(Information.class);
+		return super.size(Notice.class);
 	}
 
 	@Override
-	public List<Information> list(String query, Map<String, Object> params, int offset, int number) {
-		return super.executeQuery(query, Information.class, offset, number, params);
+	public List<Notice> list(String query, Map<String, Object> params, int offset, int number) {
+		return super.executeQuery(query, Notice.class, offset, number, params);
 	}
 
 	@Override
 	public int newerCount(long pk) {
 		long l = 0L;
 		try {
-			l = em.createNamedQuery("Information.newer_count", Long.class)
+			l = em.createNamedQuery("Notice.newer_count", Long.class)
 					.setParameter("last_id", pk)
 					.getSingleResult();
 		} catch (Exception e) {

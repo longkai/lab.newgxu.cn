@@ -162,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public List<AuthorizedUser> latest() {
-		return authDao.list("AuthorizedUser.list_latest", null, 0, Config.DEFAULT_USER_LIST_COUNT);
+		return authDao.list("AuthorizedUser.list_latest", null, 0, Config.DEFAULT_USERS_COUNT);
 	}
 
 	@Override

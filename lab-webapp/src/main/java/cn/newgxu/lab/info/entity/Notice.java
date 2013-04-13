@@ -49,14 +49,14 @@ import org.codehaus.jackson.annotate.JsonProperty;
 @Entity
 @Table(name = "info_info")
 @NamedQueries({
-		@NamedQuery(name = "Information.newer_count", query = "SELECT COUNT(*) FROM Information i WHERE i.id > :last_id AND i.blocked IS FALSE"),
-		@NamedQuery(name = "Information.list_newer", query = "FROM Information i WHERE i.id > :last_id ORDER BY i.id DESC"),
-		@NamedQuery(name = "Information.latest", query = "FROM Information i WHERE i.blocked IS FALSE ORDER BY i.id DESC"),
-		@NamedQuery(name = "Information.list_more", query = "FROM Information i WHERE i.id < :last_id AND i.blocked IS FALSE ORDER BY i.id DESC"),
-		@NamedQuery(name = "Information.list_user_latest", query = "FROM Information i WHERE i.user = :user ORDER BY i.id DESC"),
-		@NamedQuery(name = "Information.list_user_more", query = "FROM Information i WHERE i.user = :user AND i.id < :last_id ORDER BY i.id DESC")
+	@NamedQuery(name = "Notice.newer_count", query = "SELECT COUNT(*) FROM Notice i WHERE i.id > :last_id AND i.blocked IS FALSE"),
+	@NamedQuery(name = "Notice.list_newer", query = "FROM Notice i WHERE i.id > :last_id ORDER BY i.id DESC"),
+	@NamedQuery(name = "Notice.latest", query = "FROM Notice i WHERE i.blocked IS FALSE ORDER BY i.id DESC"),
+	@NamedQuery(name = "Notice.list_more", query = "FROM Notice i WHERE i.id < :last_id AND i.blocked IS FALSE ORDER BY i.id DESC"),
+	@NamedQuery(name = "Notice.list_user_latest", query = "FROM Notice i WHERE i.user = :user ORDER BY i.id DESC"),
+	@NamedQuery(name = "Notice.list_user_more", query = "FROM Notice i WHERE i.user = :user AND i.id < :last_id ORDER BY i.id DESC")
 })
-public class Information {
+public class Notice {
 
 	@Id
 	@GeneratedValue
@@ -87,7 +87,7 @@ public class Information {
 	@JoinColumn(name = "auth_user_id")
 	private AuthorizedUser	user;
 
-	/** 上传文档的存放路径，采用分隔符来分隔多个文档 */
+	/** 上传文档的存放路径 */
 	@Column(name = "doc_url")
 	@JsonProperty("doc_url")
 	private String			docUrl;
@@ -192,7 +192,7 @@ public class Information {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Information other = (Information) obj;
+		Notice other = (Notice) obj;
 		if (id != other.id)
 			return false;
 		return true;
@@ -200,7 +200,7 @@ public class Information {
 
 	@Override
 	public String toString() {
-		return "Information [id=" + id + ", title=" + title + "]";
+		return "Notice [id=" + id + ", title=" + title + "]";
 	}
 
 }

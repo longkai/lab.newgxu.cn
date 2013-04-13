@@ -51,9 +51,9 @@ import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.core.util.RegexUtils;
 import cn.newgxu.lab.info.config.Config;
 import cn.newgxu.lab.info.entity.AuthorizedUser;
-import cn.newgxu.lab.info.entity.Information;
+import cn.newgxu.lab.info.entity.Notice;
 import cn.newgxu.lab.info.service.AuthService;
-import cn.newgxu.lab.info.service.InfoService;
+import cn.newgxu.lab.info.service.NoticeService;
 
 /**
  * 信息发布平台关于信息发布查看修改等的控制器。
@@ -66,21 +66,21 @@ import cn.newgxu.lab.info.service.InfoService;
 @Controller
 @RequestMapping("/" + Config.APP)
 @Scope("session")
-public class InfoController {
+public class NoticeController {
 
 	private static final Logger L =
-			LoggerFactory.getLogger(InfoController.class);
+			LoggerFactory.getLogger(NoticeController.class);
 	
 	@Inject
-	private InfoService infoService;
+	private NoticeService noticeService;
 	
 	@Inject
 	private AuthService authService;
 	
 	@RequestMapping({"/", "index", "home"})
 	public String index(Model model) {
-		List<Information> list = 
-				infoService.latest();
+		List<Notice> list = 
+				noticeService.latest();
 		List<AuthorizedUser> auths = authService.latest();
 		if (list != null && list.size() > 0) {
 			model.addAttribute("last_info_id", list.get(list.size() - 1).getId());
@@ -95,7 +95,7 @@ public class InfoController {
 	
 	@RequestMapping("/info")
 	public String view(@RequestParam("id") long id, Model model) {
-		Information info = infoService.view(id);
+		Notice info = noticeService.view(id);
 		if (info == null) {
 			throw new IllegalArgumentException("对不起，您所查找的信息不存在！");
 		}
@@ -110,7 +110,7 @@ public class InfoController {
 	)
 	@ResponseBody
 	public String view(@PathVariable("id") long id) {
-		Information info = infoService.find(id);
+		Notice info = noticeService.find(id);
 		return new JSONObject(info).toString();
 	}
 	
@@ -120,7 +120,7 @@ public class InfoController {
 		produces 	= AjaxConstants.MEDIA_TYPE_JSON
 	)
 	public String create(
-			Information info,
+			Notice info,
 			@RequestParam("name") String fileName,
 			@RequestParam("file") MultipartFile file,
 			HttpSession session, RedirectAttributes attributes
@@ -132,7 +132,7 @@ public class InfoController {
 				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
 		info.setUser(au);
 		info.setContent(info.getContent());
-		infoService.create(info);
+		noticeService.create(info);
 //		重定向，避免用户刷新重复提交。
 		attributes.addFlashAttribute("from", "-1");
 		attributes.addAttribute("status", "ok");
@@ -143,7 +143,7 @@ public class InfoController {
 	@RequestMapping(value = "/info/modify", method = RequestMethod.GET)
 	public String modify(@RequestParam("id") long id, Model model) {
 		L.info("请求修改发布信息id：{}", id);
-		Information info = infoService.find(id);
+		Notice info = noticeService.find(id);
 		if (info == null) {
 			throw new IllegalArgumentException("对不起，您所修改的信息不存在！");
 		}
@@ -156,7 +156,7 @@ public class InfoController {
 		method	 = RequestMethod.POST
 //		produces = AjaxConstants.MEDIA_TYPE_JSON
 	)
-	public String modify(Information info,
+	public String modify(Notice info,
 			@RequestParam("name") String fileName,
 			@RequestParam("file") MultipartFile file,
 			HttpSession session, RedirectAttributes attributes)
@@ -165,7 +165,7 @@ public class InfoController {
 		AuthorizedUser au = 
 				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
 		info.setUser(au);
-		infoService.update(info);
+		noticeService.update(info);
 		
 		attributes.addFlashAttribute("from", "-1");
 		attributes.addAttribute("status", "ok");
@@ -184,13 +184,13 @@ public class InfoController {
 		Assert.notNull("操作类型不能为空！", type);
 		AuthorizedUser au
 			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		Information info = new Information();
+		Notice info = new Notice();
 		info.setId(id);
 		info.setUser(au);
 		if (type.equals("block")) {
-			infoService.block(info, true);
+			noticeService.block(info, true);
 		} else if (type.equals("unblock")) {
-			infoService.block(info, false);
+			noticeService.block(info, false);
 		} else {
 			throw new UnsupportedOperationException("不支持的操作！");
 		}
@@ -204,7 +204,7 @@ public class InfoController {
 	@ResponseBody
 	public String hasNew(@PathVariable("local_id") long id)
 			throws JSONException {
-		int count = infoService.newerCount(id);
+		int count = noticeService.newerCount(id);
 		if (count != 0) {
 			JSONObject json = new JSONObject();
 			json.put(AjaxConstants.AJAX_STATUS, "ok");
@@ -222,7 +222,7 @@ public class InfoController {
 	public String list(
 			@PathVariable("last_id") long lastId,
 			@PathVariable("count") int count) {
-		List<Information> list = infoService.more(lastId, count);
+		List<Notice> list = noticeService.more(lastId, count);
 		return new JSONArray(list, false).toString();
 	}
 	
@@ -238,7 +238,7 @@ public class InfoController {
 			HttpSession session) {
 		AuthorizedUser au
 			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		List<Information> list = infoService.moreByUser(au, lastId, count);
+		List<Notice> list = noticeService.moreByUser(au, lastId, count);
 		return new JSONArray(list, false).toString();
 	}
 	
@@ -247,8 +247,8 @@ public class InfoController {
 			HttpSession session) {
 		AuthorizedUser au 
 			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		List<Information> list
-			= infoService.listByUser(au, Config.DEFAULT_INFO_LIST_COUNT);
+		List<Notice> list
+			= noticeService.listByUser(au, Config.DEFAULT_NOTICES_COUNT);
 		model.addAttribute("info_list", list);
 		model.addAttribute("last_info_id", list.get(list.size() - 1).getId());
 		return Config.APP + "/info_list";
@@ -266,7 +266,7 @@ public class InfoController {
 		throw new IllegalArgumentException("上传文件类型不符合规则，上传失败！");
 	}
 	
-	private void fileUpload(Information info, String fileName,
+	private void fileUpload(Notice info, String fileName,
 			MultipartFile file) {
 		try {
 			if (!file.isEmpty()) {
@@ -303,8 +303,8 @@ public class InfoController {
 		}
 	}
 
-	private void fileDelete(Information info) throws RuntimeException {
-		Information origin = infoService.find(info.getId());
+	private void fileDelete(Notice info) throws RuntimeException {
+		Notice origin = noticeService.find(info.getId());
 //		如果没有，就代表是新建文档，直接返回吧- -
 		if (origin == null) {
 			return;

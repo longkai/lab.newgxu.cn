@@ -20,58 +20,22 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.info.service;
+package cn.newgxu.lab.info.repository;
 
-import java.util.List;
-
-import cn.newgxu.lab.info.entity.AuthorizedUser;
-import cn.newgxu.lab.info.entity.Information;
+import cn.newgxu.lab.core.repository.CommonDao;
+import cn.newgxu.lab.info.entity.Notice;
 
 /**
- * 信息发布平台的服务接口。
+ * 信息发布的数据访问接口。
  * 
  * @author longkai
  * @email im.longkai@gmail.com
  * @since 2013-3-28
  * @version 0.1
  */
-public interface InfoService {
+public interface NoticeDao extends CommonDao<Notice> {
 
-	void create(Information info);
-
-	void delete(Information info);
-
-	Information update(Information info);
-
-	Information find(long pk);
-	
-	/** 区别于find，这个会增加1的点击率 */
-	Information view(long pk);
-
-	long total();
-
-	List<Information> latest();
-	
-	List<Information> more(long lastId, int count);
-	
-	List<Information> listByUser(AuthorizedUser au, int count);
-	
-	List<Information> moreByUser(AuthorizedUser au, long lastId, int count);
-	
-	List<Information> listNewer(long lastId, int count);
-	
-	/**
-	 * 屏蔽信息。
-	 * @param info 欲屏蔽或者解蔽的信息对象
-	 * @param blocked 你懂的
-	 */
-	Information block(Information info, boolean blocked);
-
-	/**
-	 * 是否有更新，判断是否有比传过来的参数更大的主键 
-	 * @param pk 客户端上最新的主键
-	 * @return true or false
-	 */
+	/** 比pk更新的记录数 */
 	int newerCount(long pk);
-
+	
 }

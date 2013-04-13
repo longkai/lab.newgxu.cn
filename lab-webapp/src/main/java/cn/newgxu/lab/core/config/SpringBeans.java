@@ -74,7 +74,7 @@ import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
 	"cn.newgxu.lab.info"
 })
 @EnableTransactionManagement
-@EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
+//@EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
 public class SpringBeans extends WebMvcConfigurerAdapter {
 	
 	public static final String[] entityPackages = {
@@ -120,8 +120,8 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 
 		Properties properties = new Properties();
-		properties.setProperty("hibernate.hbm2ddl.auto", "none");
-//		properties.setProperty("hibernate.hbm2ddl.auto", "update");
+//		properties.setProperty("hibernate.hbm2ddl.auto", "none");
+		properties.setProperty("hibernate.hbm2ddl.auto", "update");
 		entityManagerFactoryBean.setJpaProperties(properties);
 
 		entityManagerFactoryBean.setPackagesToScan(entityPackages);
