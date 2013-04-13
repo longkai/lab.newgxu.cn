@@ -133,11 +133,16 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public AuthorizedUser login(String account, String password) {
+	public AuthorizedUser login(String account, String password, String ip) {
 		L.info("用户:{} 登录", account);
 		AuthorizedUser user = null;
 		try {
 			user = authDao.find(account, Encryptor.MD5(password));
+			if (ip == null) {
+				user.setLastLoginIP(ip);
+				user.setLastLoginTime(new Date());
+				authDao.merge(user);
+			}
 		} catch (Exception e) {
 			L.error("用户登录异常！", e);
 			throw new RuntimeException("用户名密码错误！", e);

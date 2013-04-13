@@ -56,7 +56,7 @@ public interface AuthService {
 	
 	AuthorizedUser find(long pk);
 	
-	AuthorizedUser login(String account, String password);
+	AuthorizedUser login(String account, String password, String ip);
 	
 	long total();
 	

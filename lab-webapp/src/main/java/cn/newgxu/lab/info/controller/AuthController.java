@@ -94,7 +94,9 @@ public class AuthController {
 			@RequestParam("account") String account,
 			@RequestParam("pwd") String password,
 			HttpServletRequest request) {
-		AuthorizedUser au = authService.login(account, password);
+		
+		String ip = request.getRemoteAddr();
+		AuthorizedUser au = authService.login(account, password, ip);
 		if (au != null) {
 			request.getSession().setAttribute(Config.SESSION_USER, au);
 		} else {
@@ -135,7 +137,7 @@ public class AuthController {
 		AuthorizedUser sau = (AuthorizedUser) session
 				.getAttribute(Config.SESSION_USER);
 //		首先验证一下密码是否正确。
-		if (authService.login(sau.getAccount(), password) == null) {
+		if (authService.login(sau.getAccount(), password, null) == null) {
 			throw new IllegalArgumentException("原来的密码错误！");
 		}
 		if (type.equals("password")) {

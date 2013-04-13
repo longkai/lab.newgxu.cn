@@ -89,6 +89,14 @@ public class AuthorizedUser {
 	@JsonIgnore
 	private String		password;
 
+	@Column(name = "last_login_ip")
+	@JsonIgnore
+	private String		lastLoginIP;
+	
+	@Column(name = "last_login_time")
+	@JsonIgnore
+	private Date		lastLoginTime;
+
 	public long getId() {
 		return id;
 	}
@@ -167,6 +175,22 @@ public class AuthorizedUser {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getLastLoginIP() {
+		return lastLoginIP;
+	}
+
+	public void setLastLoginIP(String lastLoginIP) {
+		this.lastLoginIP = lastLoginIP;
+	}
+
+	public Date getLastLoginTime() {
+		return lastLoginTime;
+	}
+
+	public void setLastLoginTime(Date lastLoginTime) {
+		this.lastLoginTime = lastLoginTime;
 	}
 
 	@Override
