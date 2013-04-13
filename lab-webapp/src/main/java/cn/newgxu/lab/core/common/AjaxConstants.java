@@ -53,4 +53,7 @@ public class AjaxConstants {
 	/** 默认的登录拦截成功信息 */
 	public static final String JSON_STATUS_NON_LOGIN = "{\"status\":\"no\",\"msg\":\"non_login\",\"reason\":\"请您登陆后再进行相关操作！\"}";
 	
+	/** 用于只返回ajax视图而不返回默认的html视图 */
+	public static final String BAD_REQUEST = "bad_request";
+	
 }

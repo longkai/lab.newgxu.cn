@@ -35,6 +35,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import cn.newgxu.lab.info.config.AccountType;
@@ -55,6 +56,7 @@ import cn.newgxu.lab.info.config.AccountType;
 	@NamedQuery(name = "AuthorizedUser.list_latest", query = "FROM AuthorizedUser au ORDER BY au.id DESC"),
 	@NamedQuery(name = "AuthorizedUser.list_more", query = "FROM AuthorizedUser au WHERE au.id < :last_id ORDER BY au.id DESC")
 })
+@JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class AuthorizedUser {
 
 	@Id

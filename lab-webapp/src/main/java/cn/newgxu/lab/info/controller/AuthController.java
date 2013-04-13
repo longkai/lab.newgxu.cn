@@ -29,13 +29,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -66,22 +66,22 @@ public class AuthController {
 	@Inject
 	private AuthService			authService;
 
-	@RequestMapping(
-		value	 = "/auth",
-		method	 = RequestMethod.POST,
-		produces = AjaxConstants.MEDIA_TYPE_JSON
-	)
-	@ResponseBody
+	/**
+	 * RESTful API，用POST请求创建一个由服务生成器URI标识的用户。
+	 * @param au
+	 * @param _pwd 确认密码
+	 * @return json，假设不是json，那么就会返回一个错误的html页面。
+	 */
+	@RequestMapping(value = "/users", method = RequestMethod.POST)
 	public String auth(
-			AuthorizedUser au,
-			@RequestParam(value = "_pwd", defaultValue = "") String _pwd)
-					throws JSONException {
-		L.info("尝试认证用户！单位（组织）：{}，名称：{}，密码：{}",
-				au.getOrg(), au.getAuthorizedName(), au.getPassword());
+			Model model,
+			@ModelAttribute("user") AuthorizedUser au,
+			@RequestParam(value = "_pwd", defaultValue = "") String _pwd) {
+		L.info("尝试认证用户！单位（组织）：{}，名称：{}", au.getOrg(), au.getAuthorizedName());
 		authService.create(au, _pwd);
-		JSONObject json = new JSONObject(au);
-		json.put(AjaxConstants.AJAX_STATUS, "ok");
-		return json.toString();
+		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
+//		我们只返回json数据，没有html视图哈
+		return AjaxConstants.BAD_REQUEST;
 	}
 
 	@RequestMapping(

@@ -74,7 +74,7 @@ import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
 	"cn.newgxu.lab.info"
 })
 @EnableTransactionManagement
-//@EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
+@EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
 public class SpringBeans extends WebMvcConfigurerAdapter {
 	
 	public static final String[] entityPackages = {

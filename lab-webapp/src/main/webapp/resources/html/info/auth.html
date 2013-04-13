@@ -133,15 +133,14 @@ body {
 $(function() {
 	$('#yes').click(function() {
 		$('.alert').hide();
-		var params = $('#auth_form').serialize();
 		$.ajax({
-			type: 'POST',
-			url: '/info/auth',
-			data: params,
-			dataType: 'json',
+			url: 		'/info/users.json',
+			type: 		'POST',
+			data: 		$('#auth_form').serialize(),
+			dataType: 	'json',
 			success: function(data) {
 				if (data.status === 'ok') {
-					$('#account').text(data.account);
+					$('#account');
 					$('#success').fadeIn();
 				} else if (data.status === 'no') {
 					$('#info').text(data.msg);
@@ -155,7 +154,7 @@ $(function() {
 				$('#error').fadeIn();
 			}
 		})
-		$('input[type="password"]').val('');
+		$(':password').val('');
 		return true;
 	})
 })
