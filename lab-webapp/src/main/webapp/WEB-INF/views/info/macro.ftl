@@ -20,7 +20,7 @@
 					</li>
 				</ul>
 <#if Session.info_user??>
-				<div class="btn-group pull-right">
+				<div class="btn-group pull-right" id="user_service" uid="${Session.info_user.id}">
 					<a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i> ${Session.info_user.authorizedName}</a>
 					<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
 					<ul class="dropdown-menu">
@@ -28,7 +28,7 @@
 						<li><a href="/info/user/update/${Session.info_user.id}"><i class="icon-edit"></i> 修改个人信息</a></li>
 						<li><a href="/info/info/list/user/${Session.info_user.id}"><i class="icon-th-list"></i> 查看我发表的信息</a></li>
 						<li class="divider"></li>
-						<li id="logout"><a href="/info/logout"><i class="i"></i> 退出</a></li>
+						<li id="logout"><a href="#"><i class="i"></i> 退出</a></li>
 					</ul>
 				</div>
 <#else>				

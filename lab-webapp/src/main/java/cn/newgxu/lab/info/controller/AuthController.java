@@ -106,17 +106,24 @@ public class AuthController {
 		return AjaxConstants.BAD_REQUEST;
 	}
 
-	@RequestMapping(
-		value	 = "/logout",
-		produces = AjaxConstants.MEDIA_TYPE_JSON
-	)
-	@ResponseBody
-	public String logout(HttpServletRequest request) {
+	/**
+	 * RESTful API，使用PUT方式来退出。
+	 * @param model
+	 * @param request
+	 * @param uid
+	 * @return only josn
+	 */
+	@RequestMapping(value = "/users/{uid}", method = RequestMethod.PUT)
+	public String logout(
+			Model model,
+			HttpServletRequest request,
+			@PathVariable("uid") long uid) {
 		HttpSession session = request.getSession(false);
 		if (session != null) {
 			session.invalidate();
 		}
-		return AjaxConstants.JSON_STATUS_OK;
+		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
+		return AjaxConstants.BAD_REQUEST;
 	}
 
 	@RequestMapping(value = "/user/update/{uid}", method = RequestMethod.GET)

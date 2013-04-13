@@ -134,9 +134,10 @@ $(function() {
 	$('#logout').click(function(e) {
 		e.preventDefault();
 		$('#alert').hide();
+		var uid = $('#user_service').attr('uid');
 		$.ajax({
-			type: 'GET',
-			url: '/info/logout',
+			type: 'PUT',
+			url: '/info/users/' + uid + '.json'
 		})
 		location.reload();
 	})
