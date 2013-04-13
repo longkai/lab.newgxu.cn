@@ -105,13 +105,11 @@ $(function() {
 	$('#login_form button').click(function(e) {
 		e.preventDefault();
 		$('#alert').hide();
-		var params = $('#login_form').serialize();
-		$('#login_form input[type="password"]').val('');
 		$.ajax({
-			type: 'POST',
-			url: '/info/login',
-			data: params,
-			dataType: 'json',
+			type:		'GET',
+			url: 		'/info/users.json',
+			data: 		$('#login_form').serialize(),
+			dataType: 	'json',
 			success: function(data) {
 				if (data.status === 'ok') {
 					location.reload();
@@ -130,6 +128,7 @@ $(function() {
 				$('#alert').fadeIn();
 			}
 		})
+		$(':password').val('');
 	})
 
 	$('#logout').click(function(e) {

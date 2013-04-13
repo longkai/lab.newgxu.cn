@@ -22,17 +22,17 @@
  */
 package cn.newgxu.lab.core.controller;
 
-import java.io.IOException;
+import static cn.newgxu.lab.core.common.AjaxConstants.AJAX_MESSAGE;
+import static cn.newgxu.lab.core.common.AjaxConstants.AJAX_STATUS;
+import static cn.newgxu.lab.core.common.AjaxConstants.ERROR_PAGE;
+import static cn.newgxu.lab.core.common.AjaxConstants.EXP_REASON;
+import static cn.newgxu.lab.core.common.AjaxConstants.UNKNOWN_REASON;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import cn.newgxu.lab.core.common.AjaxConstants;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * 全局的异常处理器，采用json写错误信息。
@@ -47,23 +47,23 @@ public class GlobalExceptionHandler {
 
 	private static final Logger L = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 	
+	/**
+	 * 全局异常处理器，支持ajax，html的错误视图~
+	 * @param t 触发异常
+	 * @return json or html depends on what the client wants!
+	 */
 	@ExceptionHandler(Throwable.class)
-	@ResponseBody
-	public String exp(Throwable t) throws IOException {
-		L.error("异常处理中。。。", t);
-		JSONObject json = new JSONObject();
-		try {
-			json.put(AjaxConstants.AJAX_STATUS, "no");
-			json.put(AjaxConstants.AJAX_MESSAGE, t.getMessage());
-			if (t.getCause() != null) {
-				json.put(AjaxConstants.EXP_REASON, t.getCause().getMessage());
-			} else {
-				json.put(AjaxConstants.EXP_REASON, "我们没有能收集足够的错误信息，请您稍后再试！");
-			}
-		} catch (JSONException e) {
-			L.error("异常处理时出错！", e);
+	public ModelAndView exp(Throwable t) {
+		L.error("全局异常处理中。。。", t);
+		ModelAndView mav = new ModelAndView(ERROR_PAGE);
+		mav.addObject(AJAX_STATUS, "no");
+		mav.addObject(AJAX_MESSAGE, t.getMessage());
+		if (t.getCause() != null) {
+			mav.addObject(EXP_REASON, t.getCause().getMessage());
+		} else {
+			mav.addObject(EXP_REASON, UNKNOWN_REASON);
 		}
-		return json.toString();
+		return mav;
 	}
 	
 }

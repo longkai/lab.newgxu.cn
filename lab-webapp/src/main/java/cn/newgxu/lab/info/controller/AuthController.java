@@ -84,25 +84,26 @@ public class AuthController {
 		return AjaxConstants.BAD_REQUEST;
 	}
 
-	@RequestMapping(
-		value	 = "/login",
-		method	 = RequestMethod.POST,
-		produces = AjaxConstants.MEDIA_TYPE_JSON
-	)
-	@ResponseBody
+	/**
+	 * RESTful API，用GET请求返回一个唯一的URI标识
+	 * @param model
+	 * @param request
+	 * @param password
+	 * @param account
+	 * @return only json, or bad request!
+	 */
+	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	public String login(
-			@RequestParam("account") String account,
+			Model model,
+			HttpServletRequest request,
 			@RequestParam("pwd") String password,
-			HttpServletRequest request) {
-		
+			@RequestParam("account") String account) {
 		String ip = request.getRemoteAddr();
 		AuthorizedUser au = authService.login(account, password, ip);
-		if (au != null) {
-			request.getSession().setAttribute(Config.SESSION_USER, au);
-		} else {
-			return AjaxConstants.JSON_STATUS_NO;
-		}
-		return AjaxConstants.JSON_STATUS_OK;
+		request.getSession().setAttribute(Config.SESSION_USER, au);
+//		这里，登录异常交给全局异常处理！
+		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
+		return AjaxConstants.BAD_REQUEST;
 	}
 
 	@RequestMapping(
