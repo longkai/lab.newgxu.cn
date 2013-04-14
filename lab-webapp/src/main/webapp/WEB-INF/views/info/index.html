@@ -199,16 +199,21 @@ $(function() {
 			last = $('#notice_list div.notice:last').attr('notice_id');
 		}
 		$.ajax({
-			url: '/info/info/list/' + last + '/' + 3,
+			url: '/info/notices.json?more',
 			type: 'GET',
+			data: {
+				count: 3,
+				last_id: last
+			},
 			dataType: 'json',
 			success: function(data) {
-				if (data.length === 0) {
+				var length = data.notices.length;
+				if (length === 0) {
 					$('#more_notices_error strong').text('没有更多啦！');
 					$('#more_notices').attr('disabled', true);
 					$('#more_notices_error').show();
 				} else {
-					$.each(data, function(i, item) {
+					$.each(data.notices, function(i, item) {
 						var content = '';
 						if (item.content.length < 100) {
 							content = item.content;
@@ -218,7 +223,7 @@ $(function() {
 						$('<div>').addClass('span3 info').append($('<h4>').text(item.title)).append($('<p>').text(content))
 							.append($('<p>').append($('<a>').addClass('btn').attr('href', '/info/notices/' + item.id).html('详细 &raquo;'))).appendTo('#notice_list');
 
-						if (i === data.length - 1) {
+						if (i === length - 1) {
 							$('#more_notices').attr('last_notice_id', item.id);
 						}
 					})

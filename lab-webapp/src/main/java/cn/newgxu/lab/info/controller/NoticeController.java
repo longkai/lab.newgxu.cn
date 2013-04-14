@@ -31,8 +31,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -197,15 +195,17 @@ public class NoticeController {
 	}
 	
 	@RequestMapping(
-		value	 = "/info/list/{last_id}/{count}",
-		produces = AjaxConstants.MEDIA_TYPE_JSON
+		params	 = {"more"},
+		value	 = "/notices",
+		method	 = RequestMethod.GET
 	)
-	@ResponseBody
 	public String list(
-			@PathVariable("last_id") long lastId,
-			@PathVariable("count") int count) {
+			Model model,
+			@RequestParam("count") int count,
+			@RequestParam("last_id") long lastId) {
 		List<Notice> list = noticeService.more(lastId, count);
-		return new JSONArray(list, false).toString();
+		model.addAttribute("notices", list);
+		return AjaxConstants.BAD_REQUEST;
 	}
 	
 	@RequestMapping(
