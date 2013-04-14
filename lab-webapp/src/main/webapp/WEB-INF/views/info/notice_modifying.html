@@ -14,20 +14,24 @@ footer {
 <body>
 <@header />
 
-<form action="/info/info/modify?id=${info.id}" method="post" enctype="multipart/form-data" id="info_form">
+<form action="/info/info/modify?id=${notice.id}" method="post" enctype="multipart/form-data" id="info_form">
 <div class="container" id="new">
 	<div class="control-group">
 		<label class="control-label" for="title">信息标题</label>
 		<div class="controls">
-			<input type="text" id="title" name="title" placeholder="信息标题" value="${info.title}" required />
+			<input type="text" id="title" name="title" placeholder="信息标题" value="${notice.title}" required />
 		</div>
 	</div>
 	<div class="wmd-panel">
 		<div id="wmd-button-bar"></div>
-		<textarea class="wmd-input" id="wmd-input" name="content">${info.content}</textarea>
+		<textarea class="wmd-input" id="wmd-input" name="content">${notice.content}</textarea>
 		<div class="control-group" id="fileupload">
 			<label for="name">给文件一个名称吧~</label>
-			<input type="text" name="name" id="name" value="${info.docName}" />
+<#if notice.docName??>			
+			<input type="text" name="name" id="name" value="${notice.docName}" />
+<#else>
+			<input type="text" name="name" id="name" placeholder="您还没有上传文件！" />
+</#if>
 		</div>
 		<div class="control-group" id="fileupload">
 			<input type="file" name="file" />

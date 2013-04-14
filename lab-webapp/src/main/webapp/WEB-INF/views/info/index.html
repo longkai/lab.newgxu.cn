@@ -117,16 +117,19 @@ $(function() {
 				if (data.status === 'ok') {
 					location.reload();
 				} else if (data.status === 'no') {
+					window.scrollTo(0, 0);
 					$('#status').text('登陆失败！');
 					$('#info').text(data.msg);
 					$('#reason').text(data.reason);
 					$('#alert').fadeIn();
 				} else {
+					window.scrollTo(0, 0);
 					$('#status').text('登陆失败！');
 					$('#alert').fadeIn();
 				}
 			},
 			error: function() {
+				window.scrollTo(0, 0);
 				$('#status').text('登陆失败！');
 				$('#alert').fadeIn();
 			}
@@ -213,7 +216,7 @@ $(function() {
 							content = item.content.substring(0, 99);
 						}
 						$('<div>').addClass('span3 info').append($('<h4>').text(item.title)).append($('<p>').text(content))
-							.append($('<p>').append($('<a>').addClass('btn').attr('href', '/info/info?id=' + item.id).html('详细 &raquo;'))).appendTo('#notice_list');
+							.append($('<p>').append($('<a>').addClass('btn').attr('href', '/info/notices/' + item.id).html('详细 &raquo;'))).appendTo('#notice_list');
 
 						if (i === data.length - 1) {
 							$('#more_notices').attr('last_notice_id', item.id);

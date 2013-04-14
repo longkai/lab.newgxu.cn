@@ -73,6 +73,7 @@ footer {
 </div>
 <div class="container">
 	<footer>
+		<p class="pull-right"><a href="#">回到顶部</a></p>
 		<p>&copy; 2001-2013 <a href="//www.newgxu.cn">newgxu.cn</a> &middot;All Rights Reserved.</p>
 	</footer>
 </div>
@@ -111,16 +112,19 @@ $(function() {
 				if (data.status === 'ok') {
 					location.reload();
 				} else if (data.status === 'no') {
+					window.scrollTo(0, 0);
 					$('#status').text('登陆失败！');
 					$('#info').text(data.msg);
 					$('#reason').text(data.reason);
 					$('#alert').fadeIn();
 				} else {
+					window.scrollTo(0, 0);
 					$('#status').text('登陆失败！');
 					$('#alert').fadeIn();
 				}
 			},
 			error: function() {
+				window.scrollTo(0, 0);
 				$('#status').text('登陆失败！');
 				$('#alert').fadeIn();
 			}

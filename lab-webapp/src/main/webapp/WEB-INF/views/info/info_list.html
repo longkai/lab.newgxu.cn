@@ -48,7 +48,7 @@ footer {
 	<#else>
 			<td><code class="status">正常</code> <code><a href="/info/info/block/block/${info.id}" class="action block text-error">屏蔽之</a></code></td>
 	</#if>
-			<td><code><a href="/info/info/modify?id=${info.id}">走起~</a></code></td>
+			<td><code><a href="/info/notices/${info.id}?modifying=1">走起~</a></code></td>
 		</tr>
 </#list>
 	</table>
@@ -141,7 +141,7 @@ $(function() {
 						_item$.find('.status').text('正常');
 						_item$.find('.action').append($('<a>').attr('href', '/info/info/block/block/' + item.id).text('屏蔽之').addClass('text-error block'));
 					}
-					_item$.find('.modify a').attr('href', '/info/info/modify?id=' + item.id);
+					_item$.find('.modify a').attr('href', '/info/notices/' + item.id + '?modifying=1');
 					_item$.appendTo('#info_list');
 
 					if (data.length === i + 1) {

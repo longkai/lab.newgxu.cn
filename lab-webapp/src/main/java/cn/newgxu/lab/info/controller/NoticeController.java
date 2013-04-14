@@ -87,9 +87,22 @@ public class NoticeController {
 	}
 	
 	@RequestMapping(value = "/notices/{notice_id}", method = RequestMethod.GET)
-	public String view(@PathVariable("notice_id") long id, Model model) {
+	public String view(
+			Model model,
+			HttpSession session, 
+			@PathVariable("notice_id") long id,
+			@RequestParam(value = "modifying", required = false)
+				boolean modifying) {
 		Notice notice = noticeService.view(id);
 		model.addAttribute("notice", notice);
+		if (modifying) {
+			AuthorizedUser user = 
+					(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+			if (!notice.getUser().equals(user)) {
+				throw new SecurityException("对不起，您无权修改这篇公告！");
+			}
+			return Config.APP + "/notice_modifying";
+		}
 		return Config.APP + "/notice";
 	}
 	
@@ -117,17 +130,6 @@ public class NoticeController {
 		return "redirect:/" + Config.APP + "/notices/" + notice.getId();
 	}
 
-	@RequestMapping(value = "/info/modify", method = RequestMethod.GET)
-	public String modify(@RequestParam("id") long id, Model model) {
-		L.info("请求修改发布信息id：{}", id);
-		Notice info = noticeService.find(id);
-		if (info == null) {
-			throw new IllegalArgumentException("对不起，您所修改的信息不存在！");
-		}
-		model.addAttribute("info", info);
-		return Config.APP + "/modify_info";
-	}
-	
 	@RequestMapping(
 		value	 = "/info/modify",
 		method	 = RequestMethod.POST
