@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -210,15 +209,17 @@ public class AuthController {
 	}
 
 	@RequestMapping(
-		value	 = "/user/list/{last_uid}/{count}",
-		produces = AjaxConstants.MEDIA_TYPE_JSON
+		value	= "/users",
+		method	= RequestMethod.GET,
+		params	= {"last_uid"}
 	)
-	@ResponseBody
-	public String list(@PathVariable("last_uid") long lastUid,
-			@PathVariable("count") int count) {
+	public String more(
+			Model model, 
+			@RequestParam("count") int count,
+			@RequestParam("last_uid") long lastUid) {
 		List<AuthorizedUser> list = authService.more(lastUid, count);
-//		直接用list构造json失败的话可以使用这个构造方法。
-		return new JSONArray(list, false).toString();
+		model.addAttribute("users", list);
+		return AjaxConstants.BAD_REQUEST;
 	}
 	
 }

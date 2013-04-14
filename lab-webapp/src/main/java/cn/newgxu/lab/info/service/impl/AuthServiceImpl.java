@@ -129,6 +129,7 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public AuthorizedUser login(String account, String password, String ip) {
 		L.info("用户:{} 登录", account);
 		AuthorizedUser user = null;
@@ -163,9 +164,20 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public List<AuthorizedUser> more(long lastUid, int count) {
+		this.checkRange(count);
 		Map<String, Object> param = new HashMap<String, Object>(1);
 		param.put("last_id", lastUid);
 		return authDao.list("AuthorizedUser.list_more", param, 0, count);
+	}
+	
+	/** 检查列表请求数目是否越界 */
+	private void checkRange(int count) {
+		if (count < 1) {
+			throw new IllegalArgumentException("请求列表数目不能为负数！");
+		} else if (count > Config.MAX_USERS_COUNT) {
+			throw new IllegalArgumentException(
+					"您请求列表数目超过限制，最大条数为 " + Config.MAX_USERS_COUNT);
+		}
 	}
 
 }

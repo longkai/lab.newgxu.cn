@@ -48,7 +48,7 @@ body {
 </div>
 <div class="container" id="auth">
 	<div class="alert alert-success" id="success">
-		<p id="msg">认证成功！您的账号为 <span id="account"></span> <span id="_pwd"></span></p>
+		<p id="msg">认证成功！您的认证名称为 <span id="authed_name"></span></p>
 	</div>
 	<div class="alert alert-error" id="error">
 		<p>认证失败！<span id="info"></span> <span id="reason"></span></p>
@@ -140,7 +140,7 @@ $(function() {
 			dataType: 	'json',
 			success: function(data) {
 				if (data.status === 'ok') {
-					$('#account');
+					$('#authed_name').text(data.user.authed_name);
 					$('#success').fadeIn();
 				} else if (data.status === 'no') {
 					$('#info').text(data.msg);

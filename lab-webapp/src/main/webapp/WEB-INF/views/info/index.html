@@ -150,20 +150,26 @@ $(function() {
 
 	$('#more_user').click(function(e) {
 		e.preventDefault();
-		var last = $(this).attr('last_user_id');
+		var last_user_id = $(this).attr('last_user_id');
 		$.ajax({
-			url: '/info/user/list/' + last + '/' + 5,
+			type: 'GET',
+			url: '/info/users.json',
+			data: {
+				count: 5,
+				last_uid: last_user_id
+			},
 			success: function(data) {
-				if (data.length === 0) {
+				var length = data.users.length;
+				if (length === 0) {
 					$('#more_error strong').text('没有更多啦！');
 					$('#more_error').show();
 					return;
 				}
-				$.each(data, function(i, item) {
+				$.each(data.users, function(i, item) {
 					var html = '<li><a href="javascript:userDetail({id})" uid="{id}" class="view_profile">{name}</a></li>';
 					html = html.replace('{id}', item.id).replace('{name}', item.authed_name);
 					$(html).appendTo('#latest_auth_list');
-					if (i === data.length - 1) {
+					if (i === length - 1) {
 						$('#more_user').attr('last_user_id', item.id);
 					}
 				})
