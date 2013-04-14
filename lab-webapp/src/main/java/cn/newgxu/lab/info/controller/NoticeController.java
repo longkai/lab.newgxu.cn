@@ -215,25 +215,20 @@ public class NoticeController {
 			Model model,
 			HttpSession session,
 			@RequestParam("uid") long uid,
-			@RequestParam("count") int count,
-			@RequestParam("last_notice_id") int lastNid) {
+			@RequestParam(value = "count", required = false) Integer count,
+			@RequestParam(value = "last_notice_id", required = false)
+				Long lastNid) {
 		AuthorizedUser au
 			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		List<Notice> list = noticeService.moreByUser(au, lastNid, count);
+		List<Notice> list = null;
+		if (count == null) {
+			list = noticeService.listByUser(au, Config.DEFAULT_NOTICES_COUNT);
+			model.addAttribute("notices", list);
+			return Config.APP + "/notices";
+		}
+		list = noticeService.moreByUser(au, lastNid, count);
 		model.addAttribute("notices", list);
 		return AjaxConstants.BAD_REQUEST;
-	}
-	
-	@RequestMapping("/info/list/user/{uid}")
-	public String list(@PathVariable("uid") long uid, Model model,
-			HttpSession session) {
-		AuthorizedUser au 
-			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		List<Notice> list
-			= noticeService.listByUser(au, Config.DEFAULT_NOTICES_COUNT);
-		model.addAttribute("info_list", list);
-		model.addAttribute("last_info_id", list.get(list.size() - 1).getId());
-		return Config.APP + "/info_list";
 	}
 	
 	private boolean uploadable(MultipartFile file) {

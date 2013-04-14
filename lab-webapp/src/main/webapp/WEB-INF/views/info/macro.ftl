@@ -26,7 +26,7 @@
 					<ul class="dropdown-menu">
 						<li><a href="/resources/html/info/publication.html"><i class="icon-pencil"></i> 发表信息</a></li>
 						<li><a href="/info/users/${Session.info_user.id}?modifying=1"><i class="icon-edit"></i> 修改个人信息</a></li>
-						<li><a href="/info/info/list/user/${Session.info_user.id}"><i class="icon-th-list"></i> 查看我发表的信息</a></li>
+						<li><a href="/info/notices?uid=${Session.info_user.id}"><i class="icon-th-list"></i> 查看我发表的信息</a></li>
 						<li class="divider"></li>
 						<li id="logout"><a href="#"><i class="i"></i> 退出</a></li>
 					</ul>

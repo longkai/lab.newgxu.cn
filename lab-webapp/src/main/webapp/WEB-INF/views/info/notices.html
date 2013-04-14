@@ -20,7 +20,7 @@ footer {
 <@header />
 
 <div class="container">
-	<table class="table table-striped" id="info_list">
+	<table class="table table-striped" id="notices">
 		<tr class="success">
 			<td>#</td>
 			<td>标题</td>
@@ -31,29 +31,29 @@ footer {
 			<td>状态</td>
 			<td>需要修改？</td>
 		</tr>
-<#list info_list as info>
-		<tr>
+<#list notices as n>
+		<tr notice_id="${n.id}">
 			<td>${info_index + 1}</td>
-			<td><code class="title"><a href="/info/notices/${info.id}" target="_blank">${info.title}</a></code></td>
-			<td><code class="text-info add-date">${info.addDate}</code></td>
-			<td><code class="text-warning modify-date">${info.lastModifiedDate}</code></td>
-	<#if info.docUrl??>
-			<td><code class="upload-file"><a class="text-success" target="_blank" href="${info.docUrl}">${info.docName?default('文件')}</a></code></td>
+			<td><code class="title"><a href="/info/notices/${n.id}" target="_blank">${n.title}</a></code></td>
+			<td><code class="text-info add-date">${n.addDate}</code></td>
+			<td><code class="text-warning modify-date">${n.lastModifiedDate}</code></td>
+	<#if n.docUrl??>
+			<td><code class="upload-file"><a class="text-success" target="_blank" href="${n.docUrl}">${n.docName?default('文件')}</a></code></td>
 	<#else>
 			<td><code class="upload-file">没有上传</code></td>
 	</#if>
-			<td><code class="click-times">${info.clickTimes}</code></td>
-	<#if info.blocked>
-			<td><code class="status">屏蔽</code> <code><a href="/info/notices/${info.id}.json?blocked=0" class="action unblock text-error">解蔽之</a></code></td>
+			<td><code class="click-times">${n.clickTimes}</code></td>
+	<#if n.blocked>
+			<td><code class="status">屏蔽</code> <code><a href="/info/notices/${n.id}.json?blocked=0" class="action unblock text-error">解蔽之</a></code></td>
 	<#else>
-			<td><code class="status">正常</code> <code><a href="/info/notices/${info.id}.json?blocked=1" class="action block text-error">屏蔽之</a></code></td>
+			<td><code class="status">正常</code> <code><a href="/info/notices/${n.id}.json?blocked=1" class="action block text-error">屏蔽之</a></code></td>
 	</#if>
-			<td><code><a href="/info/notices/${info.id}?modifying=1">走起~</a></code></td>
+			<td><code><a href="/info/notices/${n.id}?modifying=1">走起~</a></code></td>
 		</tr>
 </#list>
 	</table>
-	<button id="more" class="btn btn-block" uid="${Session.info_user.id}" count="3" last_info_id="${last_info_id}">查看更多！</button>
-	<div class="alert alert-error hide" id="alert" full="0">
+	<button id="more" class="btn btn-block" uid="${Session.info_user.id}" count="3" last_notice_id="-1">查看更多！</button>
+	<div class="alert alert-error hide" id="alert">
 		<p class="text-center text-error lead"><span id="msg"></span> <span id="reason"></span></p>
 	</div>
 </div>
@@ -97,13 +97,12 @@ $(function() {
 
 	$('#more').click(function(e) {
 		e.preventDefault();
-		var isFull = $('#alert').attr('full');
-		if (isFull == 1) {
-			return;
-		}
 		var this$ = $(this);
 		var uid = this$.attr('uid');
-		var last_info_id = this$.attr('last_info_id');
+		var last_notice_id = this$.attr('last_notice_id');
+		if (last_notice_id == -1) {
+			last_notice_id = $('#notices tr:last').attr('notice_id');
+		}
 		var count = this$.attr('count');
 		var url = '/info/notices.json';
 		$.ajax({
@@ -113,13 +112,13 @@ $(function() {
 			data: {
 				count: 3,
 				uid: uid,
-				last_notice_id: last_info_id
+				last_notice_id: last_notice_id
 			},
 			success: function(data) {
 				var length = data.notices.length;
 				if (length === 0) {
 					$('#msg').text('没有更多啦！');
-					$('#alert').attr('full', 1).fadeIn();
+					$('#alert').fadeIn();
 					$('#more').attr('disabled', true);
 					return;
 				}
@@ -150,10 +149,10 @@ $(function() {
 						_item$.find('.action').append($('<a>').attr('href', '/info/notices/' + item.id + '.json?blocked=1').text('屏蔽之').addClass('text-error block action'));
 					}
 					_item$.find('.modify a').attr('href', '/info/notices/' + item.id + '?modifying=1');
-					_item$.appendTo('#info_list');
+					_item$.appendTo('#notices');
 
 					if (length === i + 1) {
-						this$.attr('last_info_id', item.id);
+						this$.attr('last_notice_id', item.id);
 					}
 				})
 				this$.attr('count', count);
