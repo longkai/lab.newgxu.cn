@@ -44,9 +44,9 @@ footer {
 	</#if>
 			<td><code class="click-times">${info.clickTimes}</code></td>
 	<#if info.blocked>
-			<td><code class="status">屏蔽</code> <code><a href="/info/info/block/unblock/${info.id}" class="action unblock text-error">解蔽之</a></code></td>
+			<td><code class="status">屏蔽</code> <code><a href="/info/notices/${info.id}.json?blocked=0" class="action unblock text-error">解蔽之</a></code></td>
 	<#else>
-			<td><code class="status">正常</code> <code><a href="/info/info/block/block/${info.id}" class="action block text-error">屏蔽之</a></code></td>
+			<td><code class="status">正常</code> <code><a href="/info/notices/${info.id}.json?blocked=1" class="action block text-error">屏蔽之</a></code></td>
 	</#if>
 			<td><code><a href="/info/notices/${info.id}?modifying=1">走起~</a></code></td>
 		</tr>
@@ -136,10 +136,10 @@ $(function() {
 					_item$.find('.click-times').text(item.clickTimes);
 					if (item.blocked) {
 						_item$.find('.status').text('屏蔽');
-						_item$.find('.action').append($('<a>').attr('href', '/info/info/block/unblock/' + item.id).text('解蔽之').addClass('text-error unblock'));
+						_item$.find('.action').append($('<a>').attr('href', '/info/notices/' + item.id + '.json?blocked=0').text('解蔽之').addClass('text-error unblock'));
 					} else {
 						_item$.find('.status').text('正常');
-						_item$.find('.action').append($('<a>').attr('href', '/info/info/block/block/' + item.id).text('屏蔽之').addClass('text-error block'));
+						_item$.find('.action').append($('<a>').attr('href', '/info/notices/' + item.id + '.json?blocked=1').text('屏蔽之').addClass('text-error block'));
 					}
 					_item$.find('.modify a').attr('href', '/info/notices/' + item.id + '?modifying=1');
 					_item$.appendTo('#info_list');
@@ -177,14 +177,14 @@ $(function() {
 
 		$.ajax({
 			url: url,
-			type: 'GET',
+			type: 'DELETE',
 			dataType: 'json',
 			success: function(data) {
 				if (data.status === 'ok') {
 					this$.closest('code').prev().text(action === '屏蔽' ? '屏蔽' : '正常');
 					this$.text(action === '屏蔽' ? '解蔽之' : '屏蔽之');
-					var info_id = url.match(/[0-9]+$/g);
-					this$.attr('href', action === '屏蔽' ? '/info/info/block/unblock/' + info_id : '/info/info/block/block/' + info_id);
+					var info_id = url.match(/[0-9]+\.json/g)[0].replace('.json', '');
+					this$.attr('href', action === '屏蔽' ? '/info/notices/' + info_id + '.json?blocked=0' : '/info/notices/' + info_id + '.json?blocked=1');
 					this$.removeClass(action === '屏蔽' ? 'block' : 'unblock');
 					this$.addClass(action === '屏蔽' ? 'unblock' : 'block');
 				} else if (data.status === 'no') {

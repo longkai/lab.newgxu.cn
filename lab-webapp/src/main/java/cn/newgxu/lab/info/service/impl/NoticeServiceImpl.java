@@ -79,43 +79,43 @@ public class NoticeServiceImpl implements NoticeService {
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public void create(Notice info) {
-		validate(info);
+	public void create(Notice notice) {
+		validate(notice);
 		
-		info.setAddDate(new Date());
-		info.setLastModifiedDate(info.getAddDate());
-		noticeDao.persist(info);
-		L.info("用户：{} 发表信息：{} 成功！", info.getUser().getAuthorizedName(), info.getTitle());
+		notice.setAddDate(new Date());
+		notice.setLastModifiedDate(notice.getAddDate());
+		noticeDao.persist(notice);
+		L.info("用户：{} 发表信息：{} 成功！", notice.getUser().getAuthorizedName(), notice.getTitle());
 	}
 
 	@Override
-	public void delete(Notice info) {
+	public void delete(Notice notice) {
 		throw new UnsupportedOperationException("对不起，暂不支持此操作！");
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public Notice update(Notice info) {
-		validate(info);
+	public Notice update(Notice notice) {
+		validate(notice);
 		
-		Notice i = noticeDao.find(info.getId());
+		Notice i = noticeDao.find(notice.getId());
 		
-		safeCheck(info, i);
+		assertBelong(notice, i);
 		
 		i.setLastModifiedDate(new Date());
-		i.setTitle(info.getTitle());
-		i.setContent(info.getContent());
+		i.setTitle(notice.getTitle());
+		i.setContent(notice.getContent());
 //		文件上传处理
-		if (info.getDocName() != null) {
-			i.setDocName(info.getDocName());
+		if (notice.getDocName() != null) {
+			i.setDocName(notice.getDocName());
 		}
-		if (info.getDocUrl() != null) {
-			i.setDocUrl(info.getDocUrl());
+		if (notice.getDocUrl() != null) {
+			i.setDocUrl(notice.getDocUrl());
 		}
 		
 		noticeDao.merge(i);
-		L.info("信息：{} 修改成功！", info.getTitle());
-		return i;
+		L.info("信息：{} 修改成功！", notice.getTitle());
+		return notice;
 	}
 
 	@Override
@@ -175,34 +175,36 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public Notice block(Notice info, boolean blocked) {
-		Notice i = noticeDao.find(info.getId());
+	public Notice block(Notice notice, boolean blocked) {
+		Notice i = noticeDao.find(notice.getId());
 		
-		safeCheck(info, i);
+		assertBelong(notice, i);
 		
 		if (blocked) {
 			i.setBlocked(true);
+			notice.setBlocked(true);
 		} else {
 			i.setBlocked(false);
+			notice.setBlocked(false);
 		}
 		
 		noticeDao.merge(i);
 		
 		L.info("信息：{} 屏蔽?：{}成功！", i.getTitle(), blocked);
-		return i;
+		return notice;
 	}
 
 	/**
 	 * 1，检查数据库是否存在该信息；2，检查信息的发布者是否是同一人
-	 * @param info
+	 * @param notice
 	 * @param i
 	 * @throws SecurityException
 	 */
-	private void safeCheck(Notice info, Notice i)
+	private void assertBelong(Notice notice, Notice i)
 			throws SecurityException {
 		Assert.notNull("对不起，您所访问的信息不存在！", i);
 		
-		if (!i.getUser().equals(info.getUser())) {
+		if (!i.getUser().equals(notice.getUser())) {
 			throw new SecurityException("对不起，这条信息不是您发布的，您无权对其进行操作！");
 		}
 	}

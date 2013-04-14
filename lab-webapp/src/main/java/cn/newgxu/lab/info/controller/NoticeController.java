@@ -163,44 +163,37 @@ public class NoticeController {
 	}
 	
 	@RequestMapping(
-		value	 = "/info/block/{type}/{id}",
-		produces = AjaxConstants.MEDIA_TYPE_JSON
+		value = "/notices/{notice_id}",
+		method = RequestMethod.DELETE
 	)
-	@ResponseBody
-	public String block(@PathVariable("type") String type,
-			@PathVariable("id") long id,
-			HttpSession session) {
-		Assert.notNull("操作类型不能为空！", type);
+	public String block(
+			Model model,
+			HttpSession session,
+			@PathVariable("notice_id") long nid,
+			@RequestParam("blocked") boolean blocked) {
 		AuthorizedUser au
 			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		Notice info = new Notice();
-		info.setId(id);
-		info.setUser(au);
-		if (type.equals("block")) {
-			noticeService.block(info, true);
-		} else if (type.equals("unblock")) {
-			noticeService.block(info, false);
+		
+		Notice notice = noticeService.find(nid);
+		notice.setUser(au);
+		if (blocked) {
+			noticeService.block(notice, true);
 		} else {
-			throw new UnsupportedOperationException("不支持的操作！");
+			noticeService.block(notice, false);
 		}
-		return AjaxConstants.JSON_STATUS_OK;
+		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
+		return AjaxConstants.BAD_REQUEST;
 	}
 	
 	@RequestMapping(
-		value	 = "/info/newer_than/{local_id}",
-		produces = AjaxConstants.MEDIA_TYPE_JSON
+		params	 = {"has_new"},
+		method	 = RequestMethod.GET,
+		value	 = "/notices/{last_id}"
 	)
-	@ResponseBody
-	public String hasNew(@PathVariable("local_id") long id)
-			throws JSONException {
-		int count = noticeService.newerCount(id);
-		if (count != 0) {
-			JSONObject json = new JSONObject();
-			json.put(AjaxConstants.AJAX_STATUS, "ok");
-			json.put("count", count);
-			return json.toString();
-		}
-		return AjaxConstants.JSON_STATUS_NO;
+	public String hasNew(Model model, @PathVariable("last_id") long nid) {
+		int count = noticeService.newerCount(nid);
+		model.addAttribute("count", count);
+		return AjaxConstants.BAD_REQUEST;
 	}
 	
 	@RequestMapping(

@@ -37,11 +37,11 @@ import cn.newgxu.lab.info.entity.Notice;
  */
 public interface NoticeService {
 
-	void create(Notice info);
+	void create(Notice notice);
 
-	void delete(Notice info);
+	void delete(Notice notice);
 
-	Notice update(Notice info);
+	Notice update(Notice notice);
 
 	Notice find(long pk);
 	
@@ -62,15 +62,15 @@ public interface NoticeService {
 	
 	/**
 	 * 屏蔽信息。
-	 * @param info 欲屏蔽或者解蔽的信息对象
+	 * @param notice 欲屏蔽或者解蔽的信息对象
 	 * @param blocked 你懂的
 	 */
-	Notice block(Notice info, boolean blocked);
+	Notice block(Notice notice, boolean blocked);
 
 	/**
 	 * 是否有更新，判断是否有比传过来的参数更大的主键 
 	 * @param pk 客户端上最新的主键
-	 * @return true or false
+	 * @return number of the lastest notices
 	 */
 	int newerCount(long pk);
 
