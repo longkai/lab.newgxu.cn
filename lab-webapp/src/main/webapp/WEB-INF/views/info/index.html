@@ -45,32 +45,32 @@ body {
 		<div class="span3">
 			<ul class="nav nav-list" id="latest_auth_list">
 				<li class="nav-header">最新认证</li>
-<#list auth_list as au>
-				<li><a href="#" uid="${au.id}" class="view_profile">${au.authorizedName}</a></li>
+<#list users as u>
+				<li><a href="#" uid="${u.id}" class="view_profile">${u.authorizedName}</a></li>
 </#list>
 			</ul>
-			<a id="more_user" last_user_id="${last_user_id}" href="#" class="btn btn-block btn-info">查看更多</a>
+			<a id="more_user" last_user_id="-1" href="#" class="btn btn-block btn-info">查看更多</a>
 			<div class="alert" id="more_error">
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 				<strong></strong>
 			</div>
 		</div>
 		<div class="span9">
-			<div class="row" id="info_list">
-<#list info_list as info>
-				<div class="span3 info">
-					<h4>${info.title}</h4>
-	<#if info.content?html?string?length gt 100>
-						<p>${info.content?html?string[0..99]}</p>
+			<div class="row" id="notice_list">
+<#list notices as n>
+				<div class="span3 notice" notice_id="${n.id}">
+					<h4>${n.title}</h4>
+	<#if n.content?html?string?length gt 100>
+						<p>${n.content?html?string[0..99]}</p>
 	<#else>
-						<p>${info.content?html}</p>
+						<p>${n.content?html}</p>
 	</#if>
-					<p><a class="btn" href="/info/info?id=${info.id}">详细 &raquo;</a></p>
+					<p><a class="btn" href="/info/info?id=${n.id}">详细 &raquo;</a></p>
 				</div>
 </#list>
 			</div>
-			<a href="#" id="more_info" last_info_id="${last_info_id}" class="btn btn-block">查看更多</a>
-			<div class="alert" id="more_info_error">
+			<a href="#" id="more_notices" last_notice_id="-1" class="btn btn-block">查看更多</a>
+			<div class="alert" id="more_notices_error">
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 				<strong></strong>
 			</div>
@@ -151,6 +151,9 @@ $(function() {
 	$('#more_user').click(function(e) {
 		e.preventDefault();
 		var last_user_id = $(this).attr('last_user_id');
+		if (last_user_id == -1) {
+			last_user_id = $('#latest_auth_list li:last a').attr('uid');
+		}
 		$.ajax({
 			type: 'GET',
 			url: '/info/users.json',
@@ -162,6 +165,7 @@ $(function() {
 				var length = data.users.length;
 				if (length === 0) {
 					$('#more_error strong').text('没有更多啦！');
+					$('#more_user').attr('disabled', true);
 					$('#more_error').show();
 					return;
 				}
@@ -181,18 +185,22 @@ $(function() {
 		})
 	})
 
-	$('#more_info').click(function(e) {
+	$('#more_notices').click(function(e) {
 		e.preventDefault();
-		var last = $(this).attr('last_info_id');
 		$('#more_info_error').hide();
+		var last = $(this).attr('last_notice_id');
+		if (last == -1) {
+			last = $('#notice_list div.notice:last').attr('notice_id');
+		}
 		$.ajax({
 			url: '/info/info/list/' + last + '/' + 3,
 			type: 'GET',
 			dataType: 'json',
 			success: function(data) {
 				if (data.length === 0) {
-					$('#more_info_error strong').text('没有更多啦！');
-					$('#more_info_error').show();
+					$('#more_notices_error strong').text('没有更多啦！');
+					$('#more_notices').attr('disabled', true);
+					$('#more_notices_error').show();
 				} else {
 					$.each(data, function(i, item) {
 						var content = '';
@@ -202,17 +210,17 @@ $(function() {
 							content = item.content.substring(0, 99);
 						}
 						$('<div>').addClass('span3 info').append($('<h4>').text(item.title)).append($('<p>').text(content))
-							.append($('<p>').append($('<a>').addClass('btn').attr('href', '/info/info?id=' + item.id).html('详细 &raquo;'))).appendTo('#info_list');
+							.append($('<p>').append($('<a>').addClass('btn').attr('href', '/info/info?id=' + item.id).html('详细 &raquo;'))).appendTo('#notice_list');
 
 						if (i === data.length - 1) {
-							$('#more_info').attr('last_info_id', item.id);
+							$('#more_notices').attr('last_notice_id', item.id);
 						}
 					})
 				}
 			},
 			error: function() {
-				$('#more_info_error strong').text('出错啦！请稍后再试');
-				$('#more_info_error').show();
+				$('#more_notices_error strong').text('出错啦！请稍后再试');
+				$('#more_notices_error').show();
 			}
 		})
 	})

@@ -79,17 +79,10 @@ public class NoticeController {
 	
 	@RequestMapping({"/", "index", "home"})
 	public String index(Model model) {
-		List<Notice> list = 
-				noticeService.latest();
-		List<AuthorizedUser> auths = authService.latest();
-		if (list != null && list.size() > 0) {
-			model.addAttribute("last_info_id", list.get(list.size() - 1).getId());
-		}
-		if (auths != null && auths.size() > 0) {
-			model.addAttribute("last_user_id", auths.get(auths.size() - 1).getId());
-		}
-		model.addAttribute("auth_list", auths);
-		model.addAttribute("info_list", list);
+		List<Notice> notices = noticeService.latest();
+		List<AuthorizedUser> users = authService.latest();
+		model.addAttribute("users", users);
+		model.addAttribute("notices", notices);
 		return Config.APP + "/index";
 	}
 	
