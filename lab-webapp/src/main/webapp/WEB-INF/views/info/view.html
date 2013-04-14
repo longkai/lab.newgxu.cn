@@ -64,7 +64,7 @@ footer {
 	</div>
 	<div class="modal-body">
 		<div id="profile">
-			<p>Ta是： <span id="auth_name"></span></p>
+			<p>Ta是： <span id="authed_name"></span></p>
 			<p>来自： <span id="org"></span></p>
 			<p>关于Ta： <span id="about"></span></p>
 			<p>联系Ta吧： <span id="contact"></span></p>
@@ -140,26 +140,26 @@ $(function() {
 	})
 })
 function userDetail(uid) {
-	var url = '/info/user/profile/' + uid;
+	var url = '/info/users/' + uid + '.json';
 	$.ajax({
-		type: 'GET',
-		url: url,
-		dataType: 'json',
+		url: 		url,
+		type: 		'GET',
+		dataType: 	'json',
 		success: function(data) {
-			if (data.status) {
+			if (data.status !== 'ok') {
 				alert('没有找到该用户！');
 				return;
 			}
-			$('#auth_name').text(data.authorizedName);
-			$('#org').text(data.org);
-			$('#about').text(data.about);
-			$('#contact').text(data.contact);
+			$('#authed_name').text(data.user.authed_name);
+			$('#org').text(data.user.org);
+			$('#about').text(data.user.about);
+			$('#contact').text(data.user.contact);
+			$('#modal_profile').modal();
 		},
 		error: function() {
 			alert('没有找到该用户！');
 		}
 	})
-	$('#modal_profile').modal();
 }
 </script>
 </@script>

@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -43,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.newgxu.lab.core.common.AjaxConstants;
+import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.info.config.Config;
 import cn.newgxu.lab.info.entity.AuthorizedUser;
 import cn.newgxu.lab.info.service.AuthService;
@@ -126,13 +126,6 @@ public class AuthController {
 		return AjaxConstants.BAD_REQUEST;
 	}
 
-	@RequestMapping(value = "/user/update/{uid}", method = RequestMethod.GET)
-	public String update(@PathVariable("uid") int uid, Model model) {
-		AuthorizedUser au = authService.find(uid);
-		model.addAttribute("au", au);
-		return Config.APP + "/update_user";
-	}
-
 	@RequestMapping(value = "/user/update/{type}", method = RequestMethod.POST)
 	@ResponseBody
 	public String resetPwd(@PathVariable("type") String type,
@@ -163,14 +156,38 @@ public class AuthController {
 		return AjaxConstants.JSON_STATUS_OK;
 	}
 
-	@RequestMapping(
-		value	 = "/user/profile/{uid}",
-		produces = AjaxConstants.MEDIA_TYPE_JSON
-	)
-	@ResponseBody
-	public String profile(@PathVariable("uid") long uid) {
-		AuthorizedUser au = authService.find(uid);
-		return new JSONObject(au).toString();
+	/**
+	 * 使用REST API的方式查看用户的信息。此外，也包括了认证用户请求修改个人信息的请求。
+	 * @param model
+	 * @param session
+	 * @param uid
+	 * @param modifying 是否有修改个人信息的意图，默认为false
+	 * @return
+	 */
+	@RequestMapping(value = "/users/{uid}", method = RequestMethod.GET)
+	public String profile(
+			Model model,
+			HttpSession session,
+			@PathVariable("uid") long uid,
+			@RequestParam(value = "modifying", required = false)
+				boolean modifying) {
+		AuthorizedUser au = null;
+//		如果请求修改信息，那我们返回html视图
+		if (modifying) {
+			au = (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+			Assert.notNull("对不起，请登陆后再操作！", au);
+			if (au.getId() != uid) {
+				throw new SecurityException("对不起，您无权修改该用户的信息！");
+			}
+			model.addAttribute("user", au);
+			return Config.APP + "/user_modifying";
+		}
+//		简单的查看用户信息
+		au = authService.find(uid);
+		Assert.notNull("对不起，您所查看的用户不存在！", au);
+		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
+		model.addAttribute("user", au);
+		return AjaxConstants.BAD_REQUEST;
 	}
 
 	@RequestMapping(
