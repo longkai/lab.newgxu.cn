@@ -37,6 +37,9 @@ import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import cn.newgxu.lab.core.common.JsonDateSerializer;
 
 /**
  * 信息。
@@ -73,10 +76,12 @@ public class Notice {
 	
 	@Column(name = "add_date")
 	@JsonProperty("add_date")
+	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date			addDate;
 	
 	@Column(name = "last_modified_date")
 	@JsonProperty("last_modified_date")
+	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date			lastModifiedDate;
 
 	/** 是否被屏蔽 */

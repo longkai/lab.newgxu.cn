@@ -37,7 +37,9 @@ import javax.persistence.Table;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
+import cn.newgxu.lab.core.common.JsonDateSerializer;
 import cn.newgxu.lab.info.config.AccountType;
 
 /**
@@ -80,6 +82,7 @@ public class AuthorizedUser {
 
 	@Column(name = "join_time")
 	@JsonProperty("join_time")
+	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date		joinTime;
 
 	/** 账号是否被封 */
@@ -97,6 +100,7 @@ public class AuthorizedUser {
 	
 	@Column(name = "last_login_time")
 	@JsonIgnore
+//	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date		lastLoginTime;
 
 	public long getId() {

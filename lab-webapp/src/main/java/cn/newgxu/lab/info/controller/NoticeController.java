@@ -30,7 +30,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -40,7 +39,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -209,19 +207,21 @@ public class NoticeController {
 	}
 	
 	@RequestMapping(
-		value	 = "/info/list/user/{uid}/{last_id}/{count}",
-		produces = AjaxConstants.MEDIA_TYPE_JSON
+		params	 = {"uid"},
+		value	 = "/notices",
+		method	 = RequestMethod.GET
 	)
-	@ResponseBody
 	public String list(
-			@PathVariable("uid") long uid,
-			@PathVariable("last_id") int lastId,
-			@PathVariable("count") int count,
-			HttpSession session) {
+			Model model,
+			HttpSession session,
+			@RequestParam("uid") long uid,
+			@RequestParam("count") int count,
+			@RequestParam("last_notice_id") int lastNid) {
 		AuthorizedUser au
 			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		List<Notice> list = noticeService.moreByUser(au, lastId, count);
-		return new JSONArray(list, false).toString();
+		List<Notice> list = noticeService.moreByUser(au, lastNid, count);
+		model.addAttribute("notices", list);
+		return AjaxConstants.BAD_REQUEST;
 	}
 	
 	@RequestMapping("/info/list/user/{uid}")

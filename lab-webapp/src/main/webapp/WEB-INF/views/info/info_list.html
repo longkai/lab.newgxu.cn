@@ -34,7 +34,7 @@ footer {
 <#list info_list as info>
 		<tr>
 			<td>${info_index + 1}</td>
-			<td><code class="title"><a href="/info/info?id=${info.id}" target="_blank">${info.title}</a></code></td>
+			<td><code class="title"><a href="/info/notices/${info.id}" target="_blank">${info.title}</a></code></td>
 			<td><code class="text-info add-date">${info.addDate}</code></td>
 			<td><code class="text-warning modify-date">${info.lastModifiedDate}</code></td>
 	<#if info.docUrl??>
@@ -67,7 +67,7 @@ footer {
 			<td><code class="text-warning modify-date"></code></td>
 			<td><code class="upload-file"></code></td>
 			<td><code class="click-times"></code></td>
-			<td><code class="status"></code> <code class="action text-error"</code></td>
+			<td><code class="status"></code> <code class="action text-error"></code></td>
 			<td><code class="modify"><a href="#">走起~</a></code></td>
 		</tr>
 	</tbody>
@@ -80,6 +80,7 @@ footer {
 </body>
 <@script>
 <script type="text/javascript">
+$()
 $(function() {
 	$('#_index').removeClass('active');
 
@@ -104,28 +105,35 @@ $(function() {
 		var uid = this$.attr('uid');
 		var last_info_id = this$.attr('last_info_id');
 		var count = this$.attr('count');
-		var url = '/info/info/list/user/' + uid + '/' + last_info_id + '/' + 3;
+		var url = '/info/notices.json';
 		$.ajax({
 			url: url,
 			type: 'GET',
 			dataType: 'json',
+			data: {
+				count: 3,
+				uid: uid,
+				last_notice_id: last_info_id
+			},
 			success: function(data) {
-				if (data.length === 0) {
+				var length = data.notices.length;
+				if (length === 0) {
 					$('#msg').text('没有更多啦！');
 					$('#alert').attr('full', 1).fadeIn();
+					$('#more').attr('disabled', true);
 					return;
 				}
-				$.each(data, function(i, item) {
+				$.each(data.notices, function(i, item) {
 					count++;
 					var _item$ = $('#template .item').children().clone();
 					_item$.find('.index').text(count);
-					_item$.find('.title').append($('<a>').attr('href', '/info/info?id=' + item.id).attr('target', '_blank').text(item.title));
-					_item$.find('.add-date').text(item.addDate.replace(/\.\d$/g, ''));
-					_item$.find('.modify-date').text(item.lastModifiedDate.replace(/\.\d$/g, ''));
-					if (item.docUrl) {
-						var docLink$ = $('<a>').addClass('text-success').attr('href', item.docUrl).attr('target', '_blank');
-						if (item.docName) {
-							docLink$.text(item.docName);
+					_item$.find('.title').append($('<a>').attr('href', '/info/notices/' + item.id).attr('target', '_blank').text(item.title));
+					_item$.find('.add-date').text(item.add_date.replace(/\.\d$/g, ''));
+					_item$.find('.modify-date').text(item.last_modified_date.replace(/\.\d$/g, ''));
+					if (item.doc_url) {
+						var docLink$ = $('<a>').addClass('text-success').attr('href', item.doc_url).attr('target', '_blank');
+						if (item.doc_name) {
+							docLink$.text(item.doc_url);
 						} else {
 							docLink$.text('文件');
 						}
@@ -133,18 +141,18 @@ $(function() {
 					} else {
 						_item$.find('.upload-file').text('没有上传');
 					}
-					_item$.find('.click-times').text(item.clickTimes);
+					_item$.find('.click-times').text(item.click_times);
 					if (item.blocked) {
 						_item$.find('.status').text('屏蔽');
-						_item$.find('.action').append($('<a>').attr('href', '/info/notices/' + item.id + '.json?blocked=0').text('解蔽之').addClass('text-error unblock'));
+						_item$.find('.action').append($('<a>').attr('href', '/info/notices/' + item.id + '.json?blocked=0').text('解蔽之').addClass('text-error unblock action'));
 					} else {
 						_item$.find('.status').text('正常');
-						_item$.find('.action').append($('<a>').attr('href', '/info/notices/' + item.id + '.json?blocked=1').text('屏蔽之').addClass('text-error block'));
+						_item$.find('.action').append($('<a>').attr('href', '/info/notices/' + item.id + '.json?blocked=1').text('屏蔽之').addClass('text-error block action'));
 					}
 					_item$.find('.modify a').attr('href', '/info/notices/' + item.id + '?modifying=1');
 					_item$.appendTo('#info_list');
 
-					if (data.length === i + 1) {
+					if (length === i + 1) {
 						this$.attr('last_info_id', item.id);
 					}
 				})
@@ -155,48 +163,48 @@ $(function() {
 			}
 		})
 	})
+})
 
-	$('.action').click(function(e) {
-		e.preventDefault();
-		var this$ = $(this);
-		var url = this$.attr('href');
-		var action = '';
-		if (this$.hasClass('block')) {
-			action = '屏蔽';
-		} else if (this$.hasClass('unblock')) {
-			action = '解蔽';
-		} else {
-			// 不可能出错，除非xx
-			alert('呃-_-，出错了，请您稍后再试！');
-			return;
-		}
-		var msg = '确定要{}吗？'.replace('{}', action);
-		if (!confirm(msg)) {
-			return;
-		}
+$('body').on('click', 'a.action', function(e) {
+	e.preventDefault();
+	var this$ = $(this);
+	var url = this$.attr('href');
+	var action = '';
+	if (this$.hasClass('block')) {
+		action = '屏蔽';
+	} else if (this$.hasClass('unblock')) {
+		action = '解蔽';
+	} else {
+		// 不可能出错，除非xx
+		alert('呃-_-，出错了，请您稍后再试！');
+		return;
+	}
+	var msg = '确定要{}吗？'.replace('{}', action);
+	if (!confirm(msg)) {
+		return;
+	}
 
-		$.ajax({
-			url: url,
-			type: 'DELETE',
-			dataType: 'json',
-			success: function(data) {
-				if (data.status === 'ok') {
-					this$.closest('code').prev().text(action === '屏蔽' ? '屏蔽' : '正常');
-					this$.text(action === '屏蔽' ? '解蔽之' : '屏蔽之');
-					var info_id = url.match(/[0-9]+\.json/g)[0].replace('.json', '');
-					this$.attr('href', action === '屏蔽' ? '/info/notices/' + info_id + '.json?blocked=0' : '/info/notices/' + info_id + '.json?blocked=1');
-					this$.removeClass(action === '屏蔽' ? 'block' : 'unblock');
-					this$.addClass(action === '屏蔽' ? 'unblock' : 'block');
-				} else if (data.status === 'no') {
-					alert('出错了-_-，错误信息：' + data.msg + ', 原因：' + data.reason);
-				} else {
-					alert('见鬼了-_-，这都能出错，请您稍后再试或者联系管理员！');
-				}
-			},
-			error: function() {
+	$.ajax({
+		url: url,
+		type: 'DELETE',
+		dataType: 'json',
+		success: function(data) {
+			if (data.status === 'ok') {
+				this$.closest('code').prev().text(action === '屏蔽' ? '屏蔽' : '正常');
+				this$.text(action === '屏蔽' ? '解蔽之' : '屏蔽之');
+				var info_id = url.match(/[0-9]+\.json/g)[0].replace('.json', '');
+				this$.attr('href', action === '屏蔽' ? '/info/notices/' + info_id + '.json?blocked=0' : '/info/notices/' + info_id + '.json?blocked=1');
+				this$.removeClass(action === '屏蔽' ? 'block' : 'unblock');
+				this$.addClass(action === '屏蔽' ? 'unblock' : 'block');
+			} else if (data.status === 'no') {
+				alert('出错了-_-，错误信息：' + data.msg + ', 原因：' + data.reason);
+			} else {
 				alert('见鬼了-_-，这都能出错，请您稍后再试或者联系管理员！');
 			}
-		})
+		},
+		error: function() {
+			alert('见鬼了-_-，这都能出错，请您稍后再试或者联系管理员！');
+		}
 	})
 })
 </script>
