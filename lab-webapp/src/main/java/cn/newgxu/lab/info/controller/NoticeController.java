@@ -87,7 +87,7 @@ public class NoticeController {
 	}
 	
 	@RequestMapping(value = "/notices/{notice_id}", method = RequestMethod.GET)
-	public String view(
+	public String get(
 			Model model,
 			HttpSession session, 
 			@PathVariable("notice_id") long id,
@@ -130,26 +130,36 @@ public class NoticeController {
 		return "redirect:/" + Config.APP + "/notices/" + notice.getId();
 	}
 
-	@RequestMapping(
-		value	 = "/info/modify",
-		method	 = RequestMethod.POST
-//		produces = AjaxConstants.MEDIA_TYPE_JSON
-	)
-	public String modify(Notice info,
+	@RequestMapping(value = "/notices/{notice_id}", method = RequestMethod.POST)
+	public String modify(
+			Notice notice,
+			HttpSession session, 
+			RedirectAttributes attributes,
+			@PathVariable("notice_id") long nid,
 			@RequestParam("name") String fileName,
-			@RequestParam("file") MultipartFile file,
-			HttpSession session, RedirectAttributes attributes)
-			throws JSONException {
-		fileUpload(info, fileName, file);
+			@RequestParam("file") MultipartFile file) {
 		AuthorizedUser au = 
 				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		info.setUser(au);
-		noticeService.update(info);
+		Notice persistentNotice = noticeService.find(nid);
+		Assert.notNull("对不起，您所请求的资源不存在！", persistentNotice);
+		if (!persistentNotice.getUser().equals(au)) {
+			throw new SecurityException("对不起，您无权修改！");
+		}
+		if (!file.isEmpty()) {
+			fileDelete(persistentNotice);
+		}
+		persistentNotice.setTitle(notice.getTitle());
+		persistentNotice.setContent(notice.getContent());
+
+		fileUpload(notice, fileName, file);
+		persistentNotice.setDocName(notice.getDocName());
+		persistentNotice.setDocUrl(notice.getDocUrl());
 		
-		attributes.addFlashAttribute("from", "-1");
+		noticeService.update(persistentNotice);
+		
+		attributes.addAttribute("from", -1);
 		attributes.addAttribute("status", "ok");
-		attributes.addAttribute("id", info.getId());
-		return "redirect:/" + Config.APP + "/info";
+		return "redirect:/" + Config.APP + "/notices/" + nid;
 	}
 	
 	@RequestMapping(
@@ -249,9 +259,6 @@ public class NoticeController {
 			MultipartFile file) {
 		try {
 			if (!file.isEmpty()) {
-//				处理之前传过的文件，如果有
-				fileDelete(info);
-				
 				uploadable(file);
 				String originName = file.getOriginalFilename();
 				Calendar now = Calendar.getInstance();
@@ -282,14 +289,9 @@ public class NoticeController {
 		}
 	}
 
-	private void fileDelete(Notice info) throws RuntimeException {
-		Notice origin = noticeService.find(info.getId());
-//		如果没有，就代表是新建文档，直接返回吧- -
-		if (origin == null) {
-			return;
-		}
-		if (origin.getDocUrl() != null) {
-			File f = new File(Config.UPLOAD_ABSOLUTE_DIR + origin.getDocUrl());
+	private void fileDelete(Notice notice) throws RuntimeException {
+		if (notice.getDocUrl() != null) {
+			File f = new File(Config.UPLOAD_ABSOLUTE_DIR + notice.getDocUrl());
 			if (!f.delete()) {
 				throw new RuntimeException("删除原有的文件失败！请稍后再试或者联系管理员！");
 			}
