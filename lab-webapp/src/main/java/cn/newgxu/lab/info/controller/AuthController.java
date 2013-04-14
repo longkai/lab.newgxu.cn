@@ -126,36 +126,55 @@ public class AuthController {
 		return AjaxConstants.BAD_REQUEST;
 	}
 
-	@RequestMapping(value = "/user/update/{type}", method = RequestMethod.POST)
+	/**
+	 * REST API，使用PUT方式更新用户数据
+	 * @param session
+	 * @param uid
+	 * @param type 修改的类型
+	 * @param password
+	 * @param pwd1
+	 * @param pwd2
+	 * @param about
+	 * @param contact
+	 * @return only json
+	 */
+	@RequestMapping(
+		value	 = "/users/{uid}",
+		method	 = RequestMethod.PUT,
+		params	 = {"modifying_type"}
+	)
 	@ResponseBody
-	public String resetPwd(@PathVariable("type") String type,
+	public String modify(
+			HttpSession session,
+			@PathVariable("uid") long uid,
 			@RequestParam("password") String password,
-			@RequestParam(value = "contact", required = false) String contact,
-			@RequestParam(value = "about", required = false) String about,
+			@RequestParam("modifying_type") String type,
 			@RequestParam(value = "pwd1", required = false) String pwd1,
 			@RequestParam(value = "pwd2", required = false) String pwd2,
-			HttpSession session) {
-		AuthorizedUser sau = (AuthorizedUser) session
-				.getAttribute(Config.SESSION_USER);
-//		首先验证一下密码是否正确。
-		if (authService.login(sau.getAccount(), password, null) == null) {
-			throw new IllegalArgumentException("原来的密码错误！");
+			@RequestParam(value = "about", required = false) String about,
+			@RequestParam(value = "contact", required = false) String contact) {
+		AuthorizedUser sau
+				= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+//		首页验证一下是否为同一人
+		if (sau.getId() != uid) {
+			throw new SecurityException("对不起，您无权修改该用户的信息！");
 		}
+//		然后验证一下密码是否正确。
+		authService.login(sau.getAccount(), password, null);
+		
 		if (type.equals("password")) {
 			sau.setPassword(pwd1);
-			sau = authService.resetPassword(sau, pwd2);
+			authService.resetPassword(sau, pwd2);
 		} else if (type.equals("profile")) {
 			sau.setContact(contact);
 			sau.setAbout(about);
-			sau = authService.update(sau);
+			authService.update(sau);
 		} else {
-			throw new UnsupportedOperationException("不存在的操作！");
+			throw new UnsupportedOperationException("不支持的操作！");
 		}
-		// 重新把更新后的user设置到session中。
-		session.setAttribute(Config.SESSION_USER, sau);
 		return AjaxConstants.JSON_STATUS_OK;
 	}
-
+	
 	/**
 	 * 使用REST API的方式查看用户的信息。此外，也包括了认证用户请求修改个人信息的请求。
 	 * @param model

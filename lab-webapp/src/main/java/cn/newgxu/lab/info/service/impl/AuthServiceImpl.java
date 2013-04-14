@@ -62,10 +62,8 @@ public class AuthServiceImpl implements AuthService {
 	/** 检测两次密码输入是否相符 */
 	private void checkPassword(String p1, String p2) {
 		// 检测一次就好
-		Assert.hasLength("用户密码不能为空或者少于?位！"
-				.replace("?", Config.MIN_PASSWORD_LENGTH + ""),
-					p1,Config.MIN_PASSWORD_LENGTH);
-		Assert.notEmpty("确认密码不能为空！", p2);
+		Assert.hasLength("用户密码不能为空或者少于" + Config.MIN_PASSWORD_LENGTH + "位！",
+				p1, Config.MIN_PASSWORD_LENGTH);
 		if (!p1.equals(p2)) {
 			throw new IllegalArgumentException("两次输入密码不一致！");
 		}
@@ -101,22 +99,20 @@ public class AuthServiceImpl implements AuthService {
 	public AuthorizedUser resetPassword(AuthorizedUser user, String _pwd) {
 		checkPassword(user.getPassword(), _pwd);
 
-		AuthorizedUser u = authDao.find(user.getId());
-		u.setPassword(Encryptor.MD5(_pwd));
-		authDao.merge(u);
+		user.setPassword(Encryptor.MD5(_pwd));
+		authDao.merge(user);
 		L.info("认证用户：{} 修改个人密码成功！", user.getAuthorizedName());
-		return u;
+		return user;
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public AuthorizedUser update(AuthorizedUser au) {
-		AuthorizedUser u = authDao.find(au.getId());
-		u.setAbout(au.getAbout());
-		u.setContact(au.getContact());
-		authDao.merge(u);
+		au.setAbout(au.getAbout());
+		au.setContact(au.getContact());
+		authDao.merge(au);
 		L.info("认证用户：{} 修改个人信息成功！", au.getAuthorizedName());
-		return u;
+		return au;
 	}
 
 	@Override

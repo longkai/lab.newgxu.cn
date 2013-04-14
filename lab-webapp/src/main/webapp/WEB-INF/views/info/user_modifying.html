@@ -114,9 +114,10 @@ $(function() {
 	$('#update_pwd').click(function(e) {
 		e.preventDefault();
 		$('.alert').hide();
+		var uid = $('#user_service').attr('uid');
 		$.ajax({
-			url: '/info/user/update/password',
-			type: 'POST',
+			url: '/info/users/' + uid + '.json?modifying_type=password',
+			type: 'PUT',
 			data: $('#pwd_update').serialize(),
 			dataType: 'json',
 			success: function(data) {
@@ -134,15 +135,16 @@ $(function() {
 				$('#error').show();
 			}
 		})
-		$('input[type="password"]').val('');
+		$(':password').val('');
 	})
 
 	$('#update_profile').click(function(e) {
 		e.preventDefault();
 		$('.alert').hide();
+		var uid = $('#user_service').attr('uid');
 		$.ajax({
-			url: '/info/user/update/profile',
-			type: 'POST',
+			url: '/info/users/' + uid + '.json?modifying_type=profile',
+			type: 'PUT',
 			data: $('#profile_form').serialize(),
 			dataType: 'json',
 			success: function(data) {
@@ -160,7 +162,7 @@ $(function() {
 				$('#error').show();
 			}
 		})
-		$('input[type="password"]').val('');
+		$(':password').val('');
 	})
 })
 </script>
