@@ -77,7 +77,7 @@ public class NoticeController {
 	@Inject
 	private AuthService authService;
 	
-	@RequestMapping({"/", "index", "home"})
+	@RequestMapping(value = {"/", "index", "home"}, method = RequestMethod.GET)
 	public String index(Model model) {
 		List<Notice> notices = noticeService.latest();
 		List<AuthorizedUser> users = authService.latest();
@@ -86,51 +86,35 @@ public class NoticeController {
 		return Config.APP + "/index";
 	}
 	
-	@RequestMapping("/info")
-	public String view(@RequestParam("id") long id, Model model) {
-		Notice info = noticeService.view(id);
-		if (info == null) {
-			throw new IllegalArgumentException("对不起，您所查找的信息不存在！");
-		}
-		model.addAttribute("info", info);
-		return Config.APP + "/view";
-	}
-	
-//	REST API!
-	@RequestMapping(
-		value	 = "/info/{id}",
-		produces = AjaxConstants.MEDIA_TYPE_JSON
-	)
-	@ResponseBody
-	public String view(@PathVariable("id") long id) {
-		Notice info = noticeService.find(id);
-		return new JSONObject(info).toString();
+	@RequestMapping(value = "/notices/{notice_id}", method = RequestMethod.GET)
+	public String view(@PathVariable("notice_id") long id, Model model) {
+		Notice notice = noticeService.view(id);
+		model.addAttribute("notice", notice);
+		return Config.APP + "/notice";
 	}
 	
 	@RequestMapping(
-		value 		= "/info/create",
-		method 		= RequestMethod.POST,
-		produces 	= AjaxConstants.MEDIA_TYPE_JSON
+		value 		= "/notices",
+		consumes 	= {"text/html"},
+		method 		= RequestMethod.POST
 	)
 	public String create(
-			Notice info,
-			@RequestParam("name") String fileName,
+			Notice notice,
+			HttpSession session,
+			RedirectAttributes attributes,
 			@RequestParam("file") MultipartFile file,
-			HttpSession session, RedirectAttributes attributes
-			) throws JSONException {
-
-		fileUpload(info, fileName, file);
+			@RequestParam("file_name") String fileName) {
+		fileUpload(notice, fileName, file);
 		
 		AuthorizedUser au = 
 				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		info.setUser(au);
-		info.setContent(info.getContent());
-		noticeService.create(info);
+		notice.setUser(au);
+		notice.setContent(notice.getContent());
+		noticeService.create(notice);
 //		重定向，避免用户刷新重复提交。
-		attributes.addFlashAttribute("from", "-1");
+		attributes.addAttribute("from", -1);
 		attributes.addAttribute("status", "ok");
-		attributes.addAttribute("id", info.getId());
-		return "redirect:/" + Config.APP + "/info";
+		return "redirect:/" + Config.APP + "/notices/" + notice.getId();
 	}
 
 	@RequestMapping(value = "/info/modify", method = RequestMethod.GET)

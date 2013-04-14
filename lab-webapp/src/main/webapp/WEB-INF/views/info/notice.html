@@ -1,6 +1,6 @@
 <#include "macro.ftl" />
 <#include "info/macro.ftl" />
-<@head title="${info.title} - 信息发布平台">
+<@head title="${notice.title} - 信息发布平台">
 <style type="text/css">
 body {
 	padding: 60px 0 40px 0;
@@ -38,13 +38,13 @@ footer {
 </div>
 <div class="container-narrow">
 <#-- 假如是来自新建信息后跳转后过来的 -->
-<#if "${RequestParameters.from}" == "-1">
+<#if "${RequestParameters.from}" == -1>
 	<#if "${RequestParameters.status}" == "ok"> <#-- ok，发表正常 -->
 	<div class="alert">
 		<button type="button" class="close" data-dismiss="alert">&times;</button>
 		<strong>操作成功！</strong>
 	</div>
-	<@view_info />
+	<@view_notice />
 	<#else> <#-- no，发表失败 -->
 	<div class="alert" id="info_error">
 		<strong>操作失败！</strong>
@@ -54,7 +54,7 @@ footer {
 	</div>
 	</#if>
 <#else> <#-- 正常的浏览信息 -->
-	<@view_info />
+	<@view_notice />
 </#if>
 </div>
 <div id="modal_profile" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal_profileLabel" aria-hidden="true">
@@ -82,7 +82,7 @@ footer {
 <script type="text/javascript">
 window.onload = function() {
 	var converter = new Markdown.Converter();
-	var html = converter.makeHtml('${info.content?js_string}');
+	var html = converter.makeHtml('${notice.content?js_string}');
 	$('#content').html(html);
 }
 $(function() {

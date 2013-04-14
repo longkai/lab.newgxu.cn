@@ -27,12 +27,11 @@ body {
 			<a href="#" class="brand">信息发布平台</a>
 			<div class="nav-collapse collapse">
 				<ul class="nav">
-					<li><a href="#">首页</a></li>
+					<li><a href="/info/">首页</a></li>
 					<li><a href="#">关于</a></li>
-					<li><a href="#">认证</a></li>
-					<li><a href="#">认证列表</a></li>
+					<li><a href="/resources/html/info/auth.html">认证</a></li>
 					<li><a href="#">服务条款</a></li>
-					<li><a href="#">更新说明</a></li>
+					<li><a href="/resources/html/info/help.html">操作指南</a></li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">雨无声实验室 <b class="caret"></b></a>
 						<ul class="dropdown-menu">
@@ -45,7 +44,7 @@ body {
 		</div>
 	</div>
 </div>
-<form action="/info/info/create" method="post" enctype="multipart/form-data" id="info_form">
+<form action="/info/notices" method="post" enctype="multipart/form-data" id="info_form">
 <div class="container" id="new">
 	<div class="control-group">
 		<label class="control-label" for="title">信息标题</label>
@@ -111,8 +110,8 @@ Atx方式
 这是一个Reference[示例][ref]。
 [ref]: http://www.newgxu.cn</textarea>
 		<div class="control-group" id="fileupload">
-			<label for="name">给文件一个名称吧~</label>
-			<input type="text" name="name" id="name" />
+			<label for="file_name">给文件一个名称吧~</label>
+			<input type="text" name="file_name" id="file_name" />
 		</div>
 		<div class="control-group" id="fileupload">
 			<input type="file" name="file" />
@@ -122,6 +121,7 @@ Atx方式
 		</div>
 		<div class="control-group" id="fileupload">
 			<input type="submit" value="发布！" id="submit" class="btn btn-success" />
+			<a href="/resources/html/info/help.html#four" class="btn btn-info">需要帮助？</a>
 		</div>
 	</div>
 	<hr />

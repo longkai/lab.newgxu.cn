@@ -19,6 +19,9 @@ body {
 	overflow: hidden;
 	height: 200px;
 }
+footer {
+	margin: 10px 0;
+}
 </style>
 </@head>
 <body>
@@ -65,7 +68,7 @@ body {
 	<#else>
 						<p>${n.content?html}</p>
 	</#if>
-					<p><a class="btn" href="/info/info?id=${n.id}">详细 &raquo;</a></p>
+					<p><a class="btn" href="/info/notices/${n.id}">详细 &raquo;</a></p>
 				</div>
 </#list>
 			</div>
