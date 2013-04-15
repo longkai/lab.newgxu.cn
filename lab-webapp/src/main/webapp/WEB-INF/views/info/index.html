@@ -9,8 +9,9 @@ body {
 	background: none;
 	margin-bottom: 30px;
 }
-#buttons {
-	padding: 0 0 0 50px;
+#buttons, #featrue {
+	padding: 0 0 10px 50px;
+	text-shadow: 0 1px 1px rgba(0,0,0,.4);
 }
 .alert {
 	display: none;
@@ -32,11 +33,11 @@ footer {
 	</div>
 	<div class="carousel">
 		<div class="item active">
-			<img src="/resources/images/info/info.jpg" class="img-rounded" alt="">
+			<img src="/resources/images/info/notice.jpg" class="img-rounded" alt="">
 			<div class="container">
 				<div class="carousel-caption">
-					<!-- <p class="" style="width: 60%;">雨无声信息发布平台是一个服务于广西大学师生的网站。任何校内的组织，学院，比如协会经过认证后都可以在这上面发布信息。任何人都可以通过信息发布平台和Android客户端获取到信息:)</p> -->
-					<span id="buttons"><a href="/resources/html/info/help.html" class="btn btn-info btn-large">详细介绍</a>&nbsp;&nbsp;<a href="/resources/html/info/auth.html" class="btn btn-success btn-large">申请认证</a></span>
+					<p class="lead" id="featrue">搭载App，轻松获取校园一手信息:-)</p>
+					<span id="buttons"><a href="#" id="description" class="btn btn-info btn-large">详细介绍</a>&nbsp;&nbsp;<a href="/resources/html/info/auth.html" class="btn btn-success btn-large">申请认证</a></span>
 				</div>
 			</div>
 		</div>
@@ -94,6 +95,20 @@ footer {
 			</div>
 		</div>
 	</div>
+	<div id="modal_description" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal_descriptionLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="modal_profileLabel"></h3>
+		</div>
+		<div class="modal-body">
+			<div id="description">
+				<p class="head text-success">雨无声校园信息发布平台是一个轻松获取校园信息的地方。</p>
+				<p>这上面发表的信息会出现在雨无声新闻网，论坛上以及校园信息发布平台的 Android客户端上-:)</p>
+				<p>任何院校机构，学生组织经过雨无声的认证后均可在其上发布信息。</p>
+				<p>校园信息发布平台是开放源代码与API接口的，详见雨无声实验室首页</p>
+			</div>
+		</div>
+	</div>
 </div>
 <div class="container">
 	<footer>
@@ -105,6 +120,11 @@ footer {
 <script type="text/javascript">
 $(function() {
 	$('#profile span').addClass('text-info');
+
+	$('#description').click(function(e) {
+		e.preventDefault();
+		$('#modal_description').modal();
+	})
 	$('#login_form button').click(function(e) {
 		e.preventDefault();
 		$('#alert').hide();
