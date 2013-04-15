@@ -22,6 +22,7 @@
  */
 package cn.newgxu.lab.core.config;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,8 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -69,19 +72,13 @@ import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
  * @version 0.1
  */
 @Configuration
-@ComponentScan({
-	"cn.newgxu.lab.core",
-	"cn.newgxu.lab.info"
-})
+@ComponentScan("cn.newgxu.lab")
 @EnableTransactionManagement
 @EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
 public class SpringBeans extends WebMvcConfigurerAdapter {
 	
-	public static final String[] entityPackages = {
-		"cn.newgxu.lab.core.entity",
-		"cn.newgxu.lab.info.entity"
-	};
-
+	private static final Logger L = LoggerFactory.getLogger(SpringBeans.class);
+	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/").setCachePeriod(3600 * 24 * 15);
@@ -104,11 +101,17 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 
 	@Bean(destroyMethod = "close")
 	public DataSource dataSource() {
+		Properties props = new Properties();
+		try {
+			props.load(this.getClass().getResourceAsStream("/config/dataSource.properties"));
+		} catch (IOException e) {
+			L.error("启动数据源出错！", e);
+		}
 		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-		dataSource.setUrl("jdbc:mysql://localhost:3306/lab");
-		dataSource.setUsername("root");
-		dataSource.setPassword("root");
+		dataSource.setDriverClassName(props.getProperty("db.driver"));
+		dataSource.setUrl(props.getProperty("db.url"));
+		dataSource.setUsername(props.getProperty("db.username"));
+		dataSource.setPassword(props.getProperty("db.password"));
 		dataSource.setDefaultAutoCommit(false);
 		return dataSource;
 	}
@@ -120,10 +123,22 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 
 		Properties properties = new Properties();
-//		properties.setProperty("hibernate.hbm2ddl.auto", "none");
-		properties.setProperty("hibernate.hbm2ddl.auto", "update");
+		properties.setProperty("hibernate.hbm2ddl.auto", "none");
+//		properties.setProperty("hibernate.hbm2ddl.auto", "update");
 		entityManagerFactoryBean.setJpaProperties(properties);
 
+		properties.clear();
+		try {
+			properties.load(this.getClass().getResourceAsStream("/config/entityPackages.properties"));
+		} catch (IOException e) {
+			L.error("启动EntityManagerFactory出错", e);
+		}
+		String[] entityPackages = new String[properties.size()];
+		int i = 0;
+		for (Object pkg : properties.keySet()) {
+			entityPackages[i++] = properties.getProperty(pkg.toString());
+		}
+		
 		entityManagerFactoryBean.setPackagesToScan(entityPackages);
 		return entityManagerFactoryBean;
 	}

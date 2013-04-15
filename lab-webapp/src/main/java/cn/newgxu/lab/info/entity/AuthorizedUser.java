@@ -51,7 +51,7 @@ import cn.newgxu.lab.info.config.AccountType;
  * @version 0.1
  */
 @Entity
-@Table(name = "info_auth_user")
+@Table(name = "info_users")
 @NamedQueries({
 	@NamedQuery(name = "AuthorizedUser.login", query = "FROM AuthorizedUser au WHERE au.account = :account AND au.password = :password"),
 	@NamedQuery(name = "AuthorizedUser.account", query = "FROM AuthorizedUser au WHERE au.account = :account"),

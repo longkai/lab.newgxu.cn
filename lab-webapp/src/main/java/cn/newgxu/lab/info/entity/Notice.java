@@ -50,7 +50,7 @@ import cn.newgxu.lab.core.common.JsonDateSerializer;
  * @version 0.1
  */
 @Entity
-@Table(name = "info_info")
+@Table(name = "info_notices")
 @NamedQueries({
 	@NamedQuery(name = "Notice.newer_count", query = "SELECT COUNT(*) FROM Notice i WHERE i.id > :last_id AND i.blocked IS FALSE"),
 	@NamedQuery(name = "Notice.list_newer", query = "FROM Notice i WHERE i.id > :last_id ORDER BY i.id DESC"),
