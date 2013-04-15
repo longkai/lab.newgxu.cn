@@ -22,11 +22,11 @@
  */
 package cn.newgxu.lab.core.controller;
 
-import static cn.newgxu.lab.core.common.AjaxConstants.AJAX_MESSAGE;
-import static cn.newgxu.lab.core.common.AjaxConstants.AJAX_STATUS;
-import static cn.newgxu.lab.core.common.AjaxConstants.ERROR_PAGE;
-import static cn.newgxu.lab.core.common.AjaxConstants.EXP_REASON;
-import static cn.newgxu.lab.core.common.AjaxConstants.UNKNOWN_REASON;
+import static cn.newgxu.lab.core.common.ViewConstants.AJAX_MESSAGE;
+import static cn.newgxu.lab.core.common.ViewConstants.AJAX_STATUS;
+import static cn.newgxu.lab.core.common.ViewConstants.ERROR_PAGE;
+import static cn.newgxu.lab.core.common.ViewConstants.EXP_REASON;
+import static cn.newgxu.lab.core.common.ViewConstants.UNKNOWN_REASON;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

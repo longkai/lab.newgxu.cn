@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import cn.newgxu.lab.core.common.AjaxConstants;
+import cn.newgxu.lab.core.common.ViewConstants;
 import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.info.config.Config;
 import cn.newgxu.lab.info.entity.AuthorizedUser;
@@ -78,9 +78,9 @@ public class AuthController {
 			@RequestParam(value = "_pwd", defaultValue = "") String _pwd) {
 		L.info("尝试认证用户！单位（组织）：{}，名称：{}", au.getOrg(), au.getAuthorizedName());
 		authService.create(au, _pwd);
-		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
+		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
 //		我们只返回json数据，没有html视图哈
-		return AjaxConstants.BAD_REQUEST;
+		return ViewConstants.BAD_REQUEST;
 	}
 
 	/**
@@ -101,8 +101,8 @@ public class AuthController {
 		AuthorizedUser au = authService.login(account, password, ip);
 		request.getSession().setAttribute(Config.SESSION_USER, au);
 //		这里，登录异常交给全局异常处理！
-		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
-		return AjaxConstants.BAD_REQUEST;
+		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		return ViewConstants.BAD_REQUEST;
 	}
 
 	/**
@@ -121,8 +121,8 @@ public class AuthController {
 		if (session != null) {
 			session.invalidate();
 		}
-		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
-		return AjaxConstants.BAD_REQUEST;
+		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		return ViewConstants.BAD_REQUEST;
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class AuthController {
 		} else {
 			throw new UnsupportedOperationException("不支持的操作！");
 		}
-		return AjaxConstants.JSON_STATUS_OK;
+		return ViewConstants.JSON_STATUS_OK;
 	}
 	
 	/**
@@ -202,9 +202,9 @@ public class AuthController {
 //		简单的查看用户信息
 		au = authService.find(uid);
 		Assert.notNull("对不起，您所查看的用户不存在！", au);
-		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
+		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
 		model.addAttribute("user", au);
-		return AjaxConstants.BAD_REQUEST;
+		return ViewConstants.BAD_REQUEST;
 	}
 
 	@RequestMapping(
@@ -218,7 +218,7 @@ public class AuthController {
 			@RequestParam("last_uid") long lastUid) {
 		List<AuthorizedUser> list = authService.more(lastUid, count);
 		model.addAttribute("users", list);
-		return AjaxConstants.BAD_REQUEST;
+		return ViewConstants.BAD_REQUEST;
 	}
 	
 	/** 由于使用了REST API，原有的拦截器已经不适用了，故暂时使用这一方法，为接下来的spring security做准备 */

@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import cn.newgxu.lab.core.common.AjaxConstants;
+import cn.newgxu.lab.core.common.ViewConstants;
 import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.core.util.RegexUtils;
 import cn.newgxu.lab.info.config.Config;
@@ -173,8 +173,8 @@ public class NoticeController {
 		} else {
 			noticeService.block(notice, false);
 		}
-		model.addAttribute(AjaxConstants.AJAX_STATUS, "ok");
-		return AjaxConstants.BAD_REQUEST;
+		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		return ViewConstants.BAD_REQUEST;
 	}
 	
 	@RequestMapping(
@@ -185,7 +185,7 @@ public class NoticeController {
 	public String hasNew(Model model, @PathVariable("last_id") long nid) {
 		int count = noticeService.newerCount(nid);
 		model.addAttribute("count", count);
-		return AjaxConstants.BAD_REQUEST;
+		return ViewConstants.BAD_REQUEST;
 	}
 	
 	@RequestMapping(
@@ -199,7 +199,7 @@ public class NoticeController {
 			@RequestParam("last_id") long lastId) {
 		List<Notice> list = noticeService.more(lastId, count);
 		model.addAttribute("notices", list);
-		return AjaxConstants.BAD_REQUEST;
+		return ViewConstants.BAD_REQUEST;
 	}
 	
 	@RequestMapping(
@@ -223,7 +223,7 @@ public class NoticeController {
 		}
 		list = noticeService.moreByUser(au, lastNid, count);
 		model.addAttribute("notices", list);
-		return AjaxConstants.BAD_REQUEST;
+		return ViewConstants.BAD_REQUEST;
 	}
 	
 	private boolean uploadable(MultipartFile file) {

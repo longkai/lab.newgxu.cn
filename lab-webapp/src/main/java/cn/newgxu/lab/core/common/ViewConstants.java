@@ -30,7 +30,7 @@ package cn.newgxu.lab.core.common;
  * @since 2013-3-29
  * @version 0.1
  */
-public class AjaxConstants {
+public class ViewConstants {
 	
 	/** json格式，包含utf8编码 */
 	public static final String MEDIA_TYPE_JSON = "application/json;charset=utf-8";
