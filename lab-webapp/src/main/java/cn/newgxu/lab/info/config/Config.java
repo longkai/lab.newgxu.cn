@@ -65,4 +65,7 @@ public class Config {
 	/** 文件上传存放的相对路径 */
 	public static final String UPLOAD_RELATIVE_DIR = "/resources/upload/info/";
 	
+	/** 加密密码前的附加前缀，稍微增强一点安全性 */
+	public static final String PASSWORD_PRIVATE_KEY = "lab_info_";
+	
 }

@@ -77,10 +77,9 @@ public class AuthServiceImpl implements AuthService {
 
 		// 设置密码
 		checkPassword(user.getPassword(), _pwd);
-		user.setPassword(Encryptor.MD5(_pwd));
+		user.setPassword(Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + _pwd));
 		// 设置账号
-		Assert.hasLength(
-				"账号长度必须大于?位".replace("?", Config.MIN_ACCOUNT_LENGTH + ""),
+		Assert.hasLength("账号长度必须大于" + Config.MIN_ACCOUNT_LENGTH + "位！",
 				user.getAccount(), Config.MIN_ACCOUNT_LENGTH);
 		if (authDao.has(user.getAccount())) {
 			throw new RuntimeException("账号已经存在！");
@@ -99,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
 	public AuthorizedUser resetPassword(AuthorizedUser user, String _pwd) {
 		checkPassword(user.getPassword(), _pwd);
 
-		user.setPassword(Encryptor.MD5(_pwd));
+		user.setPassword(Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + _pwd));
 		authDao.merge(user);
 		L.info("认证用户：{} 修改个人密码成功！", user.getAuthorizedName());
 		return user;
@@ -134,7 +133,8 @@ public class AuthServiceImpl implements AuthService {
 		L.info("用户:{} 登录", account);
 		AuthorizedUser user = null;
 		try {
-			user = authDao.find(account, Encryptor.MD5(password));
+			user = authDao.find(account,
+					Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + password));
 			if (ip == null) {
 				user.setLastLoginIP(ip);
 				user.setLastLoginTime(new Date());

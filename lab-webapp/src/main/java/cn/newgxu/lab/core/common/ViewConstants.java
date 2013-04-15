@@ -23,7 +23,7 @@
 package cn.newgxu.lab.core.common;
 
 /**
- * 一些常量，一般都是lab中约定的。
+ * 一些视图常量，一般都是lab中约定的。
  * 
  * @author longkai
  * @email im.longkai@gmail.com
