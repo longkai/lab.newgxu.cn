@@ -92,8 +92,7 @@ public class NoticeController {
 		Notice notice = noticeService.view(id);
 		model.addAttribute("notice", notice);
 		if (modifying) {
-			AuthorizedUser user = 
-					(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+			AuthorizedUser user = checkLogin(session);
 			if (!notice.getUser().equals(user)) {
 				throw new SecurityException("对不起，您无权修改这篇公告！");
 			}
@@ -104,7 +103,6 @@ public class NoticeController {
 	
 	@RequestMapping(
 		value 		= "/notices",
-		consumes 	= {"text/html"},
 		method 		= RequestMethod.POST
 	)
 	public String create(
@@ -113,10 +111,10 @@ public class NoticeController {
 			RedirectAttributes attributes,
 			@RequestParam("file") MultipartFile file,
 			@RequestParam("file_name") String fileName) {
+		AuthorizedUser au = checkLogin(session);
+		
 		fileUpload(notice, fileName, file);
 		
-		AuthorizedUser au = 
-				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
 		notice.setUser(au);
 		notice.setContent(notice.getContent());
 		noticeService.create(notice);
@@ -134,8 +132,7 @@ public class NoticeController {
 			@PathVariable("notice_id") long nid,
 			@RequestParam("name") String fileName,
 			@RequestParam("file") MultipartFile file) {
-		AuthorizedUser au = 
-				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+		AuthorizedUser au = checkLogin(session);
 		Notice persistentNotice = noticeService.find(nid);
 		Assert.notNull("对不起，您所请求的资源不存在！", persistentNotice);
 		if (!persistentNotice.getUser().equals(au)) {
@@ -167,8 +164,7 @@ public class NoticeController {
 			HttpSession session,
 			@PathVariable("notice_id") long nid,
 			@RequestParam("blocked") boolean blocked) {
-		AuthorizedUser au
-			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+		AuthorizedUser au = checkLogin(session);
 		
 		Notice notice = noticeService.find(nid);
 		notice.setUser(au);
@@ -218,8 +214,7 @@ public class NoticeController {
 			@RequestParam(value = "count", required = false) Integer count,
 			@RequestParam(value = "last_notice_id", required = false)
 				Long lastNid) {
-		AuthorizedUser au
-			= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+		AuthorizedUser au = checkLogin(session);
 		List<Notice> list = null;
 		if (count == null) {
 			list = noticeService.listByUser(au, Config.DEFAULT_NOTICES_COUNT);
@@ -284,6 +279,13 @@ public class NoticeController {
 				throw new RuntimeException("删除原有的文件失败！请稍后再试或者联系管理员！");
 			}
 		}
+	}
+	
+	/** 由于使用了REST API，原有的拦截器已经不适用了，故暂时使用这一方法，为接下来的spring security做准备 */
+	private AuthorizedUser checkLogin(HttpSession session) {
+		Object attribute = session.getAttribute(Config.SESSION_USER);
+		Assert.notNull("对不起，请您登陆后再操作！", attribute);
+		return (AuthorizedUser) attribute;
 	}
 	
 }

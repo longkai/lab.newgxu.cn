@@ -152,8 +152,7 @@ public class AuthController {
 			@RequestParam(value = "pwd2", required = false) String pwd2,
 			@RequestParam(value = "about", required = false) String about,
 			@RequestParam(value = "contact", required = false) String contact) {
-		AuthorizedUser sau
-				= (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+		AuthorizedUser sau = checkLogin(session);
 //		首页验证一下是否为同一人
 		if (sau.getId() != uid) {
 			throw new SecurityException("对不起，您无权修改该用户的信息！");
@@ -192,7 +191,7 @@ public class AuthController {
 		AuthorizedUser au = null;
 //		如果请求修改信息，那我们返回html视图
 		if (modifying) {
-			au = (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+			au = checkLogin(session);
 			Assert.notNull("对不起，请登陆后再操作！", au);
 			if (au.getId() != uid) {
 				throw new SecurityException("对不起，您无权修改该用户的信息！");
@@ -220,6 +219,13 @@ public class AuthController {
 		List<AuthorizedUser> list = authService.more(lastUid, count);
 		model.addAttribute("users", list);
 		return AjaxConstants.BAD_REQUEST;
+	}
+	
+	/** 由于使用了REST API，原有的拦截器已经不适用了，故暂时使用这一方法，为接下来的spring security做准备 */
+	private AuthorizedUser checkLogin(HttpSession session) {
+		AuthorizedUser user = (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+		Assert.notNull("对不起，请您登陆后再操作！", user);
+		return user;
 	}
 	
 }
