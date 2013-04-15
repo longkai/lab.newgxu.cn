@@ -143,7 +143,7 @@ public class AuthServiceImpl implements AuthService {
 		if (user.isBlocked()) {
 			throw new RuntimeException("对不起，您还没有正式向雨无声申请认证，账号现在还无法使用！请联系雨无声！");
 		}
-		if (ip == null) {
+		if (ip != null) {
 			user.setLastLoginIP(ip);
 			user.setLastLoginTime(new Date());
 			authDao.merge(user);
@@ -184,4 +184,18 @@ public class AuthServiceImpl implements AuthService {
 		}
 	}
 
+	@Override
+	public List<AuthorizedUser> blocked() {
+		return authDao.list("AuthorizedUser.list_blocked", null, 0, Config.MAX_USERS_COUNT);
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+	public void auth(long uid) {
+		AuthorizedUser user = authDao.find(uid);
+		Assert.notNull("对不起，该用户不存在！", user);
+		user.setBlocked(false);
+		authDao.merge(user);
+	}
+	
 }

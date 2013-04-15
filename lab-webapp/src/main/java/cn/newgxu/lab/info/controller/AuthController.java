@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.newgxu.lab.core.common.ViewConstants;
 import cn.newgxu.lab.core.util.Assert;
+import cn.newgxu.lab.info.config.AccountType;
 import cn.newgxu.lab.info.config.Config;
 import cn.newgxu.lab.info.entity.AuthorizedUser;
 import cn.newgxu.lab.info.service.AuthService;
@@ -221,10 +222,46 @@ public class AuthController {
 		return ViewConstants.BAD_REQUEST;
 	}
 	
+	@RequestMapping(
+		value  = "/users",
+		method = RequestMethod.GET,
+		params = {"auth"}
+	)
+	public String blockedList(Model model, HttpSession session) {
+		checkAdmin(session);
+		List<AuthorizedUser> users = authService.blocked();
+		model.addAttribute("users", users);
+		return Config.APP + "/users";
+	}
+	
+	@RequestMapping(
+		value = "/users/{uid}",
+		method = RequestMethod.PUT,
+		params = {"auth"}
+	)
+	public String auth(
+			Model model,
+			HttpSession session,
+			@PathVariable("uid") long uid) {
+		checkAdmin(session);
+		authService.auth(uid);
+		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		return ViewConstants.BAD_REQUEST;
+	}
+	
 	/** 由于使用了REST API，原有的拦截器已经不适用了，故暂时使用这一方法，为接下来的spring security做准备 */
 	private AuthorizedUser checkLogin(HttpSession session) {
 		AuthorizedUser user = (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
 		Assert.notNull("对不起，请您登陆后再操作！", user);
+		return user;
+	}
+	
+	/** 同上，这回是管理员的登陆拦截 */
+	private AuthorizedUser checkAdmin(HttpSession session) {
+		AuthorizedUser user = this.checkLogin(session);
+		if (!user.getType().equals(AccountType.ADMIN)) {
+			throw new SecurityException("对不起，您没有权限进行此操作！");
+		}
 		return user;
 	}
 	

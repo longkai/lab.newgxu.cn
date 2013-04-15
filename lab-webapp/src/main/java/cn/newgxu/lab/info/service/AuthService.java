@@ -67,4 +67,10 @@ public interface AuthService {
 	
 	List<AuthorizedUser> more(long lastUid, int count);
 	
+	/** 查看没有通过授权的用户 */
+	List<AuthorizedUser> blocked();
+	
+	/** 给某一个用户授权 */
+	void auth(long uid);
+	
 }

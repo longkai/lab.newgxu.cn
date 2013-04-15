@@ -1,0 +1,89 @@
+<#include "macro.ftl" />
+<#include "info/macro.ftl" />
+<@head title="待授权用户列表 - 雨无声实验室">
+<style type="text/css">
+body {
+	padding: 60px 0 40px 0;
+}
+#template {
+	display: none;
+}
+#alert {
+	margin: 20px 0;
+}
+footer {
+	margin: 20px 0;
+}
+</style>
+</@head>
+<body>
+<@header />
+
+<div class="container">
+	<table class="table table-striped" id="notices">
+		<tr class="success">
+			<td>#</td>
+			<td>认证名称</td>
+			<td>机构/组织</td>
+			<td>登陆帐号</td>
+			<td>联系方式</td>
+			<td>申请时间</td>
+			<td>授权？</td>
+		</tr>
+<#list users as u>
+		<tr id="u_${u.id}">
+			<td>${u_index + 1}</td>
+			<td><code class="text-info">${u.authorizedName}</code></td>
+			<td><code class="text-info">${u.org}</code></td>
+			<td><code class="text-success">${u.account}</code></td>
+			<td><code class="text-warning">${u.contact}</code></td>
+			<td><code class="text-info">${u.joinTime}</code></td>
+			<td><code><a href="#" class="auth" uid="${u.id}">授权</a></code></td>
+		</tr>
+</#list>
+	</table>
+</div>
+
+<div class="container">
+	<footer>
+		<p>&copy; 2001-2013 <a href="//www.newgxu.cn">newgxu.cn</a> &middot;All Rights Reserved.</p>
+	</footer>
+</div>
+
+</body>
+<@script>
+<script type="text/javascript">
+$(function() {
+	$('.active').removeClass();
+
+	$('.auth').click(function(e) {
+		e.preventDefault();
+		var uid = $(this).attr('uid');
+		if (!confirm('确定给该用户授权？')) {
+			return;
+		}
+		$.ajax({
+			type: 'PUT',
+			url: '/info/users/' + uid + '.json',
+			data: {
+				auth: 1
+			},
+			dataType: 'json',
+			success: function(data) {
+				if (data.status === 'ok') {
+					alert('授权成功！');
+					$('#u_' + uid).fadeOut('slow');
+				} else if (data.status === 'no') {
+					alert('出错了-_- ' + '错误信息：' + data.msg + ' ，错误原因：' + data.reason);
+				} else {
+					alert('出错啦，请联系技术部或者稍后再试！');
+				}
+			},
+			error: function() {
+				alert('出错啦，请联系技术部或者稍后再试！');
+			}
+		})
+	})
+})
+</script>
+</@script>
