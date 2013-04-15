@@ -49,7 +49,7 @@ body {
 </div>
 <div class="container" id="auth">
 	<div class="alert alert-success" id="success">
-		<p id="msg">认证成功！您的认证名称为 <span id="authed_name"></span></p>
+		<p id="msg">申请成功！您的认证名称为 <span id="authed_name"></span> <span class="text-info">请联系雨无声审核 联系方式：[地址：广西大学办公楼南楼305室雨无声]  [电话:0771-3273880]  [信箱：yws_webmaster@163.com]</span></p>
 	</div>
 	<div class="alert alert-error" id="error">
 		<p>认证失败！<span id="info"></span> <span id="reason"></span></p>
@@ -64,7 +64,7 @@ body {
 		<div class="control-group">
 			<label class="control-label" for="org">我是</label>
 			<div class="controls">
-				<input type="text" id="org" name="org" placeholder="组织，单位，或者个人" required />
+				<input type="text" id="org" name="org" placeholder="组织，单位，或者个人" required maxlength="20" />
 			</div>
 		</div>
 		<div class="control-group">
@@ -76,19 +76,19 @@ body {
 		<div class="control-group">
 			<label class="control-label" for="account">登陆账号</label>
 			<div class="controls">
-				<input type="text" id="account" name="account" placeholder="不少于6个字符" />
+				<input type="text" id="account" name="account" placeholder="不少于6个字符" maxlength="30" />
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label" for="password">密码</label>
 			<div class="controls">
-				<input type="password" id="password" name="password" placeholder="不少于6个字符" />
+				<input type="password" id="password" name="password" placeholder="不少于6个字符" maxlength="20" />
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label" for="inputPassword">确认密码</label>
 			<div class="controls">
-				<input type="password" id="inputPassword" name="_pwd" placeholder="不少于6个字符" />
+				<input type="password" id="inputPassword" name="_pwd" placeholder="不少于6个字符" maxlength="20" />
 			</div>
 		</div>
 		<div class="control-group">

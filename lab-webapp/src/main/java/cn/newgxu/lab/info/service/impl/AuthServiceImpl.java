@@ -86,7 +86,8 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 		user.setJoinTime(new Date());
-
+//		一开始认证的时候，我们只会冻结它，等到他正式申请的时候我们在为他解蔽- -
+		user.setBlocked(true);
 		authDao.persist(user);
 
 		L.info("用户：{} 注册成功！id：{}，账号：{}， org：{}", user.getAuthorizedName(),
@@ -135,14 +136,17 @@ public class AuthServiceImpl implements AuthService {
 		try {
 			user = authDao.find(account,
 					Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + password));
-			if (ip == null) {
-				user.setLastLoginIP(ip);
-				user.setLastLoginTime(new Date());
-				authDao.merge(user);
-			}
 		} catch (Exception e) {
 			L.error("用户登录异常！", e);
 			throw new RuntimeException("用户名密码错误！", e);
+		}
+		if (user.isBlocked()) {
+			throw new RuntimeException("对不起，您还没有正式向雨无声申请认证，账号现在还无法使用！请联系雨无声！");
+		}
+		if (ip == null) {
+			user.setLastLoginIP(ip);
+			user.setLastLoginTime(new Date());
+			authDao.merge(user);
 		}
 		return user;
 	}
