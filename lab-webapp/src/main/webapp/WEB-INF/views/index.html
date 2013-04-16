@@ -37,6 +37,11 @@ body {
 .feature-heading {
 	padding: 40px 0 0 0;
 }
+.item .container{
+	text-shadow: 0 1px 1px rgba(0,0,0,.4);
+	position: relative;
+	top: 210px;
+}
 </style>
 </@head>
 <body>
@@ -77,13 +82,26 @@ body {
 <div id="show" class="carousel slide">
 	<div class="carousel-inner">
 		<div class="item active">
-			<img src="/resources/images/lab/index/lab.jpg" alt="">
+			<img src="/resources/images/lab/index/lab.jpg" alt="" />
+			<div class="container">
+				<h1>创意与创造的地方</h1>
+			</div>
 		</div>
 		<div class="item">
-			<img src="/resources/images/lab/index/share.jpg" alt="">
+			<img src="/resources/images/lab/index/share.jpg" alt="" />
+			<div class="container">
+				<h1>一起打造我们的西大文库</h1>
+				<a class="btn btn-large btn-primary" href="#app_share">简介</a>
+				<a class="btn btn-large btn-success" href="//share.newgxu.cn">传送门</a>
+			</div>
 		</div>
 		<div class="item">
-			<img src="/resources/images/lab/index/info.jpg" alt="">
+			<img src="/resources/images/lab/index/info.jpg" alt="" />
+			<div class="container">
+				<h1>轻松，即时获取校园一手信息</h1>
+				<a class="btn btn-large btn-primary" href="#app_info">简介</a>
+				<a class="btn btn-large btn-success" href="/info/">传送门</a>
+			</div>
 		</div>
 	</div>
 	<a class="left carousel-control" href="#show" data-slide="prev">&lsaquo;</a>
