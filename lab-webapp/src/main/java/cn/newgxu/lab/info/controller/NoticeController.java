@@ -75,8 +75,8 @@ public class NoticeController {
 	
 	@RequestMapping(value = {"/", "index", "home"}, method = RequestMethod.GET)
 	public String index(Model model) {
-		List<Notice> notices = noticeService.latest();
-		List<AuthorizedUser> users = authService.latest();
+		List<Notice> notices = noticeService.latest(Config.DEFAULT_NOTICES_COUNT);
+		List<AuthorizedUser> users = authService.latest(Config.DEFAULT_USERS_COUNT);
 		model.addAttribute("users", users);
 		model.addAttribute("notices", notices);
 		return Config.APP + "/index";
@@ -223,6 +223,17 @@ public class NoticeController {
 		}
 		list = noticeService.moreByUser(au, lastNid, count);
 		model.addAttribute("notices", list);
+		return ViewConstants.BAD_REQUEST;
+	}
+	
+	@RequestMapping(
+		value  = "/notices",
+		method = RequestMethod.GET,
+		params = {"latest"}
+	)
+	public String latest(Model model, @RequestParam("count") int count) {
+		List<Notice> notices = noticeService.latest(count);
+		model.addAttribute("notices", notices);
 		return ViewConstants.BAD_REQUEST;
 	}
 	

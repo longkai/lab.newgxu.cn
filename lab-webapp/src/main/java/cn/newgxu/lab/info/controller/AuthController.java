@@ -249,6 +249,17 @@ public class AuthController {
 		return ViewConstants.BAD_REQUEST;
 	}
 	
+	@RequestMapping(
+		value = "/users",
+		method = RequestMethod.GET,
+		params = {"latest"}
+	)
+	public String lastedUsers(Model model, @RequestParam("count") int count) {
+		List<AuthorizedUser> users = authService.latest(count);
+		model.addAttribute("users", users);
+		return ViewConstants.BAD_REQUEST;
+	}
+	
 	/** 由于使用了REST API，原有的拦截器已经不适用了，故暂时使用这一方法，为接下来的spring security做准备 */
 	private AuthorizedUser checkLogin(HttpSession session) {
 		AuthorizedUser user = (AuthorizedUser) session.getAttribute(Config.SESSION_USER);

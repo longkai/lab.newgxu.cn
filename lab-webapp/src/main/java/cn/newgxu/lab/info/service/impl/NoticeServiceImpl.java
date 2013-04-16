@@ -139,12 +139,14 @@ public class NoticeServiceImpl implements NoticeService {
 	}
 
 	@Override
-	public List<Notice> latest() {
-		return noticeDao.list("Notice.latest", null, 0, Config.DEFAULT_NOTICES_COUNT);
+	public List<Notice> latest(int count) {
+		this.checkRange(count);
+		return noticeDao.list("Notice.latest", null, 0, count);
 	}
 	
 	@Override
 	public List<Notice> more(long lastId, int count) {
+		this.checkRange(count);
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("last_id", lastId);
 		return noticeDao.list("Notice.list_more", param, 0, count);
@@ -152,6 +154,7 @@ public class NoticeServiceImpl implements NoticeService {
 	
 	@Override
 	public List<Notice> listByUser(AuthorizedUser au, int count) {
+		this.checkRange(count);
 		Map<String, Object> param = new HashMap<String, Object>(1);
 		param.put("user", au);
 		return noticeDao.list("Notice.list_user_latest", param, 0, count);
@@ -160,6 +163,7 @@ public class NoticeServiceImpl implements NoticeService {
 	@Override
 	public List<Notice> moreByUser(AuthorizedUser au, long lastId,
 			int count) {
+		this.checkRange(count);
 		Map<String, Object> params = new HashMap<String, Object>(2);
 		params.put("user", au);
 		params.put("last_id", lastId);
@@ -168,6 +172,7 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	public List<Notice> listNewer(long lastId, int count) {
+		this.checkRange(count);
 		Map<String, Object> param = new HashMap<String, Object>(1);
 		param.put("last_id", lastId);
 		return noticeDao.list("Notice.list_newer", param, 0, count);
@@ -212,6 +217,14 @@ public class NoticeServiceImpl implements NoticeService {
 	@Override
 	public int newerCount(long pk) {
 		return noticeDao.newerCount(pk);
+	}
+	
+	private void checkRange(int count) {
+		if (count < 1) {
+			throw new IllegalArgumentException("请求的列表数目不能是负数啊亲！");
+		} else if (count > Config.MAX_NOTICES_COUNT) {
+			throw new IllegalArgumentException("请求的列表数目不能超过 " + Config.MAX_NOTICES_COUNT + " 条！");
+		}
 	}
 	
 }

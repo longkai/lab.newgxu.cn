@@ -63,7 +63,7 @@ public interface AuthService {
 	/** 账号名是否存在 */
 	boolean exists(String account);
 	
-	List<AuthorizedUser> latest();
+	List<AuthorizedUser> latest(int count);
 	
 	List<AuthorizedUser> more(long lastUid, int count);
 	

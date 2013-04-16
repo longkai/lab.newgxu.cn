@@ -191,7 +191,7 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
 		configurer.setTemplateLoaderPath("/WEB-INF/views/");
 		Properties settings = new Properties();
-		settings.setProperty("template_update_delay", "0");
+		settings.setProperty("template_update_delay", "3600");
 		settings.setProperty("default_encoding", "UTF-8");
 		settings.setProperty("number_format", "0.##");
 		settings.setProperty("datetime_format", "yyyy-MM-dd HH:mm:ss");

@@ -50,7 +50,7 @@ public interface NoticeService {
 
 	long total();
 
-	List<Notice> latest();
+	List<Notice> latest(int count);
 	
 	List<Notice> more(long lastId, int count);
 	
