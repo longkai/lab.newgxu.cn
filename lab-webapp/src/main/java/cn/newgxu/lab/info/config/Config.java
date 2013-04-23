@@ -23,6 +23,7 @@
 package cn.newgxu.lab.info.config;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -65,10 +66,18 @@ public class Config {
 	
 	static {
 		props				  = new Properties();
+		InputStream in = null;
 		try {
-			props.load(Config.class.getResourceAsStream("/config/info.properties"));
+			in = Config.class.getResourceAsStream("/config/info.properties");
+			props.load(in);
 		} catch (IOException e) {
 			L.error("启动配置文件时出错！", e);
+		} finally {
+			try {
+				in.close();
+			} catch (IOException e) {
+				L.error("wtf!", e);
+			}
 		}
 		MAX_FILE_SIZE 		  = Long.parseLong(props.getProperty("MAX_FILE_SIZE"));
 		MAX_USERS_COUNT 	  = Integer.parseInt(props.getProperty("MAX_USERS_COUNT"));

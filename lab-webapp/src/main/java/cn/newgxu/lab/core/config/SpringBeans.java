@@ -23,6 +23,7 @@
 package cn.newgxu.lab.core.config;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,9 +82,10 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/").setCachePeriod(3600 * 24 * 15);
-		registry.addResourceHandler("/favicon.ico").addResourceLocations("/").setCachePeriod(3600 * 24 * 15);
-		registry.addResourceHandler("/robots.txt").addResourceLocations("/").setCachePeriod(3600 * 24 * 15);
+		int cachePeriod = 3600 * 24 * 15;
+		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/").setCachePeriod(cachePeriod);
+		registry.addResourceHandler("/favicon.ico").addResourceLocations("/").setCachePeriod(cachePeriod);
+		registry.addResourceHandler("/robots.txt").addResourceLocations("/").setCachePeriod(cachePeriod);
 	}
 
 	@Override
@@ -102,10 +104,18 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 	@Bean(destroyMethod = "close")
 	public DataSource dataSource() {
 		Properties props = new Properties();
+		InputStream in = null;
 		try {
-			props.load(this.getClass().getResourceAsStream("/config/dataSource.properties"));
+			in = this.getClass().getResourceAsStream("/config/dataSource.properties");
+			props.load(in);
 		} catch (IOException e) {
 			L.error("启动数据源出错！", e);
+		} finally {
+			try {
+				in.close();
+			} catch (IOException e) {
+				L.error("wtf!", e);
+			}
 		}
 		BasicDataSource dataSource = new BasicDataSource();
 		dataSource.setDriverClassName(props.getProperty("db.driver"));
@@ -128,17 +138,24 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		entityManagerFactoryBean.setJpaProperties(properties);
 
 		properties.clear();
+		InputStream in = null;
 		try {
-			properties.load(this.getClass().getResourceAsStream("/config/entityPackages.properties"));
+			in = this.getClass().getResourceAsStream("/config/entityPackages.properties");
+			properties.load(in);
 		} catch (IOException e) {
 			L.error("启动EntityManagerFactory出错", e);
+		} finally {
+			try {
+				in.close();
+			} catch (IOException e) {
+				L.error("wtf!", e);
+			}
 		}
 		String[] entityPackages = new String[properties.size()];
 		int i = 0;
 		for (Object pkg : properties.keySet()) {
 			entityPackages[i++] = properties.getProperty(pkg.toString());
 		}
-		
 		entityManagerFactoryBean.setPackagesToScan(entityPackages);
 		return entityManagerFactoryBean;
 	}
