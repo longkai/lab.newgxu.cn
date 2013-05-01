@@ -1,4 +1,5 @@
 <#include "macro.ftl" />
+<#include "google_analytics.ftl" />
 <@head title="雨无声实验室">
 <style type="text/css">
 body {
@@ -31,8 +32,8 @@ body {
 	min-width: 100%;
 }
 .feature {
-	padding-bottom: 60px; 
-	overflow: hidden; 
+	padding-bottom: 60px;
+	overflow: hidden;
 }
 .feature-heading {
 	padding: 40px 0 0 0;
@@ -137,7 +138,6 @@ body {
 !function ($) {
 	$(function(){
 		$('#show').carousel();
-
 		$('#app_info h2').css('cursor', 'pointer').click(function(e) {
 			e.preventDefault();
 			location.href = '/info/';
@@ -146,12 +146,10 @@ body {
 			e.preventDefault();
 			location.href = '/info/';
 		})
-
 		$('#app_share h2').css('cursor', 'pointer').click(function(e) {
 			e.preventDefault();
 			location.href = 'http://share.newgxu.cn';
 		})
-
 		$('#app_share img').css('cursor', 'pointer').click(function(e) {
 			e.preventDefault();
 			location.href = 'http://share.newgxu.cn';
@@ -159,4 +157,5 @@ body {
 	})
 }(window.jQuery)
 </script>
+<@ga_lab />
 </@script>
