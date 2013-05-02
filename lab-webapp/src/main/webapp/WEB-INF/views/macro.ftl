@@ -1,7 +1,13 @@
-<#-- html头部的定义，这里嵌套了内联得到css -->
-<#macro head author="龙凯 longkai @爱因斯坦的狗" email="im.longkai@gmail.com" title="" keywords="" description="" bootstrap="2.3.1">
+<#-- html5标记 -->
+<#macro html>
 <!DOCTYPE html>
 <html>
+<#nested />
+</html>
+</#macro>
+
+<#-- html头部的定义，这里嵌套了内联得到css -->
+<#macro head author="龙凯 longkai @爱因斯坦的狗" email="im.longkai@gmail.com" title="" keywords="" description="" bootstrap="2.3.1">
 <head>
 <meta charset="utf-8" />
 <title>${title}</title>
@@ -10,16 +16,16 @@
 <meta name="author" content="${author}" />
 <meta name="email" content="${email}" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="stylesheet" href="/resources/libs/bootstrap/${bootstrap}/css/bootstrap.min.css" media="screen" />
-<link rel="stylesheet" href="/resources/libs/bootstrap/${bootstrap}/css/bootstrap-responsive.min.css" media="screen" />
+<link rel="stylesheet" href="/resources/libs/bootstrap/${bootstrap}/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/resources/libs/bootstrap/${bootstrap}/css/bootstrap-responsive.min.css" />
 <#nested />
 </head>
 </#macro>
 
 
-<#-- html主体的定义(不推荐使用) -->
-<#macro body>
-<body>
+<#-- html主体的定义(不推荐使用，直接使用body标记就好了) -->
+<#macro body id="" class="">
+<body id="${id}" class="${class}">
 <#nested />
 </body>
 </#macro>
@@ -32,5 +38,7 @@
 </script>
 <script src="/resources/libs/bootstrap/${bootstrap}/js/bootstrap.min.js"></script>
 <#nested />
-</html>
 </#macro>
+
+<#-- 额外导入的模版文件 -->
+<#include "google_analytics.ftl" />
