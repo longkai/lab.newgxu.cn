@@ -49,6 +49,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.accept.ContentNegotiationManager;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
+import org.springframework.web.accept.ParameterContentNegotiationStrategy;
 import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -98,7 +100,7 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 	@Override
 	public void configureContentNegotiation(
 			ContentNegotiationConfigurer configurer) {
-		configurer.favorPathExtension(true).favorParameter(false).ignoreAcceptHeader(true);
+		configurer.favorPathExtension(true).favorParameter(false).ignoreAcceptHeader(false);
 	}
 
 	@Bean(destroyMethod = "close")
@@ -231,9 +233,9 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		Map<String, MediaType> mediaTypes = new HashMap<String, MediaType>(2);
 		mediaTypes.put("json", MediaType.APPLICATION_JSON);
 		mediaTypes.put("jsonp", MediaType.parseMediaType("application/javascript"));
-		PathExtensionContentNegotiationStrategy strategy = new PathExtensionContentNegotiationStrategy(mediaTypes);
-		
-		ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager(strategy);
+		PathExtensionContentNegotiationStrategy extension = new PathExtensionContentNegotiationStrategy(mediaTypes);
+		HeaderContentNegotiationStrategy header = new HeaderContentNegotiationStrategy();
+		ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager(extension, header);
 		return contentNegotiationManager;
 	}
 	
