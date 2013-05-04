@@ -1,113 +1,172 @@
-<#include "macro.ftl" />
 <#include "info/macro.ftl" />
-<#include "google_analytics.ftl" />
-<@head title="信息发布平台 - 雨无声实验室">
+<@L.html>
+<@L.head title="信息发布平台 - 雨无声实验室">
 <style type="text/css">
 body {
-	padding: 60px 0 40px 0;
+	margin-top: 60px;
+	margin-bottom: 40px;
 }
-.carousel-caption {
-	background: none;
-	margin-bottom: 30px;
+#show {
+	position: relative;
 }
-#buttons, #featrue {
-	padding: 0 0 10px 50px;
+#keynote span {
+	color: #fff;
+	font-size: 50px;
+	padding-left: 10px;
 	text-shadow: 0 1px 1px rgba(0,0,0,.4);
 }
-.alert {
-	display: none;
+#header {
+	margin-bottom: 15px;
 }
-.info {
-	overflow: hidden;
-	height: 200px;
+#keynote {
+	position: absolute;
+	left: 5%;
+	bottom: 5%;
 }
-footer {
-	margin: 10px 0;
+#keynote h3 {
+	color: #fff;
+	text-shadow: 0 1px 1px rgba(0,0,0,.4);
+}
+.nav-header {
+	font-size: 1.2em;
+	padding: 5px;
+}
+.icon-chevron-right {
+	opacity: .5;
+	float: right;
+}
+@media (max-width: 980px) {
+	body {
+		margin-top: -60px;
+	}
+	#keynote h2 {
+		font-size: 20px;
+	}
+	#keynote img {
+		display: none;
+	}
+	#keynote span {
+		font-size: 30px;
+	}
+	#header {
+		/*margin-bottom: 30px;*/
+	}
+}
+@media (max-width: 680px) {
+	#keynote span {
+		font-size: 25px;
+	}
+	#header {
+		display: none;
+	}
+}
+@media (max-width: 480px) {
+	.description {
+		display: block;
+	}
+	#show {
+		display: none;
+	}
+	.description button {
+		margin-bottom: 5px;
+	}
 }
 </style>
-</@head>
+</@L.head>
 <body>
 <@header />
+<div id="error" class="container">
+		
+</div>
 <div class="container">
-	<div class="alert alert-error" id="alert">
-			<p class="text-center"><span id="status"></span><span id="info"></span> <span id="reason"></span></p>
-	</div>
-	<div class="carousel">
-		<div class="item active">
-			<img src="/resources/images/info/notice.jpg" class="img-rounded" alt="">
-			<div class="container">
-				<div class="carousel-caption">
-					<p class="lead" id="featrue">搭载App，轻松获取校园一手信息:-)</p>
-					<span id="buttons"><a href="#" id="description" class="btn btn-info btn-large">详细介绍</a>&nbsp;&nbsp;<a href="/resources/html/info/auth.html" class="btn btn-success btn-large">申请认证</a></span>
-				</div>
+	<div id="show">
+		<img src="/resources/images/info/notice.jpg" alt="校园信息发布平台" />
+		<div class="container" id="keynote">
+			<div id="header">
+				<img src="/resources/images/info/notices_logo.jpg" alt="" id="logo" />
+				<span class="">校园信息发布平台</span>
 			</div>
+			<h3>搭载App，轻松获取校园一手信息:-)</h3>
+			<p>
+				<a href="#" class="btn btn-info btn-large description">详细介绍</a>
+				<a href="/resources/html/info/auth.html" class="btn btn-success btn-large">申请认证</a>
+			</p>
 		</div>
 	</div>
 </div>
-
+<div class="container hide description">
+	<div class="hero-unit">
+		<h2>欢迎来到雨无声校园信息发布平台！</h2>
+		<h4>搭载App，轻松获取校园一手信息:-)</h4>
+			<a href="#" class="btn btn-info btn-block description">详细介绍</a>
+			<a href="/resources/html/info/auth.html" class="btn btn-success btn-block">申请认证</a>
+	</div>
+</div>
+<hr />
 <div class="container">
-	<div class="row">
+	<div class="row-fluid">
 		<div class="span3">
 			<ul class="nav nav-list" id="latest_auth_list">
 				<li class="nav-header">最新认证</li>
 <#list users as u>
-				<li><a href="#" uid="${u.id}" class="view_profile">${u.authorizedName}</a></li>
+				<li>
+					<a href="#" uid="${u.id}" class="view_profile"><i class="icon-chevron-right"></i> ${u.authorizedName}</a>
+				</li>
 </#list>
 			</ul>
-			<a id="more_user" last_user_id="-1" href="#" class="btn btn-block btn-info">查看更多</a>
-			<div class="alert" id="more_error">
+			<button id="more_user" class="btn btn-block btn-info" last_user_id="-1">更多</button>
+			<div class="alert hide" id="more_error">
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
-				<strong></strong>
+				<strong>没有更多啦！</strong>
 			</div>
 		</div>
 		<div class="span9">
-			<div class="row" id="notice_list">
+			<div class="row-fluid">
 <#list notices as n>
-				<div class="span3 notice" notice_id="${n.id}">
-					<h4>${n.title}</h4>
-	<#if n.content?html?string?length gt 100>
-						<p>${n.content?html?string[0..99]}</p>
+				<div class="span4 primary_notice" notice_id="${n.id}">
+					<h2>${n.title}</h2>
+	<#if n.content?length gt 200>
+					<p>${n.content?string[0..199]}</p>
 	<#else>
-						<p>${n.content?html}</p>
+					<p>${n.content}</p>
 	</#if>
 					<p><a class="btn" href="/info/notices/${n.id}">详细 &raquo;</a></p>
 				</div>
 </#list>
 			</div>
-			<a href="#" id="more_notices" last_notice_id="-1" class="btn btn-block">查看更多</a>
-			<div class="alert" id="more_notices_error">
+			<button class="btn btn-block btn-success" id="more_notices" last_notice_id="-1">更多</button>
+			<div class="alert hide" id="more_notices_error">
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 				<strong></strong>
 			</div>
 		</div>
 	</div>
-
-	<div id="modal_profile" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal_profileLabel" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3 id="modal_profileLabel"></h3>
-		</div>
-		<div class="modal-body">
-			<div id="profile">
-				<p>Ta是： <span id="authed_name"></span></p>
-				<p>来自： <span id="org"></span></p>
-				<p>关于Ta： <span id="about"></span></p>
-				<p>联系Ta吧： <span id="contact"></span></p>
-			</div>
+</div>
+<div id="modal_profile" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal_profileLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="modal_profileLabel"></h3>
+	</div>
+	<div class="modal-body">
+		<div id="profile">
+			<p>Ta是： <span id="authed_name"></span></p>
+			<p>来自： <span id="org"></span></p>
+			<p>关于Ta： <span id="about"></span></p>
+			<p>联系Ta吧： <span id="contact"></span></p>
 		</div>
 	</div>
-	<div id="modal_description" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal_descriptionLabel" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3 id="modal_profileLabel"></h3>
-		</div>
-		<div class="modal-body">
-			<div id="description">
-				<p class="head text-success">雨无声校园信息发布平台是一个轻松获取校园信息的地方。</p>
-				<p>这上面发表的信息会出现在雨无声新闻网，论坛上以及校园信息发布平台的 Android客户端上-:)</p>
-				<p>任何院校机构，学生组织经过雨无声的认证后均可在其上发布信息。</p>
-				<p>校园信息发布平台是开放源代码与API接口的，详见雨无声实验室首页</p>
-			</div>
+</div>
+<div id="modal_description" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal_descriptionLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="modal_profileLabel"></h3>
+	</div>
+	<div class="modal-body">
+		<div id="description">
+			<p class="head text-success">雨无声校园信息发布平台是一个轻松获取校园信息的地方。</p>
+			<p>这上面发表的信息会出现在雨无声新闻网，论坛上以及校园信息发布平台的 Android客户端上-:)</p>
+			<p>任何院校机构，学生组织经过雨无声的认证后均可在其上发布信息。</p>
+			<p>校园信息发布平台是开放源代码与API接口的，详见雨无声实验室首页</p>
 		</div>
 	</div>
 </div>
@@ -117,87 +176,57 @@ footer {
 	</footer>
 </div>
 </body>
-<@script>
+<@L.script>
+<script type="text/javascript" src="/resources/js/info/notty.js"></script>
 <script type="text/javascript">
 $(function() {
 	$('#profile span').addClass('text-info');
 
-	$('#description').click(function(e) {
+	$('.description').click(function(e) {
 		e.preventDefault();
 		$('#modal_description').modal();
 	})
-	$('#login_form button').click(function(e) {
-		e.preventDefault();
-		$('#alert').hide();
-		$.ajax({
-			type:		'GET',
-			url: 		'/info/users.json',
-			data: 		$('#login_form').serialize(),
-			dataType: 	'json',
-			success: function(data) {
-				if (data.status === 'ok') {
-					location.reload();
-				} else if (data.status === 'no') {
-					window.scrollTo(0, 0);
-					$('#status').text('登陆失败！');
-					$('#info').text(data.msg);
-					$('#reason').text(data.reason);
-					$('#alert').fadeIn();
-				} else {
-					window.scrollTo(0, 0);
-					$('#status').text('登陆失败！');
-					$('#alert').fadeIn();
-				}
-			},
-			error: function() {
-				window.scrollTo(0, 0);
-				$('#status').text('登陆失败！');
-				$('#alert').fadeIn();
-			}
-		})
-		$(':password').val('');
-	})
 
+	$('#login_btn').click(function(e) {
+		notty.login({
+			event: e,
+			login_form: '#login_form',
+			url: '/info/users',
+			errorHint: '#error',
+			params: ['account', 'pwd']
+		})
+	})
 	$('#logout').click(function(e) {
-		e.preventDefault();
-		$('#alert').hide();
-		var uid = $('#user_service').attr('uid');
-		$.ajax({
-			type: 'PUT',
-			url: '/info/users/' + uid + '.json'
+		notty.logout({
+			event: e
 		})
-		location.reload();
-	})
-
-	$('#latest_auth_list > li > a').click(function(e) {
-		e.preventDefault();
-		var uid = $(this).attr('uid');
-		userDetail(uid);
 	})
 
 	$('#more_user').click(function(e) {
 		e.preventDefault();
 		var last_user_id = $(this).attr('last_user_id');
+		console && console.log(last_user_id);
 		if (last_user_id == -1) {
 			last_user_id = $('#latest_auth_list li:last a').attr('uid');
 		}
+		console && console.log(last_user_id);
 		$.ajax({
+			 url: '/info/users',
 			type: 'GET',
-			url: '/info/users.json',
 			data: {
 				count: 5,
 				last_uid: last_user_id
 			},
+			dataType: 'json',
 			success: function(data) {
 				var length = data.users.length;
-				if (length === 0) {
+				if (length < 5) {
 					$('#more_error strong').text('没有更多啦！');
 					$('#more_user').attr('disabled', true);
 					$('#more_error').show();
-					return;
 				}
 				$.each(data.users, function(i, item) {
-					var html = '<li><a href="javascript:userDetail({id})" uid="{id}" class="view_profile">{name}</a></li>';
+					var html = '<li><a href="javascript:userDetail({id})" uid="{id}" class="view_profile"><i class="icon-chevron-right"></i> {name}</a></li>';
 					html = html.replace('{id}', item.id).replace('{name}', item.authed_name);
 					$(html).appendTo('#latest_auth_list');
 					if (i === length - 1) {
@@ -212,15 +241,22 @@ $(function() {
 		})
 	})
 
+	$('#latest_auth_list > li > a').click(function(e) {
+		e.preventDefault();
+		var uid = $(this).attr('uid');
+		userDetail(uid);
+	})
+
 	$('#more_notices').click(function(e) {
 		e.preventDefault();
 		$('#more_info_error').hide();
 		var last = $(this).attr('last_notice_id');
 		if (last == -1) {
-			last = $('#notice_list div.notice:last').attr('notice_id');
+			last = $('.primary_notice:last').attr('notice_id');
 		}
+		console.log(last);
 		$.ajax({
-			url: '/info/notices.json?more',
+			url: '/info/notices?more',
 			type: 'GET',
 			data: {
 				count: 3,
@@ -229,26 +265,27 @@ $(function() {
 			dataType: 'json',
 			success: function(data) {
 				var length = data.notices.length;
-				if (length === 0) {
+				if (length < 3) {
 					$('#more_notices_error strong').text('没有更多啦！');
 					$('#more_notices').attr('disabled', true);
 					$('#more_notices_error').show();
-				} else {
-					$.each(data.notices, function(i, item) {
-						var content = '';
-						if (item.content.length < 100) {
-							content = item.content;
-						} else {
-							content = item.content.substring(0, 99);
-						}
-						$('<div>').addClass('span3 info').append($('<h4>').text(item.title)).append($('<p>').text(content))
-							.append($('<p>').append($('<a>').addClass('btn').attr('href', '/info/notices/' + item.id).html('详细 &raquo;'))).appendTo('#notice_list');
+				} 
+				var column$ = $('<div>').addClass('row-fluid');
+				$.each(data.notices, function(i, item) {
+					var content = '';
+					if (item.content.length < 100) {
+						content = item.content;
+					} else {
+						content = item.content.substring(0, 99);
+					}
+					$('<div>').addClass('span4').append($('<h4>').text(item.title)).append($('<p>').text(content))
+						.append($('<p>').append($('<a>').addClass('btn').attr('href', '/info/notices/' + item.id).html('详细 &raquo;'))).appendTo(column$);
 
-						if (i === length - 1) {
-							$('#more_notices').attr('last_notice_id', item.id);
-						}
-					})
-				}
+					if (i === length - 1) {
+						$('#more_notices').attr('last_notice_id', item.id);
+					}
+				})
+				column$.insertBefore('#more_notices');
 			},
 			error: function() {
 				$('#more_notices_error strong').text('出错啦！请稍后再试');
@@ -257,13 +294,11 @@ $(function() {
 		})
 	})
 })
-
 function userDetail(uid) {
-	var url = '/info/users/' + uid + '.json';
 	$.ajax({
-		url: 		url,
-		type: 		'GET',
-		dataType: 	'json',
+			 url: '/info/users/' + uid,
+			type: 'GET',
+		dataType: 'json',
 		success: function(data) {
 			if (data.status !== 'ok') {
 				alert('没有找到该用户！');
@@ -281,5 +316,6 @@ function userDetail(uid) {
 	})
 }
 </script>
-<@ga_notices />
-</@script>
+</@L.script>
+<@L.ga_lab />
+</@L.html>

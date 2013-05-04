@@ -3,19 +3,34 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container">
-			<a href="#" class="brand">信息发布平台</a>
+			<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="brand" href="#">校园信息发布平台</a>
 			<div class="nav-collapse collapse">
 				<ul class="nav">
-					<li class="active" id="_index"><a href="/info/">首页</a></li>
-					<li><a href="/resources/html/info/about.html">关于</a></li>
-					<li><a href="/resources/html/info/auth.html">认证</a></li>
-					<li><a href="#">服务条款</a></li>
-					<li><a href="/resources/html/info/help.html">操作指南</a></li>
+					<li class="active">
+						<a href="/info/">首页</a>
+					</li>
+					<li>
+						<a href="/resources/html/info/auth.html">认证</a>
+					</li>
+					<li>
+						<a href="#">服务条款</a>
+					</li>
 					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown">雨无声实验室 <b class="caret"></b></a>
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+							雨无声实验室 <b class="caret"></b>
+						</a>
 						<ul class="dropdown-menu">
-							<li><a href="/">首页</a></li>
-							<li><a href="/about.html">关于实验室</a></li>
+							<li>
+								<a href="/">首页</a>
+							</li>
+							<li>
+								<a href="/about.html">关于实验室</a>
+							</li>
 						</ul>
 					</li>
 				</ul>
@@ -34,13 +49,13 @@
 						<li id="logout"><a href="#"><i class="i"></i> 退出</a></li>
 					</ul>
 				</div>
-<#else>				
-				<form action="#" class="navbar-form pull-right" method="post" id="login_form">
-					<input type="text" class="span2" name="account" placeholder="账号" required />
-					<input type="password" class="span2" name="pwd" placeholder="密码" required />
-					<button type="button" class="btn">登陆</button>
+<#else>
+				<form class="navbar-form pull-right" method="post" id="login_form">
+					<input class="span2" type="text" name="account" placeholder="账号">
+					<input class="span2" type="password" name="pwd" placeholder="密码">
+					<button type="submit" class="btn">登陆</button>
 				</form>
-</#if>		
+</#if>
 			</div>
 		</div>
 	</div>
