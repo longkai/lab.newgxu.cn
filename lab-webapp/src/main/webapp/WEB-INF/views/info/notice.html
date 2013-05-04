@@ -1,10 +1,10 @@
-<#include "macro.ftl" />
 <#include "info/macro.ftl" />
-<#include "google_analytics.ftl" />
-<@head title="${notice.title} - 信息发布平台">
+<@L.html>
+<@L.head title="${notice.title} - 信息发布平台">
 <style type="text/css">
 body {
-	padding: 60px 0 40px 0;
+	padding-top: 60px;
+	padding-bottom: 40px;
 }
 .container-narrow {
 	margin: 0 auto;
@@ -27,15 +27,23 @@ body {
 #alert {
 	display: none;
 }
+p {
+	clear: both;
+}
 footer {
 	margin: 40px 0;
 }
+@media (max-width: 980px) {
+	body {
+		padding-top: 0px;
+	}
+}	
 </style>
-</@head>
+</@L.head>
 <body>
 <@header />
-<div class="alert alert-error" id="alert">
-	<p class="text-center"><span id="status"></span><span id="info"></span> <span id="reason"></span></p>
+<div id="error" class="container">
+
 </div>
 <div class="container-narrow">
 <#-- 假如是来自新建信息后跳转后过来的 -->
@@ -79,8 +87,9 @@ footer {
 	</footer>
 </div>
 </body>
-<@script>
+<@L.script>
 <script type="text/javascript" src="/resources/libs/pagedown/1.1.0/Markdown.Converter.js"></script>
+<script type="text/javascript" src="/resources/js/info/notty.js"></script>
 <script type="text/javascript">
 window.onload = function() {
 	var converter = new Markdown.Converter();
@@ -90,58 +99,19 @@ window.onload = function() {
 $(function() {
 	$('#_index').removeClass('active');
 
-	$('#logout').click(function(e) {
-		e.preventDefault();
-		$('#alert').hide();
-		var uid = $('#user_service').attr('uid');
-		$.ajax({
-			type: 'PUT',
-			url: '/info/users/' + uid + '.json'
+	$('#login_btn').click(function(e) {
+		notty.login({
+			event: e,
+			login_form: '#login_form',
+			url: '/info/users',
+			errorHint: '#error',
+			params: ['account', 'pwd']
 		})
-		location.href = '/info/';
 	})
-
-	$('#login_form button').click(function(e) {
-		e.preventDefault();
-		$('#alert').hide();
-		$.ajax({
-			type:		'GET',
-			url: 		'/info/users.json',
-			data: 		$('#login_form').serialize(),
-			dataType: 	'json',
-			success: function(data) {
-				if (data.status === 'ok') {
-					location.reload();
-				} else if (data.status === 'no') {
-					window.scrollTo(0, 0);
-					$('#status').text('登陆失败！');
-					$('#info').text(data.msg);
-					$('#reason').text(data.reason);
-					$('#alert').fadeIn();
-				} else {
-					window.scrollTo(0, 0);
-					$('#status').text('登陆失败！');
-					$('#alert').fadeIn();
-				}
-			},
-			error: function() {
-				window.scrollTo(0, 0);
-				$('#status').text('登陆失败！');
-				$('#alert').fadeIn();
-			}
-		})
-		$(':password').val('');
-	})
-
 	$('#logout').click(function(e) {
-		e.preventDefault();
-		$('#alert').hide();
-		$.ajax({
-			type: 'GET',
-			url: '/info/logout',
+		notty.logout({
+			event: e
 		})
-		location.reload();
-		return false;
 	})
 })
 function userDetail(uid) {
@@ -167,5 +137,6 @@ function userDetail(uid) {
 	})
 }
 </script>
-<@ga_notices_view />
-</@script>
+<@L.ga_notices_view />
+</@L.script>
+</@L.html>

@@ -1,9 +1,10 @@
-<#include "macro.ftl" />
 <#include "info/macro.ftl" />
-<@head title="信息列表 - 雨无声实验室">
+<@L.html>
+<@L.head title="信息列表 - 雨无声实验室">
 <style type="text/css">
 body {
-	padding: 60px 0 40px 0;
+	padding-top: 60px;
+	padding-bottom: 40px;
 }
 #template {
 	display: none;
@@ -14,8 +15,13 @@ body {
 footer {
 	margin: 20px 0;
 }
+@media (max-width: 980px) {
+	body {
+		padding-top: 0px;
+	}
+}
 </style>
-</@head>
+</@L.head>
 <body>
 <@header />
 
@@ -78,7 +84,7 @@ footer {
 	</footer>
 </div>
 </body>
-<@script>
+<@L.script>
 <script type="text/javascript">
 $()
 $(function() {
@@ -207,4 +213,5 @@ $('body').on('click', 'a.action', function(e) {
 	})
 })
 </script>
-</@script>
+</@L.script>
+</@L.html>

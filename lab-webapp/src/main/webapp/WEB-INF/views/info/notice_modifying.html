@@ -1,19 +1,25 @@
-<#include "macro.ftl" />
 <#include "info/macro.ftl" />
-<@head title="修改信息 - 雨无声实验室">
+<@L.html>
+<@L.head title="修改信息 - 雨无声实验室">
 <link rel="stylesheet" href="/resources/libs/pagedown/1.1.0/pagedown.css" media="screen" />
 <style type="text/css">
 body {
-	padding: 60px 0 40px 0;
+	padding-top: 60px;
+	padding-bottom: 40px;
 }
 footer {
 	margin: 20px 0;
 }
+@media (max-width: 980px) {
+	body {
+		padding-top: 0px;
+	}
+}
 </style>
-</@head>
+</@L.head>
 <body>
 <@header />
-
+<div class="container">
 <form action="/info/notices/${notice.id}" method="post" enctype="multipart/form-data" id="info_form">
 <div class="container" id="new">
 	<div class="control-group">
@@ -48,16 +54,18 @@ footer {
 	<div id="wmd-preview" class="wmd-panel wmd-preview"></div>
 </div>
 </form>
+</div>
 <div class="container">
 	<footer>
 		<p>&copy; 2001-2013 newgxu.cn &middot;All Rights Reserved.</p>
 	</footer>
 </div>
 </body>
-<@script>
+<@L.script>
 <script type="text/javascript" src="/resources/libs/pagedown/1.1.0/Markdown.Converter.js"></script>
 <script type="text/javascript" src="/resources/libs/pagedown/1.1.0/Markdown.Sanitizer.js"></script>
 <script type="text/javascript" src="/resources/libs/pagedown/1.1.0/Markdown.Editor.js"></script>
+<script type="text/javascript" src="/resources/js/info/notty.js"></script>
 <script type="text/javascript">
 (function () {
 	var converter1 = Markdown.getSanitizingConverter();
@@ -77,15 +85,11 @@ $(function() {
 	$('#_index').removeClass('active');
 
 	$('#logout').click(function(e) {
-		e.preventDefault();
-		$('#alert').hide();
-		var uid = $('#user_service').attr('uid');
-		$.ajax({
-			type: 'PUT',
-			url: '/info/users/' + uid + '.json'
+		notty.logout({
+			event: e
 		})
-		location.href = '/info/';
 	})
 })
 </script>
-</@script>
+</@L.script>
+</@L.html>

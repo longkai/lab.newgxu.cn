@@ -96,7 +96,7 @@ var notty = (function($) {
 				type: options.method,
 				url: options.url + uid
 			})
-			location.reload();
+			location.href = '/info/';
 		}
 	}
 })(jQuery);

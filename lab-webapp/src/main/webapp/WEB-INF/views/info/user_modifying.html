@@ -1,9 +1,10 @@
-<#include "macro.ftl" />
 <#include "info/macro.ftl" />
-<@head title="修改认证信息 - 雨无声实验室">
+<@L.html>
+<@L.head title="修改认证信息 - 雨无声实验室">
 <style type="text/css">
 body {
-	padding: 60px 0 40px 0;
+	padding-top: 60px;
+	padding-bottom: 40px;
 }
 #update {
 	max-width: 680px;
@@ -21,8 +22,13 @@ body {
 footer {
 	margin: 20px 0;
 }
+@media (max-width: 980px) {
+	body {
+		padding-top: 0px;
+	}
+}
 </style>
-</@head>
+</@L.head>
 <body>
 <@header />
 
@@ -97,18 +103,14 @@ footer {
 	</footer>
 </div>
 </body>
-<@script>
+<@L.script>
+<script type="text/javascript" src="/resources/js/info/notty.js"></script>
 <script type="text/javascript">
 $(function() {
 	$('#logout').click(function(e) {
-		e.preventDefault();
-		$('#alert').hide();
-		var uid = $('#user_service').attr('uid');
-		$.ajax({
-			type: 'PUT',
-			url: '/info/users/' + uid + '.json'
+		notty.logout({
+			event: e
 		})
-		location.href = '/info/';
 	})
 	
 	$('#update_pwd').click(function(e) {
@@ -166,4 +168,5 @@ $(function() {
 	})
 })
 </script>
-</@script>
+</@L.script>
+</@L.html>
