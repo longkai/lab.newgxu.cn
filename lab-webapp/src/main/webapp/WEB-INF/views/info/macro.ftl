@@ -11,26 +11,17 @@
 			<a class="brand" href="#">校园信息发布平台</a>
 			<div class="nav-collapse collapse">
 				<ul class="nav">
-					<li class="active">
-						<a href="/info/">首页</a>
-					</li>
-					<li>
-						<a href="/resources/html/info/auth.html">认证</a>
-					</li>
-					<li>
-						<a href="#">服务条款</a>
-					</li>
+					<li class="active"><a href="/info/">首页</a></li>
+					<li><a href="/resources/html/info/auth.html">认证</a></li>
+					<li><a href="/resources/html/info/help.html">帮助</a></li>
+					<li><a href="#">服务条款</a></li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 							雨无声实验室 <b class="caret"></b>
 						</a>
 						<ul class="dropdown-menu">
-							<li>
-								<a href="/">首页</a>
-							</li>
-							<li>
-								<a href="/about.html">关于实验室</a>
-							</li>
+							<li><a href="/">首页</a></li>
+							<li><a href="/about.html">关于实验室</a></li>
 						</ul>
 					</li>
 				</ul>

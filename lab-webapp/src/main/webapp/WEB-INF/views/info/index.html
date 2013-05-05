@@ -125,8 +125,8 @@ body {
 <#list notices as n>
 				<div class="span4 primary_notice" notice_id="${n.id}">
 					<h2>${n.title}</h2>
-	<#if n.content?length gt 200>
-					<p>${n.content?string[0..199]}</p>
+	<#if n.content?length gt 100>
+					<p>${n.content?string[0..99]}</p>
 	<#else>
 					<p>${n.content}</p>
 	</#if>
