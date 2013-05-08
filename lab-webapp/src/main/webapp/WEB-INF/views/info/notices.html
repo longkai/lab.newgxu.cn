@@ -85,20 +85,14 @@ footer {
 </div>
 </body>
 <@L.script>
+<script type="text/javascript" src="/resources/js/info/notty.js"></script>
 <script type="text/javascript">
-$()
 $(function() {
 	$('#_index').removeClass('active');
 
 	$('#logout').click(function(e) {
 		e.preventDefault();
-		$('#alert').hide();
-		var uid = $('#user_service').attr('uid');
-		$.ajax({
-			type: 'PUT',
-			url: '/info/users/' + uid + '.json'
-		})
-		location.href = '/info/';
+		notty.logout();
 	})
 
 	$('#more').click(function(e) {

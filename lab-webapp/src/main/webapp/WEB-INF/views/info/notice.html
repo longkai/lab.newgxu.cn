@@ -100,8 +100,8 @@ $(function() {
 	$('#_index').removeClass('active');
 
 	$('#login_btn').click(function(e) {
+		e.preventDefault();
 		notty.login({
-			event: e,
 			login_form: '#login_form',
 			url: '/info/users',
 			errorHint: '#error',
@@ -109,9 +109,8 @@ $(function() {
 		})
 	})
 	$('#logout').click(function(e) {
-		notty.logout({
-			event: e
-		})
+		e.preventDefault();
+		notty.logout();
 	})
 })
 function userDetail(uid) {

@@ -108,9 +108,8 @@ footer {
 <script type="text/javascript">
 $(function() {
 	$('#logout').click(function(e) {
-		notty.logout({
-			event: e
-		})
+		e.preventDefault();
+		notty.logout();
 	})
 	
 	$('#update_pwd').click(function(e) {

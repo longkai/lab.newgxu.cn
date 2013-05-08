@@ -93,9 +93,8 @@ $(function() {
 	})
 
 	$('#logout').click(function(e) {
-		notty.logout({
-			event: e
-		})
+		e.preventDefault();
+		notty.logout();
 	})
 })
 </script>

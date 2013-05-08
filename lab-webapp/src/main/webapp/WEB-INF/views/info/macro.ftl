@@ -44,7 +44,7 @@
 				<form class="navbar-form pull-right" method="post" id="login_form">
 					<input class="span2" type="text" name="account" placeholder="账号">
 					<input class="span2" type="password" name="pwd" placeholder="密码">
-					<button type="submit" class="btn" id="login_btn">登陆</button>
+					<a class="btn" id="login_btn">登陆</a>
 				</form>
 </#if>
 			</div>

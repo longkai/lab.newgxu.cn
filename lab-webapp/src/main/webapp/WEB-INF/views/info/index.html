@@ -188,8 +188,9 @@ $(function() {
 	})
 
 	$('#login_btn').click(function(e) {
+		// ff 传event有问题，所以手动搞了
+		e.preventDefault();
 		notty.login({
-			event: e,
 			login_form: '#login_form',
 			url: '/info/users',
 			errorHint: '#error',
@@ -197,9 +198,8 @@ $(function() {
 		})
 	})
 	$('#logout').click(function(e) {
-		notty.logout({
-			event: e
-		})
+		e.preventDefault();
+		notty.logout();
 	})
 
 	$('#more_user').click(function(e) {
