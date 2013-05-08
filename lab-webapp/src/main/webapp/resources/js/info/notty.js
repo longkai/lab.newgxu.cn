@@ -42,7 +42,7 @@ var notty = (function($) {
 				  errorHint: '.__alert__',
 				successCode: 'ok',
 			}, options || {});
-			console && console.log(settings);
+			// console && console.log(settings);
 			settings.event && event.preventDefault();
 
 			if (settings.params) {
@@ -56,7 +56,7 @@ var notty = (function($) {
 			}
 
 			var data = $(settings.loginForm).serialize();
-			console && console.log(data);
+			// console && console.log(data);
 			$.ajax({
 				url: settings.url,
 				type: settings.method,
@@ -88,7 +88,7 @@ var notty = (function($) {
 				url: '/info/users/',
 				itemAttr: 'uid'
 			}, options || {});
-			console && console.log(options);
+			// console && console.log(options);
 
 			options.event && event.preventDefault();
 			var uid = $(options.userService).attr(options.itemAttr);

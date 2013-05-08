@@ -124,7 +124,11 @@ body {
 			<div class="row-fluid">
 <#list notices as n>
 				<div class="span4 primary_notice" notice_id="${n.id}">
+	<#if n.title?length gt 20>
+					<h2>${n.title?string[0..19]}...</h2>
+	<#else>
 					<h2>${n.title}</h2>
+	</#if>
 	<#if n.content?length gt 100>
 					<p>${n.content?string[0..99]}</p>
 	<#else>
@@ -205,11 +209,11 @@ $(function() {
 	$('#more_user').click(function(e) {
 		e.preventDefault();
 		var last_user_id = $(this).attr('last_user_id');
-		console && console.log(last_user_id);
+		// console && console.log(last_user_id);
 		if (last_user_id == -1) {
 			last_user_id = $('#latest_auth_list li:last a').attr('uid');
 		}
-		console && console.log(last_user_id);
+		// console && console.log(last_user_id);
 		$.ajax({
 			 url: '/info/users',
 			type: 'GET',
@@ -254,7 +258,7 @@ $(function() {
 		if (last == -1) {
 			last = $('.primary_notice:last').attr('notice_id');
 		}
-		console.log(last);
+		// console.log(last);
 		$.ajax({
 			url: '/info/notices?more',
 			type: 'GET',
@@ -269,16 +273,18 @@ $(function() {
 					$('#more_notices_error strong').text('没有更多啦！');
 					$('#more_notices').attr('disabled', true);
 					$('#more_notices_error').show();
-				} 
+				}
 				var column$ = $('<div>').addClass('row-fluid');
 				$.each(data.notices, function(i, item) {
-					var content = '';
-					if (item.content.length < 100) {
-						content = item.content;
-					} else {
-						content = item.content.substring(0, 99);
+					var content = item.content;
+					if (content.length > 100) {
+						content = content.substring(0, 99);
 					}
-					$('<div>').addClass('span4').append($('<h4>').text(item.title)).append($('<p>').text(content))
+					var title = item.title;
+					if (title.length > 20) {
+						title = title.substring(0, 19) + '...';
+					}
+					$('<div>').addClass('span4').append($('<h2>').text(title)).append($('<p>').text(content))
 						.append($('<p>').append($('<a>').addClass('btn').attr('href', '/info/notices/' + item.id).html('详细 &raquo;'))).appendTo(column$);
 
 					if (i === length - 1) {
