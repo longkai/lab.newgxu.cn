@@ -27,6 +27,9 @@ body {
 #alert {
 	display: none;
 }
+#profile span {
+
+}
 p {
 	clear: both;
 }
@@ -48,7 +51,7 @@ footer {
 <div class="container-narrow">
 <#-- 假如是来自新建信息后跳转后过来的 -->
 <#if "${RequestParameters.from}" == -1>
-	<#if "${RequestParameters.status}" == "ok"> <#-- ok，发表正常 -->
+	<#if "${RequestParameters.status}" == 1> <#-- ok，发表正常 -->
 	<div class="alert">
 		<button type="button" class="close" data-dismiss="alert">&times;</button>
 		<strong>操作成功！</strong>
@@ -97,13 +100,14 @@ window.onload = function() {
 	$('#content').html(html);
 }
 $(function() {
-	$('#_index').removeClass('active');
+	$('.active').removeClass('active');
+	$('#profile span').addClass('text-info');
 
 	$('#login_btn').click(function(e) {
 		e.preventDefault();
 		notty.login({
 			login_form: '#login_form',
-			url: '/info/users',
+			url: '/info/login',
 			errorHint: '#error',
 			params: ['account', 'pwd']
 		})
@@ -114,13 +118,12 @@ $(function() {
 	})
 })
 function userDetail(uid) {
-	var url = '/info/users/' + uid + '.json';
 	$.ajax({
-		url: 		url,
+		url: 		'/info/users/' + uid,
 		type: 		'GET',
 		dataType: 	'json',
 		success: function(data) {
-			if (data.status !== 'ok') {
+			if (data.status !== 1) {
 				alert('没有找到该用户！');
 				return;
 			}

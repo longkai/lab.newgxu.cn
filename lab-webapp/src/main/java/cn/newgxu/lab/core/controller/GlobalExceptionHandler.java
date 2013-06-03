@@ -26,6 +26,7 @@ import static cn.newgxu.lab.core.common.ViewConstants.AJAX_MESSAGE;
 import static cn.newgxu.lab.core.common.ViewConstants.AJAX_STATUS;
 import static cn.newgxu.lab.core.common.ViewConstants.ERROR_PAGE;
 import static cn.newgxu.lab.core.common.ViewConstants.EXP_REASON;
+import static cn.newgxu.lab.core.common.ViewConstants.NO;
 import static cn.newgxu.lab.core.common.ViewConstants.UNKNOWN_REASON;
 
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ public class GlobalExceptionHandler {
 	public ModelAndView exp(Throwable t) {
 		L.error("全局异常处理中。。。", t);
 		ModelAndView mav = new ModelAndView(ERROR_PAGE);
-		mav.addObject(AJAX_STATUS, "no");
+		mav.addObject(AJAX_STATUS, NO);
 		mav.addObject(AJAX_MESSAGE, t.getMessage());
 		if (t.getCause() != null) {
 			mav.addObject(EXP_REASON, t.getCause().getMessage());

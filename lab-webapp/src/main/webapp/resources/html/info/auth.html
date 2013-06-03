@@ -156,10 +156,10 @@ $(function() {
 			data: 		$('#auth_form').serialize(),
 			dataType: 	'json',
 			success: function(data) {
-				if (data.status === 'ok') {
+				if (data.status === 1) {
 					$('#authed_name').text(data.user.authed_name);
 					$('#success').fadeIn();
-				} else if (data.status === 'no') {
+				} else if (data.status === 0) {
 					$('#info').text(data.msg);
 					$('#reason').text('原因：' + data.reason);
 					$('#error').fadeIn();

@@ -48,13 +48,18 @@ public class ViewConstants {
 	public static final String UNKNOWN_REASON = "我们没有能收集足够的错误信息，请您稍后再试！";
 	
 	/** 默认的ajax请求成功标记 */
-	public static final String JSON_STATUS_OK = "{\"status\":\"ok\"}";
+	public static final String JSON_STATUS_OK = "{\"status\":1}";
 	
 	/** 默认的ajax请求失败标记 */
-	public static final String JSON_STATUS_NO = "{\"status\":\"no\"}";
+	public static final String JSON_STATUS_NO = "{\"status\":0}";
+
+	/** 错误状态码 */
+	public static final int NO = 0;
+	/** 正确状态码 */
+	public static final int OK = 1;
 	
 	/** 默认的登录拦截成功信息 */
-	public static final String JSON_STATUS_NON_LOGIN = "{\"status\":\"no\",\"msg\":\"non_login\",\"reason\":\"请您登陆后再进行相关操作！\"}";
+	public static final String JSON_STATUS_NON_LOGIN = "{\"status\":0,\"msg\":\"non_login\",\"reason\":\"请您登陆后再进行相关操作！\"}";
 	
 	/** 用于只返回ajax视图而不返回默认的html视图 */
 	public static final String BAD_REQUEST = "bad_request";

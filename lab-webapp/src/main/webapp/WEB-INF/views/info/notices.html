@@ -50,11 +50,11 @@ footer {
 	</#if>
 			<td><code class="click-times">${n.clickTimes}</code></td>
 	<#if n.blocked>
-			<td><code class="status">屏蔽</code> <code><a href="/info/notices/${n.id}.json?blocked=0" class="action unblock text-error">解蔽之</a></code></td>
+			<td><code class="status">屏蔽</code> <code><a href="/info/notices/${n.id}?blocked=0" class="action unblock text-error">解蔽之</a></code></td>
 	<#else>
-			<td><code class="status">正常</code> <code><a href="/info/notices/${n.id}.json?blocked=1" class="action block text-error">屏蔽之</a></code></td>
+			<td><code class="status">正常</code> <code><a href="/info/notices/${n.id}?blocked=1" class="action block text-error">屏蔽之</a></code></td>
 	</#if>
-			<td><code><a href="/info/notices/${n.id}?modifying=1">走起~</a></code></td>
+			<td><code><a href="/info/notices/${n.id}?modify=1">走起~</a></code></td>
 		</tr>
 </#list>
 	</table>
@@ -104,15 +104,16 @@ $(function() {
 			last_notice_id = $('#notices tr:last').attr('notice_id');
 		}
 		var count = this$.attr('count');
-		var url = '/info/notices.json';
+		var url = '/info/notices';
 		$.ajax({
 			url: url,
 			type: 'GET',
 			dataType: 'json',
 			data: {
+				type: 3,
 				count: 3,
 				uid: uid,
-				last_notice_id: last_notice_id
+				last_nid: last_notice_id
 			},
 			success: function(data) {
 				var length = data.notices.length;
@@ -148,7 +149,7 @@ $(function() {
 						_item$.find('.status').text('正常');
 						_item$.find('.action').append($('<a>').attr('href', '/info/notices/' + item.id + '.json?blocked=1').text('屏蔽之').addClass('text-error block action'));
 					}
-					_item$.find('.modify a').attr('href', '/info/notices/' + item.id + '?modifying=1');
+					_item$.find('.modify a').attr('href', '/info/notices/' + item.id + '?modify=1');
 					_item$.appendTo('#notices');
 
 					if (length === i + 1) {
@@ -188,14 +189,15 @@ $('body').on('click', 'a.action', function(e) {
 		type: 'DELETE',
 		dataType: 'json',
 		success: function(data) {
-			if (data.status === 'ok') {
+			if (data.status === 1) {
 				this$.closest('code').prev().text(action === '屏蔽' ? '屏蔽' : '正常');
 				this$.text(action === '屏蔽' ? '解蔽之' : '屏蔽之');
-				var info_id = url.match(/[0-9]+\.json/g)[0].replace('.json', '');
-				this$.attr('href', action === '屏蔽' ? '/info/notices/' + info_id + '.json?blocked=0' : '/info/notices/' + info_id + '.json?blocked=1');
+				// var nid = url.match(/[0-9]+\.json/g)[0].replace('.json', '');
+				var nid = url.match(/[0-9]+\?/g)[0].replace('?', ''); // TODO: use group.
+				this$.attr('href', action === '屏蔽' ? '/info/notices/' + nid + '?blocked=0' : '/info/notices/' + nid + '?blocked=1');
 				this$.removeClass(action === '屏蔽' ? 'block' : 'unblock');
 				this$.addClass(action === '屏蔽' ? 'unblock' : 'block');
-			} else if (data.status === 'no') {
+			} else if (data.status === 0) {
 				alert('出错了-_-，错误信息：' + data.msg + ', 原因：' + data.reason);
 			} else {
 				alert('见鬼了-_-，这都能出错，请您稍后再试或者联系管理员！');

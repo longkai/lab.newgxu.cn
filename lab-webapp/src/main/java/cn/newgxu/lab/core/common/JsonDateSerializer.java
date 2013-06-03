@@ -49,6 +49,7 @@ public class JsonDateSerializer extends JsonSerializer<Date> {
 			SerializerProvider provider) throws IOException,
 			JsonProcessingException {
 		String str = DateTime.getRelativeTime(value.getTime());
+//		String str = DateTime.format(value);
 		jgen.writeString(str);
 	}
 

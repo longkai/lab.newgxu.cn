@@ -71,16 +71,16 @@ $(function() {
 		}
 		$.ajax({
 			type: 'PUT',
-			url: '/info/users/' + uid + '.json',
+			url: '/info/users/' + uid,
 			data: {
-				auth: 1
+				type: 3
 			},
 			dataType: 'json',
 			success: function(data) {
-				if (data.status === 'ok') {
+				if (data.status === 1) {
 					alert('授权成功！');
 					$('#u_' + uid).fadeOut('slow');
-				} else if (data.status === 'no') {
+				} else if (data.status === 0) {
 					alert('出错了-_- ' + '错误信息：' + data.msg + ' ，错误原因：' + data.reason);
 				} else {
 					alert('出错啦，请联系技术部或者稍后再试！');

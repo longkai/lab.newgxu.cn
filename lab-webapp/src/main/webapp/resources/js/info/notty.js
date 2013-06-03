@@ -37,10 +37,10 @@ var notty = (function($) {
 					  event: null,
 					 method: 'GET',
 					 params: null,
-				   failCode: 'no',
+				   failCode: 0,
 				  loginForm: '#login_form',
 				  errorHint: '.__alert__',
-				successCode: 'ok',
+				successCode: 1,
 			}, options || {});
 			// console && console.log(settings);
 			settings.event && event.preventDefault();

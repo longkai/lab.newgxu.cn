@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -67,13 +68,20 @@ public class NoticeController {
 	private static final Logger L =
 			LoggerFactory.getLogger(NoticeController.class);
 	
+	/** 最新信息 */
+	private static final int	LATEST						= 1;
+	/** 更多信息 */
+	private static final int	MORE_NOTICES				= 2;
+	/** 某个授权用户的更多信息 */
+	private static final int	MORE_NOTICES_FROM_A_USER	= 3;
+	
 	@Inject
 	private NoticeService noticeService;
 	
 	@Inject
 	private AuthService authService;
 	
-	@RequestMapping(value = {"/", "index", "home"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/", "index", "home", ""}, method = RequestMethod.GET)
 	public String index(Model model) {
 		List<Notice> notices = noticeService.latest(Config.DEFAULT_NOTICES_COUNT);
 		List<AuthorizedUser> users = authService.latest(Config.DEFAULT_USERS_COUNT);
@@ -87,11 +95,11 @@ public class NoticeController {
 			Model model,
 			HttpSession session, 
 			@PathVariable("notice_id") long id,
-			@RequestParam(value = "modifying", required = false)
-				boolean modifying) {
+			@RequestParam(value = "modify", required = false, defaultValue = "false")
+				boolean modify) {
 		Notice notice = noticeService.view(id);
 		model.addAttribute("notice", notice);
-		if (modifying) {
+		if (modify) {
 			AuthorizedUser user = checkLogin(session);
 			if (!notice.getUser().equals(user)) {
 				throw new SecurityException("对不起，您无权修改这篇公告！");
@@ -120,7 +128,7 @@ public class NoticeController {
 		noticeService.create(notice);
 //		重定向，避免用户刷新重复提交。
 		attributes.addAttribute("from", -1);
-		attributes.addAttribute("status", "ok");
+		attributes.addAttribute("status", ViewConstants.OK);
 		return "redirect:/" + Config.APP + "/notices/" + notice.getId();
 	}
 
@@ -151,7 +159,7 @@ public class NoticeController {
 		noticeService.update(persistentNotice);
 		
 		attributes.addAttribute("from", -1);
-		attributes.addAttribute("status", "ok");
+		attributes.addAttribute("status", ViewConstants.OK);
 		return "redirect:/" + Config.APP + "/notices/" + nid;
 	}
 	
@@ -173,66 +181,52 @@ public class NoticeController {
 		} else {
 			noticeService.block(notice, false);
 		}
-		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
 		return ViewConstants.BAD_REQUEST;
 	}
 	
 	@RequestMapping(
-		params	 = {"has_new"},
 		method	 = RequestMethod.GET,
-		value	 = "/notices/{last_id}"
+		value	 = "/notices/newer_than"
 	)
-	public String hasNew(Model model, @PathVariable("last_id") long nid) {
-		int count = noticeService.newerCount(nid);
+	public String hasNew(Model model, @RequestParam("local_nid") long localNid) {
+		int count = noticeService.newerCount(localNid);
 		model.addAttribute("count", count);
 		return ViewConstants.BAD_REQUEST;
 	}
 	
 	@RequestMapping(
-		params	 = {"more"},
-		value	 = "/notices",
-		method	 = RequestMethod.GET
+		value = "/notices",
+		method = RequestMethod.GET
 	)
-	public String list(
+	public String notices(
 			Model model,
-			@RequestParam("count") int count,
-			@RequestParam("last_id") long lastId) {
-		List<Notice> list = noticeService.more(lastId, count);
-		model.addAttribute("notices", list);
-		return ViewConstants.BAD_REQUEST;
-	}
-	
-	@RequestMapping(
-		params	 = {"uid"},
-		value	 = "/notices",
-		method	 = RequestMethod.GET
-	)
-	public String list(
-			Model model,
-			HttpSession session,
-			@RequestParam("uid") long uid,
-			@RequestParam(value = "count", required = false) Integer count,
-			@RequestParam(value = "last_notice_id", required = false)
-				Long lastNid) {
-		AuthorizedUser au = checkLogin(session);
-		List<Notice> list = null;
-		if (count == null) {
-			list = noticeService.listByUser(au, Config.DEFAULT_NOTICES_COUNT);
-			model.addAttribute("notices", list);
-			return Config.APP + "/notices";
+			HttpServletRequest request,
+			@RequestParam("type") int type,
+			@RequestParam(value = "count", defaultValue = "20") int count,
+			@RequestParam(value = "last_nid", defaultValue = "9999") long lastNid,
+			@RequestParam(value = "uid", defaultValue = "0") long uid) {
+		List<Notice> notices = null;
+		switch (type) {
+		case LATEST:
+			notices = noticeService.latest(count);
+			break;
+		case MORE_NOTICES:
+			notices = noticeService.more(lastNid, count);
+			break;
+		case MORE_NOTICES_FROM_A_USER:
+			AuthorizedUser au = checkLogin(request.getSession(false));
+			if (count == 20) {
+//				没有提供count，说明用户查看自己已经的发表的信息
+				notices = noticeService.listByUser(au, Config.DEFAULT_NOTICES_COUNT);
+				model.addAttribute("notices", notices);
+				return Config.APP + "/notices";
+			}
+			notices = noticeService.moreByUser(au, lastNid, count);
+			break;
+		default:
+			throw new IllegalArgumentException("对不起，不存在[type = " + type + "]的选项");
 		}
-		list = noticeService.moreByUser(au, lastNid, count);
-		model.addAttribute("notices", list);
-		return ViewConstants.BAD_REQUEST;
-	}
-	
-	@RequestMapping(
-		value  = "/notices",
-		method = RequestMethod.GET,
-		params = {"latest"}
-	)
-	public String latest(Model model, @RequestParam("count") int count) {
-		List<Notice> notices = noticeService.latest(count);
 		model.addAttribute("notices", notices);
 		return ViewConstants.BAD_REQUEST;
 	}

@@ -14,7 +14,7 @@
 					<li class="active"><a href="/info/">首页</a></li>
 					<li><a href="/resources/html/info/auth.html">认证</a></li>
 					<li><a href="/resources/html/info/help.html">帮助</a></li>
-					<li><a href="#">服务条款</a></li>
+					<li><a href="/resources/app/notty_20130520.apk">Android客户端</a></li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 							雨无声实验室 <b class="caret"></b>
@@ -31,11 +31,11 @@
 					<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li><a href="/resources/html/info/publication.html"><i class="icon-pencil"></i> 发表信息</a></li>
-						<li><a href="/info/users/${Session.info_user.id}?modifying=1"><i class="icon-edit"></i> 修改个人信息</a></li>
+						<li><a href="/info/users/${Session.info_user.id}?modify=1"><i class="icon-edit"></i> 修改个人信息</a></li>
 	<#if Session.info_user.type == "ADMIN">
-						<li><a href="/info/users?auth=1"><i class="icon-plus"></i> 授权</a></li>
+						<li><a href="/info/users?type=3"><i class="icon-plus"></i> 授权</a></li>
 	</#if>
-						<li><a href="/info/notices?uid=${Session.info_user.id}"><i class="icon-th-list"></i> 查看我发表的信息</a></li>
+						<li><a href="/info/notices?type=3&uid=${Session.info_user.id}"><i class="icon-th-list"></i> 查看我发表的信息</a></li>
 						<li class="divider"></li>
 						<li id="logout"><a href="#"><i class="i"></i> 退出</a></li>
 					</ul>

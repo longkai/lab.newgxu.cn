@@ -37,9 +37,7 @@ import javax.persistence.Table;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import cn.newgxu.lab.core.common.JsonDateSerializer;
 import cn.newgxu.lab.info.config.AccountType;
 
 /**
@@ -55,8 +53,8 @@ import cn.newgxu.lab.info.config.AccountType;
 @NamedQueries({
 	@NamedQuery(name = "AuthorizedUser.login", query = "FROM AuthorizedUser au WHERE au.account = :account AND au.password = :password"),
 	@NamedQuery(name = "AuthorizedUser.account", query = "FROM AuthorizedUser au WHERE au.account = :account"),
-	@NamedQuery(name = "AuthorizedUser.list_latest", query = "FROM AuthorizedUser au ORDER BY au.id DESC"),
-	@NamedQuery(name = "AuthorizedUser.list_more", query = "FROM AuthorizedUser au WHERE au.id < :last_id ORDER BY au.id DESC"),
+	@NamedQuery(name = "AuthorizedUser.list_latest", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC"),
+	@NamedQuery(name = "AuthorizedUser.list_more", query = "FROM AuthorizedUser au WHERE au.id < :last_id AND au.blocked IS FALSE ORDER BY au.id DESC"),
 	@NamedQuery(name = "AuthorizedUser.list_blocked", query = "FROM AuthorizedUser au WHERE au.blocked IS TRUE ORDER BY au.id DESC")
 })
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
@@ -83,7 +81,7 @@ public class AuthorizedUser {
 
 	@Column(name = "join_time")
 	@JsonProperty("join_time")
-	@JsonSerialize(using = JsonDateSerializer.class)
+//	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date		joinTime;
 
 	/** 账号是否被封 */

@@ -62,6 +62,21 @@ public class AuthController {
 
 	private static final Logger	L =
 			LoggerFactory.getLogger(AuthController.class);
+	
+	/** 更新用户信息 */
+	public static final int		MODIFY_PROFILE			= 1;
+	/** 更新用户密码 */
+	public static final int		MODIFY_PASSWORD			= 2;
+	/** 给用户授权(内部使用) */
+	public static final int		MODIFY_AUTH				= 3;
+
+	/** 最新授权用户列表 */
+	public static final int		LASTEST_AUTHED_USERS	= 1;
+	/** 更多授权用户列表 */
+	public static final int		MORE_AUTHED_USERS		= 2;
+	/** 未授权用户列表(内部使用) */
+	public static final int		BLOCKED_USERS			= 3;
+	
 
 	@Inject
 	private AuthService			authService;
@@ -73,7 +88,7 @@ public class AuthController {
 	 * @return json，假设不是json，那么就会返回一个错误的html页面。
 	 */
 	@RequestMapping(value = "/users", method = RequestMethod.POST)
-	public String auth(
+	public String create(
 			Model model,
 			@ModelAttribute("user") AuthorizedUser au,
 			@RequestParam(value = "_pwd", defaultValue = "") String _pwd) {
@@ -92,7 +107,7 @@ public class AuthController {
 	 * @param account
 	 * @return only json, or bad request!
 	 */
-	@RequestMapping(value = "/users", method = RequestMethod.GET)
+	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login(
 			Model model,
 			HttpServletRequest request,
@@ -102,7 +117,7 @@ public class AuthController {
 		AuthorizedUser au = authService.login(account, password, ip);
 		request.getSession().setAttribute(Config.SESSION_USER, au);
 //		这里，登录异常交给全局异常处理！
-		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
 		return ViewConstants.BAD_REQUEST;
 	}
 
@@ -113,7 +128,7 @@ public class AuthController {
 	 * @param uid
 	 * @return only josn
 	 */
-	@RequestMapping(value = "/users/{uid}", method = RequestMethod.PUT)
+	@RequestMapping(value = {"/users/{uid}", "/logout"}, method = RequestMethod.PUT)
 	public String logout(
 			Model model,
 			HttpServletRequest request,
@@ -122,7 +137,7 @@ public class AuthController {
 		if (session != null) {
 			session.invalidate();
 		}
-		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
 		return ViewConstants.BAD_REQUEST;
 	}
 
@@ -141,18 +156,27 @@ public class AuthController {
 	@RequestMapping(
 		value	 = "/users/{uid}",
 		method	 = RequestMethod.PUT,
-		params	 = {"modifying_type"}
+		params	 = {"type"}
 	)
 	@ResponseBody
 	public String modify(
 			HttpSession session,
 			@PathVariable("uid") long uid,
-			@RequestParam("password") String password,
-			@RequestParam("modifying_type") String type,
+			@RequestParam("type") int type,
+			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "pwd1", required = false) String pwd1,
 			@RequestParam(value = "pwd2", required = false) String pwd2,
 			@RequestParam(value = "about", required = false) String about,
 			@RequestParam(value = "contact", required = false) String contact) {
+		if (type == MODIFY_AUTH) {
+//			如果是阿管授权
+			checkAdmin(session);
+			authService.auth(uid);
+			return ViewConstants.JSON_STATUS_OK;
+		}
+		
+//		用户自服务
+		
 		AuthorizedUser sau = checkLogin(session);
 //		首页验证一下是否为同一人
 		if (sau.getId() != uid) {
@@ -161,15 +185,19 @@ public class AuthController {
 //		然后验证一下密码是否正确。
 		authService.login(sau.getAccount(), password, null);
 		
-		if (type.equals("password")) {
+		switch (type) {
+		case MODIFY_PASSWORD:
 			sau.setPassword(pwd1);
 			authService.resetPassword(sau, pwd2);
-		} else if (type.equals("profile")) {
+			break;
+		case MODIFY_PROFILE:
 			sau.setContact(contact);
 			sau.setAbout(about);
 			authService.update(sau);
-		} else {
-			throw new UnsupportedOperationException("不支持的操作！");
+			break;
+		default:
+			throw new IllegalArgumentException(
+					"对不起，不存在[type = " + type + "]的选项！");
 		}
 		return ViewConstants.JSON_STATUS_OK;
 	}
@@ -179,7 +207,7 @@ public class AuthController {
 	 * @param model
 	 * @param session
 	 * @param uid
-	 * @param modifying 是否有修改个人信息的意图，默认为false
+	 * @param modify 是否有修改个人信息的意图，默认为false
 	 * @return
 	 */
 	@RequestMapping(value = "/users/{uid}", method = RequestMethod.GET)
@@ -187,11 +215,12 @@ public class AuthController {
 			Model model,
 			HttpSession session,
 			@PathVariable("uid") long uid,
-			@RequestParam(value = "modifying", required = false)
-				boolean modifying) {
+			@RequestParam(
+				value = "modify", required = false, defaultValue = "false")
+					boolean modify) {
 		AuthorizedUser au = null;
 //		如果请求修改信息，那我们返回html视图
-		if (modifying) {
+		if (modify) {
 			au = checkLogin(session);
 			Assert.notNull("对不起，请登陆后再操作！", au);
 			if (au.getId() != uid) {
@@ -203,66 +232,55 @@ public class AuthController {
 //		简单的查看用户信息
 		au = authService.find(uid);
 		Assert.notNull("对不起，您所查看的用户不存在！", au);
-		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
 		model.addAttribute("user", au);
 		return ViewConstants.BAD_REQUEST;
 	}
 
 	@RequestMapping(
-		value	= "/users",
-		method	= RequestMethod.GET,
-		params	= {"last_uid"}
-	)
-	public String more(
-			Model model, 
-			@RequestParam("count") int count,
-			@RequestParam("last_uid") long lastUid) {
-		List<AuthorizedUser> list = authService.more(lastUid, count);
-		model.addAttribute("users", list);
-		return ViewConstants.BAD_REQUEST;
-	}
-	
-	@RequestMapping(
 		value  = "/users",
-		method = RequestMethod.GET,
-		params = {"auth"}
+		method = RequestMethod.GET
 	)
-	public String blockedList(Model model, HttpSession session) {
-		checkAdmin(session);
-		List<AuthorizedUser> users = authService.blocked();
-		model.addAttribute("users", users);
-		return Config.APP + "/users";
-	}
-	
-	@RequestMapping(
-		value = "/users/{uid}",
-		method = RequestMethod.PUT,
-		params = {"auth"}
-	)
-	public String auth(
+	public String users(
 			Model model,
-			HttpSession session,
-			@PathVariable("uid") long uid) {
-		checkAdmin(session);
-		authService.auth(uid);
-		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
-		return ViewConstants.BAD_REQUEST;
-	}
-	
-	@RequestMapping(
-		value = "/users",
-		method = RequestMethod.GET,
-		params = {"latest"}
-	)
-	public String lastedUsers(Model model, @RequestParam("count") int count) {
-		List<AuthorizedUser> users = authService.latest(count);
+			HttpServletRequest request,
+			@RequestParam("type") int type,
+			@RequestParam(
+				value = "count",
+				required = false,
+				defaultValue = "20") int count,
+			@RequestParam(
+				value = "last_uid",
+				required = false,
+				defaultValue = "9999") long lastUid) {
+//		999是一个预设值，意指检索id<9999的用户，短时间内无法到达
+		List<AuthorizedUser> users = null;
+		switch (type) {
+		case LASTEST_AUTHED_USERS:
+			users = authService.latest(count);
+			break;
+		case MORE_AUTHED_USERS:
+			users = authService.more(lastUid, count);
+			break;
+		case BLOCKED_USERS:
+//			TODO：这里，考虑实际情况，暂时没有分页（以后如果出现很多未授权用户的话添上）
+			checkAdmin(request.getSession(false));
+			users = authService.blocked();
+			model.addAttribute("users", users);
+			return Config.APP + "/users"; // 暂时用于授权，内部使用，提前返回
+		default:
+			throw new IllegalArgumentException(
+					"对不起，不存在[type = " + type + "]的选项！");
+		}
 		model.addAttribute("users", users);
 		return ViewConstants.BAD_REQUEST;
 	}
 	
-	/** 由于使用了REST API，原有的拦截器已经不适用了，故暂时使用这一方法，为接下来的spring security做准备 */
+	/** TODO: 由于使用了REST API，原有的拦截器已经不适用了，故暂时使用这一方法，为接下来的spring security做准备 */
 	private AuthorizedUser checkLogin(HttpSession session) {
-		AuthorizedUser user = (AuthorizedUser) session.getAttribute(Config.SESSION_USER);
+		Assert.notNull("对不起，您没有登陆或者登陆超时！请您登陆后再操作！", session);
+		AuthorizedUser user =
+				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
 		Assert.notNull("对不起，请您登陆后再操作！", user);
 		return user;
 	}

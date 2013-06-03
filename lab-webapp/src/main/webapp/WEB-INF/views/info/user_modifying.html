@@ -117,14 +117,15 @@ $(function() {
 		$('.alert').hide();
 		var uid = $('#user_service').attr('uid');
 		$.ajax({
-			url: '/info/users/' + uid + '.json?modifying_type=password',
+			url: '/info/users/' + uid + '?type=2',
 			type: 'PUT',
 			data: $('#pwd_update').serialize(),
 			dataType: 'json',
 			success: function(data) {
-				if (data.status === 'ok') {
+				window.scrollTo(0, 0);
+				if (data.status === 1) {
 					$('#success').show();
-				} else if (data.status === 'no') {
+				} else if (data.status === 0) {
 					$('#msg').text(data.msg);
 					$('#reason').text(data.reason);
 					$('#error').show();
@@ -144,14 +145,14 @@ $(function() {
 		$('.alert').hide();
 		var uid = $('#user_service').attr('uid');
 		$.ajax({
-			url: '/info/users/' + uid + '.json?modifying_type=profile',
+			url: '/info/users/' + uid + '?type=1',
 			type: 'PUT',
 			data: $('#profile_form').serialize(),
 			dataType: 'json',
 			success: function(data) {
-				if (data.status === 'ok') {
+				if (data.status === 1) {
 					$('#success').show();
-				} else if (data.status === 'no') {
+				} else if (data.status === 0) {
 					$('#msg').text(data.msg);
 					$('#reason').text(data.reason);
 					$('#error').show();
