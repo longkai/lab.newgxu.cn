@@ -40,7 +40,7 @@ var notty = (function($) {
 				   failCode: 0,
 				  loginForm: '#login_form',
 				  errorHint: '.__alert__',
-				successCode: 1,
+				successCode: 1
 			}, options || {});
 			// console && console.log(settings);
 			settings.event && event.preventDefault();

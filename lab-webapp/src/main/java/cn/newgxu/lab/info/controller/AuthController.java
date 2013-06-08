@@ -95,6 +95,7 @@ public class AuthController {
 		L.info("尝试认证用户！单位（组织）：{}，名称：{}", au.getOrg(), au.getAuthorizedName());
 		authService.create(au, _pwd);
 		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		model.addAttribute("user", au);
 //		我们只返回json数据，没有html视图哈
 		return ViewConstants.BAD_REQUEST;
 	}
@@ -118,6 +119,7 @@ public class AuthController {
 		request.getSession().setAttribute(Config.SESSION_USER, au);
 //		这里，登录异常交给全局异常处理！
 		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
+		model.addAttribute("user", au);
 		return ViewConstants.BAD_REQUEST;
 	}
 

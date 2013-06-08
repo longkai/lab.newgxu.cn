@@ -74,6 +74,8 @@ public class NoticeController {
 	private static final int	MORE_NOTICES				= 2;
 	/** 某个授权用户的更多信息 */
 	private static final int	MORE_NOTICES_FROM_A_USER	= 3;
+	/** 抓取最新的信息更新 */
+	private static final int	FETCH_UPDATE_NOTICES		= 4;
 	
 	@Inject
 	private NoticeService noticeService;
@@ -117,8 +119,8 @@ public class NoticeController {
 			Notice notice,
 			HttpSession session,
 			RedirectAttributes attributes,
-			@RequestParam("file") MultipartFile file,
-			@RequestParam("file_name") String fileName) {
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			@RequestParam(value = "file_name", required = false) String fileName) {
 		AuthorizedUser au = checkLogin(session);
 		
 		fileUpload(notice, fileName, file);
@@ -189,7 +191,9 @@ public class NoticeController {
 		method	 = RequestMethod.GET,
 		value	 = "/notices/newer_than"
 	)
-	public String hasNew(Model model, @RequestParam("local_nid") long localNid) {
+	public String hasNew(
+			Model model,
+			@RequestParam("local_nid") long localNid) {
 		int count = noticeService.newerCount(localNid);
 		model.addAttribute("count", count);
 		return ViewConstants.BAD_REQUEST;
@@ -205,7 +209,8 @@ public class NoticeController {
 			@RequestParam("type") int type,
 			@RequestParam(value = "count", defaultValue = "20") int count,
 			@RequestParam(value = "last_nid", defaultValue = "9999") long lastNid,
-			@RequestParam(value = "uid", defaultValue = "0") long uid) {
+			@RequestParam(value = "uid", defaultValue = "0") long uid,
+			@RequestParam(value = "local_nid", defaultValue = "-1") long localNid) {
 		List<Notice> notices = null;
 		switch (type) {
 		case LATEST:
@@ -223,6 +228,14 @@ public class NoticeController {
 				return Config.APP + "/notices";
 			}
 			notices = noticeService.moreByUser(au, lastNid, count);
+			break;
+		case FETCH_UPDATE_NOTICES:
+//			判断一下，如果客户端没有提供本地的最新的id，并且也请求更新，那么我们返回最新的
+			if (localNid == -1) {
+				notices = noticeService.latest(count);
+			} else {
+				notices = noticeService.listNewer(localNid, count);
+			}
 			break;
 		default:
 			throw new IllegalArgumentException("对不起，不存在[type = " + type + "]的选项");
