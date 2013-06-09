@@ -34,7 +34,7 @@ footer {
 			<td>登陆帐号</td>
 			<td>联系方式</td>
 			<td>申请时间</td>
-			<td>授权？</td>
+			<td>重置密码？</td>
 		</tr>
 <#list users as u>
 		<tr id="u_${u.id}">
@@ -44,7 +44,7 @@ footer {
 			<td><code class="text-success">${u.account}</code></td>
 			<td><code class="text-warning">${u.contact}</code></td>
 			<td><code class="text-info">${u.joinTime}</code></td>
-			<td><code><a href="#" class="auth" uid="${u.id}">授权</a></code></td>
+			<td><code><a href="#" class="reset_pwd" uid="${u.id}">重置密码</a></code></td>
 		</tr>
 </#list>
 	</table>
@@ -63,33 +63,57 @@ footer {
 $(function() {
 	$('.active').removeClass();
 
-	$('.auth').click(function(e) {
+	$('.reset_pwd').click(function(e) {
 		e.preventDefault();
 		var uid = $(this).attr('uid');
-		if (!confirm('确定给该用户授权？')) {
-			return;
-		}
-		$.ajax({
-			type: 'PUT',
-			url: '/info/users/' + uid,
-			data: {
-				type: 3
-			},
-			dataType: 'json',
-			success: function(data) {
-				if (data.status === 1) {
-					alert('授权成功！');
-					$('#u_' + uid).fadeOut('slow');
-				} else if (data.status === 0) {
-					alert('出错了-_- ' + '错误信息：' + data.msg + ' ，错误原因：' + data.reason);
-				} else {
-					alert('出错啦，请联系技术部或者稍后再试！');
+		// if (!confirm('确定给该用户授权？')) {
+		// 	return;
+		// }
+		// $.ajax({
+		// 	type: 'PUT',
+		// 	url: '/info/users/' + uid,
+		// 	data: {
+		// 		type: 3
+		// 	},
+		// 	dataType: 'json',
+		// 	success: function(data) {
+		// 		if (data.status === 1) {
+		// 			alert('授权成功！');
+		// 			$('#u_' + uid).fadeOut('slow');
+		// 		} else if (data.status === 0) {
+		// 			alert('出错了-_- ' + '错误信息：' + data.msg + ' ，错误原因：' + data.reason);
+		// 		} else {
+		// 			alert('出错啦，请联系技术部或者稍后再试！');
+		// 		}
+		// 	},
+		// 	error: function() {
+		// 		alert('出错啦，请联系技术部或者稍后再试！');
+		// 	}
+		// })
+		var pwd = prompt('请输入需要重置的密码！');
+		if (pwd) {
+			$.ajax({
+				url: '/info/reset_pwd',
+				type: 'PUT',
+				dataType: 'json',
+				data: {
+					uid: uid,
+					pwd: $.trim(pwd)
+				},
+				success: function(data) {
+					if (data.status === 1) {
+						alert('修改成功，请通知该用户密码已经被重置！');
+					} else {
+						alert('修改失败！原因：' + data.msg);
+					}
+				},
+				error: function() {
+					alert('出错了，请联系技术部同学-.-');
 				}
-			},
-			error: function() {
-				alert('出错啦，请联系技术部或者稍后再试！');
-			}
-		})
+			})
+		} else {
+			// do nothing...
+		}
 	})
 
 	$('#logout').click(function(e) {

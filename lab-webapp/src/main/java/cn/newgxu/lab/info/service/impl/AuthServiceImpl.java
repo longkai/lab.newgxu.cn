@@ -86,8 +86,8 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 		user.setJoinTime(new Date());
-//		一开始认证的时候，我们只会冻结它，等到他正式申请的时候我们在为他解蔽- -
-		user.setBlocked(true);
+//		统一由管理员负责填写和认证，所以省略掉。
+		user.setBlocked(false);
 		authDao.persist(user);
 
 		L.info("用户：{} 注册成功！id：{}，账号：{}， org：{}", user.getAuthorizedName(),
@@ -186,8 +186,8 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<AuthorizedUser> blocked() {
-		return authDao.list("AuthorizedUser.list_blocked", null, 0, Config.MAX_USERS_COUNT);
+	public List<AuthorizedUser> authed() {
+		return authDao.list("AuthorizedUser.list_authed", null, 0, Config.MAX_USERS_COUNT);
 	}
 
 	@Override

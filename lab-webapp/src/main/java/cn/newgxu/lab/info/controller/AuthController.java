@@ -67,8 +67,6 @@ public class AuthController {
 	public static final int		MODIFY_PROFILE			= 1;
 	/** 更新用户密码 */
 	public static final int		MODIFY_PASSWORD			= 2;
-	/** 给用户授权(内部使用) */
-	public static final int		MODIFY_AUTH				= 3;
 
 	/** 最新授权用户列表 */
 	public static final int		LASTEST_AUTHED_USERS	= 1;
@@ -90,13 +88,38 @@ public class AuthController {
 	@RequestMapping(value = "/users", method = RequestMethod.POST)
 	public String create(
 			Model model,
+			HttpServletRequest request,
 			@ModelAttribute("user") AuthorizedUser au,
 			@RequestParam(value = "_pwd", defaultValue = "") String _pwd) {
 		L.info("尝试认证用户！单位（组织）：{}，名称：{}", au.getOrg(), au.getAuthorizedName());
+		checkAdmin(request.getSession(false));
 		authService.create(au, _pwd);
-		model.addAttribute(ViewConstants.AJAX_STATUS, "ok");
+		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
 		model.addAttribute("user", au);
 //		我们只返回json数据，没有html视图哈
+		return ViewConstants.BAD_REQUEST;
+	}
+	
+	@RequestMapping(value = "/auth", method = RequestMethod.GET)
+	public String auth(HttpServletRequest request) {
+		checkAdmin(request.getSession(false));
+		return Config.APP + "/auth";
+	}
+	
+//	管理员给用户重置密码
+	@RequestMapping(value = "/reset_pwd", method = RequestMethod.PUT)
+	public String resetPwd(
+			Model model,
+			HttpServletRequest request,
+			@RequestParam("uid") long uid,
+			@RequestParam("pwd") String pwd) {
+		checkAdmin(request.getSession(false));
+		AuthorizedUser au = authService.find(uid);
+		Assert.notNull("对不起，您所要查找的用户不存在！", au);
+//		这里，因为是由于管理员负责的，所以就从简了
+		au.setPassword(pwd);
+		authService.resetPassword(au, pwd);
+		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
 		return ViewConstants.BAD_REQUEST;
 	}
 
@@ -170,15 +193,6 @@ public class AuthController {
 			@RequestParam(value = "pwd2", required = false) String pwd2,
 			@RequestParam(value = "about", required = false) String about,
 			@RequestParam(value = "contact", required = false) String contact) {
-		if (type == MODIFY_AUTH) {
-//			如果是阿管授权
-			checkAdmin(session);
-			authService.auth(uid);
-			return ViewConstants.JSON_STATUS_OK;
-		}
-		
-//		用户自服务
-		
 		AuthorizedUser sau = checkLogin(session);
 //		首页验证一下是否为同一人
 		if (sau.getId() != uid) {
@@ -267,7 +281,7 @@ public class AuthController {
 		case BLOCKED_USERS:
 //			TODO：这里，考虑实际情况，暂时没有分页（以后如果出现很多未授权用户的话添上）
 			checkAdmin(request.getSession(false));
-			users = authService.blocked();
+			users = authService.authed();
 			model.addAttribute("users", users);
 			return Config.APP + "/users"; // 暂时用于授权，内部使用，提前返回
 		default:

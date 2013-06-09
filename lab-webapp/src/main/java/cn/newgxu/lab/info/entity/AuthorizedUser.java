@@ -55,7 +55,7 @@ import cn.newgxu.lab.info.config.AccountType;
 	@NamedQuery(name = "AuthorizedUser.account", query = "FROM AuthorizedUser au WHERE au.account = :account"),
 	@NamedQuery(name = "AuthorizedUser.list_latest", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC"),
 	@NamedQuery(name = "AuthorizedUser.list_more", query = "FROM AuthorizedUser au WHERE au.id < :last_id AND au.blocked IS FALSE ORDER BY au.id DESC"),
-	@NamedQuery(name = "AuthorizedUser.list_blocked", query = "FROM AuthorizedUser au WHERE au.blocked IS TRUE ORDER BY au.id DESC")
+	@NamedQuery(name = "AuthorizedUser.list_authed", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC")
 })
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class AuthorizedUser {
