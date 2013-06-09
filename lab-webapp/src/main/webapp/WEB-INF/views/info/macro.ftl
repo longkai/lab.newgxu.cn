@@ -64,7 +64,7 @@
 		<span id="author"><code><a href="javascript:userDetail(${notice.user.id})">${notice.user.authorizedName}</a></code></span> <span class="time"><code>[${notice.addDate?string('yyyy-MM-dd HH:mm')}]</code></span> <span><code class="text-info">${notice.clickTimes}点击</code></span>
 <#if Session.info_user??>
 	<#if Session.info_user.id == notice.user.id>
-		<code><a href="/info/notices/${notice.id}?modifying=1" class="text-warning">修改我发表的信息</a></code>
+		<code><a href="/info/notices/${notice.id}?modify=1" class="text-warning">修改我发表的信息</a></code>
 	</#if>
 </#if>
 	</p>
