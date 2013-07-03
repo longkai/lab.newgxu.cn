@@ -239,13 +239,18 @@ body {
 		<h2 class="feature-heading">雨无声实验室 <span class="muted">创意与创造的地方</span></h2>
 		<p class="lead about">雨无声实验室是一个面向于西大师生的服务型平台。提供一系列实际生活，学习等方面的便捷服务。另一方面，实验室也乐意提供给那些渴望展现自己的能力，分享自己的创意的同学。在实验室，不管是你是雨无声人，还是西大人，都可以参与进来.不要担心自己是电脑盲，计算机技术只是实现创意的一种手段，我们需要的是创意。把你的想法，能力共享出来，雨无声人，西大人，会技术的，不会技术的，我们一起来孵化。</p>
 	</div>
+	<div class="feature" id="app_yundianbo">
+		<img class="feature-image pull-left" src="/resources/images/yundianbo/yundianbo.png">
+		<h2 class="feature-heading" title="去点播看看:)">雨无声云点播 <span class="muted">在线观看，无需下载</span></h2>
+		<p class="lead">你是否还在为下载视频观看而烦恼？又没有钱开通迅雷云点播，浪费很多时间等待下载，雨无声云点播，支持HTTP、FTP、ed2k（电骡）、magnet（磁力）、thunder（迅雷）链接以及torrent种子，即点即看，极速缓冲，在线高清，智能字幕。快点来体验VIP级的流畅播放感受，零等待，随意拖放!</p>
+	</div>
 	<div class="feature" id="app_info">
-		<img class="feature-image pull-left" src="/resources/images/lab/index/info_feature.png" title="去瞅瞅有什么信息~">
+		<img class="feature-image pull-right" src="/resources/images/lab/index/info_feature.png" title="去瞅瞅有什么信息~">
 		<h2 class="feature-heading" title="去瞅瞅有什么信息"~>雨无声信息发布平台<span class="muted"> 轻松获取校园一手信息</span></h2>
 		<p class="lead">这是一个信息的集中站，西大任何的院（校）机构，学生社团组织只要经过雨无声的认证后，都可以在这上面发布信息，这些信息会出现在雨无声网站全平台的校园公告上，所有人都可见。并且，接下来推出的Android客户端更是能够让大家轻松，即时，获取到校园一手信息:)</p>
 	</div>
 	<div class="feature" id="app_share">
-		<img class="feature-image pull-right" src="/resources/images/lab/index/share_feature.png" title="到分享平台淘淘:)">
+		<img class="feature-image pull-left" src="/resources/images/lab/index/share_feature.png" title="到分享平台淘淘:)">
 		<h2 class="feature-heading" title="到分享平台淘淘:)">雨文分享平台 <span class="muted">西大文库，你值得拥有！</span></h2>
 		<p class="lead">分享平台个由西大人共建，共享的资料分享文库。同学们可以把自己日常生活，学习，与考试中相关的资料上传在这里与大家分享，共同进步，共同打造我们的西大文库。此外，这里还提供了一些小的东西，比如投票系统，答题系统等服务。任何人或者集体只要向雨无声申请并且提供相关的资料即可使用~</p>
 	</div>
@@ -278,6 +283,14 @@ body {
 		$('#app_share img').css('cursor', 'pointer').click(function(e) {
 			e.preventDefault();
 			location.href = 'http://share.newgxu.cn';
+		})
+		$('#app_yundianbo h2').css('cursor', 'pointer').click(function(e) {
+			e.preventDefault();
+			location.href = '/yundianbo';
+		})
+		$('#app_yundianbo img').css('cursor', 'pointer').click(function(e) {
+			e.preventDefault();
+			location.href = '/yundianbo';
 		})
 	})
 }(window.jQuery)

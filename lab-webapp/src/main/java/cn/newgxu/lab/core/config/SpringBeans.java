@@ -22,8 +22,10 @@
  */
 package cn.newgxu.lab.core.config;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,6 +96,27 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		registry.addViewController("/").setViewName("index");
 		registry.addViewController("/index").setViewName("index");
 		registry.addViewController("/home").setViewName("index");
+		BufferedReader br = new BufferedReader(new InputStreamReader(
+								this.getClass().getResourceAsStream("/config/uri")));
+		String s = null;
+		String[] uris = null;
+		try {
+			while ((s = br.readLine()) != null) {
+				uris = s.trim().split(",");
+				registry.addViewController(uris[0]).setViewName(uris[1]);
+			}
+		} catch (IOException e) {
+			L.error("io exp!", e);
+		} finally {
+			try {
+				if (br != null) {
+					br.close();
+					br = null;
+				}
+			} catch (IOException e) {
+				L.error("io exp!", e);
+			}
+		}
 	}
 
 	@Override
