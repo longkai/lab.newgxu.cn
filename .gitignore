@@ -7,3 +7,7 @@ target/
 .springBeans
 upload/
 rebel.xml
+
+# idea
+.idea/
+*.iml
