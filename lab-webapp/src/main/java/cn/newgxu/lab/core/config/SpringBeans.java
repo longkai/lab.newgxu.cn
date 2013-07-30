@@ -22,24 +22,20 @@
  */
 package cn.newgxu.lab.core.config;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
-import org.apache.commons.dbcp.BasicDataSource;
+import cn.newgxu.lab.core.util.Resources;
+import cn.newgxu.lab.core.util.ResourcesCallback;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.http.MediaType;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -57,16 +53,21 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfig;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
 
 /**
  * spring的beans配置文件。
@@ -82,7 +83,7 @@ import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
 public class SpringBeans extends WebMvcConfigurerAdapter {
 	
 	private static final Logger L = LoggerFactory.getLogger(SpringBeans.class);
-	
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		int cachePeriod = 3600 * 24 * 15;
@@ -92,31 +93,22 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 	}
 
 	@Override
-	public void addViewControllers(ViewControllerRegistry registry) {
+	public void addViewControllers(final ViewControllerRegistry registry) {
 		registry.addViewController("/").setViewName("index");
 		registry.addViewController("/index").setViewName("index");
 		registry.addViewController("/home").setViewName("index");
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-								this.getClass().getResourceAsStream("/config/uri")));
-		String s = null;
-		String[] uris = null;
-		try {
-			while ((s = br.readLine()) != null) {
-				uris = s.trim().split(",");
-				registry.addViewController(uris[0]).setViewName(uris[1]);
-			}
-		} catch (IOException e) {
-			L.error("io exp!", e);
-		} finally {
-			try {
-				if (br != null) {
-					br.close();
-					br = null;
+
+		Resources.openBufferedReader("/config/uri", new ResourcesCallback() {
+			@Override
+			public void onSuccess(BufferedReader br) throws IOException {
+				String s = null;
+				String[] uris = null;
+				while ((s = br.readLine()) != null) {
+					uris = s.trim().split(",");
+					registry.addViewController(uris[0]).setViewName(uris[1]);
 				}
-			} catch (IOException e) {
-				L.error("io exp!", e);
 			}
-		}
+		});
 	}
 
 	@Override
@@ -127,26 +119,22 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 
 	@Bean(destroyMethod = "close")
 	public DataSource dataSource() {
-		Properties props = new Properties();
-		InputStream in = null;
-		try {
-			in = this.getClass().getResourceAsStream("/config/dataSource.properties");
-			props.load(in);
-		} catch (IOException e) {
-			L.error("启动数据源出错！", e);
-		} finally {
-			try {
-				in.close();
-			} catch (IOException e) {
-				L.error("wtf!", e);
+		final org.apache.tomcat.jdbc.pool.DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
+
+		Resources.loadProps("classpath:config/dataSource.properties", new ResourcesCallback() {
+
+			@Override
+			public void onSuccess(Properties props) {
+				PoolProperties poolProperties = new PoolProperties();
+
+				poolProperties.setUsername(props.getProperty("db.username"));
+				poolProperties. setPassword(props.getProperty("db.password"));
+				poolProperties.setUrl(props.getProperty("db.url"));
+				poolProperties.setDriverClassName(props.getProperty("db.driver"));
+				poolProperties.setDefaultAutoCommit(false);
+				dataSource.setPoolProperties(poolProperties);
 			}
-		}
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(props.getProperty("db.driver"));
-		dataSource.setUrl(props.getProperty("db.url"));
-		dataSource.setUsername(props.getProperty("db.username"));
-		dataSource.setPassword(props.getProperty("db.password"));
-		dataSource.setDefaultAutoCommit(false);
+		});
 		return dataSource;
 	}
 	
@@ -274,5 +262,6 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		viewResolver.setDefaultViews(defaultViews);
 		return viewResolver;
 	}
+
 	
 }
