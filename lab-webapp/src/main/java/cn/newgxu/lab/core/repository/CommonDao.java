@@ -67,14 +67,14 @@ public interface CommonDao<T> {
 	 */
 	long size();
 	
-	/**
-	 * 获取实体类对象的列表。
-	 * @param query 查询hql
-	 * @param params 查询参数
-	 * @param offset 偏移量，即，从第几条记录开始取
-	 * @param number 抓取数，即，抓取多少条记录
-	 * @return 实体类对象列表
-	 */
-	List<T> list(String query, Map<String, Object> params, int offset, int number);
+//	/**
+//	 * 获取实体类对象的列表。
+//	 * @param query 查询hql
+//	 * @param params 查询参数
+//	 * @param offset 偏移量，即，从第几条记录开始取
+//	 * @param number 抓取数，即，抓取多少条记录
+//	 * @return 实体类对象列表
+//	 */
+//	List<T> list(String query, Map<String, Object> params, int offset, int number);
 	
 }

@@ -22,23 +22,13 @@
  */
 package cn.newgxu.lab.info.entity;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-
+import cn.newgxu.lab.info.config.AccountType;
+import org.apache.ibatis.type.Alias;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import cn.newgxu.lab.info.config.AccountType;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 认证的用户。
@@ -48,27 +38,28 @@ import cn.newgxu.lab.info.config.AccountType;
  * @since 2013-3-28
  * @version 0.1
  */
-@Entity
-@Table(name = "info_users")
-@NamedQueries({
-	@NamedQuery(name = "AuthorizedUser.login", query = "FROM AuthorizedUser au WHERE au.account = :account AND au.password = :password"),
-	@NamedQuery(name = "AuthorizedUser.account", query = "FROM AuthorizedUser au WHERE au.account = :account"),
-	@NamedQuery(name = "AuthorizedUser.list_latest", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC"),
-	@NamedQuery(name = "AuthorizedUser.list_more", query = "FROM AuthorizedUser au WHERE au.id < :last_id AND au.blocked IS FALSE ORDER BY au.id DESC"),
-	@NamedQuery(name = "AuthorizedUser.list_authed", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC")
-})
-@JsonIgnoreProperties({"hibernateLazyInitializer"})
-public class AuthorizedUser {
+//@Entity
+//@Table(name = "info_users")
+//@NamedQueries({
+//	@NamedQuery(name = "AuthorizedUser.login", query = "FROM AuthorizedUser au WHERE au.account = :account AND au.password = :password"),
+//	@NamedQuery(name = "AuthorizedUser.account", query = "FROM AuthorizedUser au WHERE au.account = :account"),
+//	@NamedQuery(name = "AuthorizedUser.list_latest", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC"),
+//	@NamedQuery(name = "AuthorizedUser.list_more", query = "FROM AuthorizedUser au WHERE au.id < :last_id AND au.blocked IS FALSE ORDER BY au.id DESC"),
+//	@NamedQuery(name = "AuthorizedUser.list_authed", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC")
+//})
+//@JsonIgnoreProperties({"hibernateLazyInitializer"})
+@Alias("info_users")
+public class AuthorizedUser implements Serializable {
 
-	@Id
-	@GeneratedValue
+//	@Id
+//	@GeneratedValue
 	private long		id;
 
-	@Enumerated(EnumType.STRING)
+//	@Enumerated(EnumType.STRING)
 	@JsonIgnore
 	private AccountType	type	= AccountType.DEFAULT;
 
-	@Column(name = "authed_name")
+//	@Column(name = "authed_name")
 	@JsonProperty("authed_name")
 	private String		authorizedName;
 
@@ -79,7 +70,7 @@ public class AuthorizedUser {
 	/** 联系方式（可选） */
 	private String		contact;
 
-	@Column(name = "join_time")
+//	@Column(name = "join_time")
 	@JsonProperty("join_time")
 //	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date		joinTime;
@@ -93,11 +84,11 @@ public class AuthorizedUser {
 	@JsonIgnore
 	private String		password;
 
-	@Column(name = "last_login_ip")
+//	@Column(name = "last_login_ip")
 	@JsonIgnore
 	private String		lastLoginIP;
 	
-	@Column(name = "last_login_time")
+//	@Column(name = "last_login_time")
 	@JsonIgnore
 //	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date		lastLoginTime;

@@ -22,21 +22,12 @@
  */
 package cn.newgxu.lab.info.entity;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-
+import org.apache.ibatis.type.Alias;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 信息。
@@ -46,37 +37,38 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @since 2013-3-28
  * @version 0.1
  */
-@Entity
-@Table(name = "info_notices")
-@NamedQueries({
-	@NamedQuery(name = "Notice.newer_count", query = "SELECT COUNT(*) FROM Notice i WHERE i.id > :last_id AND i.blocked IS FALSE"),
-	@NamedQuery(name = "Notice.list_newer", query = "FROM Notice i WHERE i.id > :last_id ORDER BY i.id DESC"),
-	@NamedQuery(name = "Notice.latest", query = "FROM Notice i WHERE i.blocked IS FALSE ORDER BY i.id DESC"),
-	@NamedQuery(name = "Notice.list_more", query = "FROM Notice i WHERE i.id < :last_id AND i.blocked IS FALSE ORDER BY i.id DESC"),
-	@NamedQuery(name = "Notice.list_user_latest", query = "FROM Notice i WHERE i.user = :user ORDER BY i.id DESC"),
-	@NamedQuery(name = "Notice.list_user_more", query = "FROM Notice i WHERE i.user = :user AND i.id < :last_id ORDER BY i.id DESC")
-})
-public class Notice {
+//@Entity
+//@Table(name = "info_notices")
+//@NamedQueries({
+//	@NamedQuery(name = "Notice.newer_count", query = "SELECT COUNT(*) FROM Notice i WHERE i.id > :last_id AND i.blocked IS FALSE"),
+//	@NamedQuery(name = "Notice.list_newer", query = "FROM Notice i WHERE i.id > :last_id ORDER BY i.id DESC"),
+//	@NamedQuery(name = "Notice.latest", query = "FROM Notice i WHERE i.blocked IS FALSE ORDER BY i.id DESC"),
+//	@NamedQuery(name = "Notice.list_more", query = "FROM Notice i WHERE i.id < :last_id AND i.blocked IS FALSE ORDER BY i.id DESC"),
+//	@NamedQuery(name = "Notice.list_user_latest", query = "FROM Notice i WHERE i.user = :user ORDER BY i.id DESC"),
+//	@NamedQuery(name = "Notice.list_user_more", query = "FROM Notice i WHERE i.user = :user AND i.id < :last_id ORDER BY i.id DESC")
+//})
+@Alias("info_notices")
+public class Notice implements Serializable {
 
-	@Id
-	@GeneratedValue
+//	@Id
+//	@GeneratedValue
 	private long			id;
 	
 	private String			title;
 	
-	@Column(length = 10000)
+//	@Column(length = 10000)
 	private String			content;
 	
-	@Column(name = "click_times")
+//	@Column(name = "click_times")
 	@JsonProperty("click_times")
 	private long			clickTimes;
 	
-	@Column(name = "add_date")
+//	@Column(name = "add_date")
 	@JsonProperty("add_date")
 //	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date			addDate;
 	
-	@Column(name = "last_modified_date")
+//	@Column(name = "last_modified_date")
 	@JsonProperty("last_modified_date")
 //	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date			lastModifiedDate;
@@ -85,16 +77,16 @@ public class Notice {
 	@JsonIgnore
 	private boolean			blocked;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "auth_user_id")
+//	@ManyToOne(fetch = FetchType.EAGER)
+//	@JoinColumn(name = "auth_user_id")
 	private AuthorizedUser	user;
 
 	/** 上传文档的存放路径 */
-	@Column(name = "doc_url")
+//	@Column(name = "doc_url")
 	@JsonProperty("doc_url")
 	private String			docUrl;
 
-	@Column(name = "doc_name")
+//	@Column(name = "doc_name")
 	@JsonProperty("doc_name")
 	private String			docName;
 
