@@ -46,7 +46,7 @@ import cn.newgxu.lab.info.entity.AuthorizedUser;
  * @version 0.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("file:src/main/webapp/WEB-INF/spring/spring.xml")
+@ContextConfiguration("/config/spring.xml")
 @Transactional
 public class AuthServiceTest {
 

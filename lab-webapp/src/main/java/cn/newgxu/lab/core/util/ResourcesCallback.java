@@ -1,6 +1,6 @@
 /*
- * The MIT License (MIT)
- * Copyright (c) 2013 longkai(龙凯)
+
+
  */
 package cn.newgxu.lab.core.util;
 

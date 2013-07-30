@@ -50,13 +50,13 @@ import cn.newgxu.lab.info.service.NoticeService;
  * @since 2013-3-29
  * @version 0.1
  */
-@Service
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Throwable.class)
+//@Service
+//@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Throwable.class)
 public class NoticeServiceImpl implements NoticeService {
 
 	private static final Logger L = LoggerFactory.getLogger(NoticeServiceImpl.class);
 	
-	@Inject
+//	@Inject
 	private NoticeDao noticeDao;
 	
 	/** 简单地验证信息是否合法 */
@@ -140,42 +140,47 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	public List<Notice> latest(int count) {
-		this.checkRange(count);
-		return noticeDao.list("Notice.latest", null, 0, count);
+//		this.checkRange(count);
+//		return noticeDao.list("Notice.latest", null, 0, count);
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
 	public List<Notice> more(long lastId, int count) {
-		this.checkRange(count);
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("last_id", lastId);
-		return noticeDao.list("Notice.list_more", param, 0, count);
+//		this.checkRange(count);
+//		Map<String, Object> param = new HashMap<String, Object>();
+//		param.put("last_id", lastId);
+//		return noticeDao.list("Notice.list_more", param, 0, count);
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
 	public List<Notice> listByUser(AuthorizedUser au, int count) {
-		this.checkRange(count);
-		Map<String, Object> param = new HashMap<String, Object>(1);
-		param.put("user", au);
-		return noticeDao.list("Notice.list_user_latest", param, 0, count);
+//		this.checkRange(count);
+//		Map<String, Object> param = new HashMap<String, Object>(1);
+//		param.put("user", au);
+//		return noticeDao.list("Notice.list_user_latest", param, 0, count);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public List<Notice> moreByUser(AuthorizedUser au, long lastId,
 			int count) {
-		this.checkRange(count);
-		Map<String, Object> params = new HashMap<String, Object>(2);
-		params.put("user", au);
-		params.put("last_id", lastId);
-		return noticeDao.list("Notice.list_user_more", params, 0, count);
+//		this.checkRange(count);
+//		Map<String, Object> params = new HashMap<String, Object>(2);
+//		params.put("user", au);
+//		params.put("last_id", lastId);
+//		return noticeDao.list("Notice.list_user_more", params, 0, count);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public List<Notice> listNewer(long lastId, int count) {
-		this.checkRange(count);
-		Map<String, Object> param = new HashMap<String, Object>(1);
-		param.put("last_id", lastId);
-		return noticeDao.list("Notice.list_newer", param, 0, count);
+//		this.checkRange(count);
+//		Map<String, Object> param = new HashMap<String, Object>(1);
+//		param.put("last_id", lastId);
+//		return noticeDao.list("Notice.list_newer", param, 0, count);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

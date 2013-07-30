@@ -50,13 +50,13 @@ import cn.newgxu.lab.info.service.AuthService;
  * @since 2013-3-28
  * @version 0.1
  */
-@Service
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Throwable.class)
+//@Service
+//@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Throwable.class)
 public class AuthServiceImpl implements AuthService {
 
 	private static final Logger	L	= LoggerFactory.getLogger(AuthServiceImpl.class);
 
-	@Inject
+//	@Inject
 	private AuthDao				authDao;
 
 	/** 检测两次密码输入是否相符 */
@@ -163,16 +163,18 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public List<AuthorizedUser> latest(int count) {
-		this.checkRange(count);
-		return authDao.list("AuthorizedUser.list_latest", null, 0, count);
+//		this.checkRange(count);
+//		return authDao.list("AuthorizedUser.list_latest", null, 0, count);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public List<AuthorizedUser> more(long lastUid, int count) {
-		this.checkRange(count);
-		Map<String, Object> param = new HashMap<String, Object>(1);
-		param.put("last_id", lastUid);
-		return authDao.list("AuthorizedUser.list_more", param, 0, count);
+//		this.checkRange(count);
+//		Map<String, Object> param = new HashMap<String, Object>(1);
+//		param.put("last_id", lastUid);
+//		return authDao.list("AuthorizedUser.list_more", param, 0, count);
+		throw new UnsupportedOperationException();
 	}
 	
 	/** 检查列表请求数目是否越界 */
@@ -187,7 +189,8 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public List<AuthorizedUser> authed() {
-		return authDao.list("AuthorizedUser.list_authed", null, 0, Config.MAX_USERS_COUNT);
+//		return authDao.list("AuthorizedUser.list_authed", null, 0, Config.MAX_USERS_COUNT);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

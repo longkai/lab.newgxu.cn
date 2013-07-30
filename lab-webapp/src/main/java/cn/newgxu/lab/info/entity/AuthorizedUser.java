@@ -48,7 +48,7 @@ import java.util.Date;
 //	@NamedQuery(name = "AuthorizedUser.list_authed", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC")
 //})
 //@JsonIgnoreProperties({"hibernateLazyInitializer"})
-@Alias("info_users")
+@Alias("info_user")
 public class AuthorizedUser implements Serializable {
 
 //	@Id

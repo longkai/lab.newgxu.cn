@@ -11,6 +11,10 @@
 
     <context:annotation-config />
 
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.newgxu.lab.info.repository" />
+    </bean>
+
     <bean class="cn.newgxu.lab.core.config.SpringBeans" />
 
 
