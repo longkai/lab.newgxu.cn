@@ -25,25 +25,16 @@ package cn.newgxu.lab.core.config;
 import cn.newgxu.lab.core.util.Resources;
 import cn.newgxu.lab.core.util.ResourcesCallback;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.http.MediaType;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor;
-import org.springframework.orm.jpa.vendor.Database;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.accept.ContentNegotiationManager;
@@ -60,13 +51,9 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -137,68 +124,88 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 		});
 		return dataSource;
 	}
+
+	@Bean
+	public SqlSessionFactoryBean sqlSessionFactory() {
+		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
+		bean.setDataSource(dataSource());
+		bean.setTypeAliasesPackage("cn.newgxu.lab");
+		return bean;
+	}
+
+	@Bean
+	public MapperScannerConfigurer mapperScannerConfigurer() {
+		MapperScannerConfigurer configurer = new MapperScannerConfigurer();
+		configurer.setBasePackage("cn.newgxu.lab");
+		return configurer;
+	}
 	
+//	@Bean
+//	public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean() {
+//		LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+//		entityManagerFactoryBean.setDataSource(dataSource());
+//		entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
+//
+//		Properties properties = new Properties();
+//		properties.setProperty("hibernate.hbm2ddl.auto", "none");
+////		properties.setProperty("hibernate.hbm2ddl.auto", "update");
+//		entityManagerFactoryBean.setJpaProperties(properties);
+//
+//		properties.clear();
+//		InputStream in = null;
+//		try {
+//			in = this.getClass().getResourceAsStream("/config/entityPackages.properties");
+//			properties.load(in);
+//		} catch (IOException e) {
+//			L.error("启动EntityManagerFactory出错", e);
+//		} finally {
+//			try {
+//				in.close();
+//			} catch (IOException e) {
+//				L.error("wtf!", e);
+//			}
+//		}
+//		String[] entityPackages = new String[properties.size()];
+//		int i = 0;
+//		for (Object pkg : properties.keySet()) {
+//			entityPackages[i++] = properties.getProperty(pkg.toString());
+//		}
+//		entityManagerFactoryBean.setPackagesToScan(entityPackages);
+//		return entityManagerFactoryBean;
+//	}
+
+//	@Bean
+//	public JpaVendorAdapter jpaVendorAdapter() {
+//		HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
+////		jpaVendorAdapter.setShowSql(true);
+//		jpaVendorAdapter.setShowSql(false);
+//		jpaVendorAdapter.setDatabase(Database.MYSQL);
+//		jpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQL5InnoDBDialect");
+////		这里不管怎么设置，实际上最终还是依赖于jpaProperties的相关设置
+//		jpaVendorAdapter.setGenerateDdl(false);
+//		return jpaVendorAdapter;
+//	}
+
+//	@Bean
+//	public PlatformTransactionManager transactionManager() {
+//		JpaTransactionManager transactionManager = new JpaTransactionManager();
+//		transactionManager.setEntityManagerFactory(entityManagerFactoryBean().getObject());
+//		return transactionManager;
+//	}
+//
+//	@Bean
+//	public PersistenceAnnotationBeanPostProcessor persistenceAnnotationBeanPostProcessor() {
+//		return new PersistenceAnnotationBeanPostProcessor();
+//	}
+
+//	@Bean
+//	public PersistenceExceptionTranslationPostProcessor exceptionTranslator() {
+//		return new PersistenceExceptionTranslationPostProcessor();
+//	}
+
 	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean() {
-		LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
-		entityManagerFactoryBean.setDataSource(dataSource());
-		entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
-
-		Properties properties = new Properties();
-		properties.setProperty("hibernate.hbm2ddl.auto", "none");
-//		properties.setProperty("hibernate.hbm2ddl.auto", "update");
-		entityManagerFactoryBean.setJpaProperties(properties);
-
-		properties.clear();
-		InputStream in = null;
-		try {
-			in = this.getClass().getResourceAsStream("/config/entityPackages.properties");
-			properties.load(in);
-		} catch (IOException e) {
-			L.error("启动EntityManagerFactory出错", e);
-		} finally {
-			try {
-				in.close();
-			} catch (IOException e) {
-				L.error("wtf!", e);
-			}
-		}
-		String[] entityPackages = new String[properties.size()];
-		int i = 0;
-		for (Object pkg : properties.keySet()) {
-			entityPackages[i++] = properties.getProperty(pkg.toString());
-		}
-		entityManagerFactoryBean.setPackagesToScan(entityPackages);
-		return entityManagerFactoryBean;
-	}
-
-	@Bean
-	public JpaVendorAdapter jpaVendorAdapter() {
-		HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-//		jpaVendorAdapter.setShowSql(true);
-		jpaVendorAdapter.setShowSql(false);
-		jpaVendorAdapter.setDatabase(Database.MYSQL);
-		jpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQL5InnoDBDialect");
-//		这里不管怎么设置，实际上最终还是依赖于jpaProperties的相关设置
-		jpaVendorAdapter.setGenerateDdl(false);
-		return jpaVendorAdapter;
-	}
-
-	@Bean
-	public PlatformTransactionManager transactionManager() {
-		JpaTransactionManager transactionManager = new JpaTransactionManager();
-		transactionManager.setEntityManagerFactory(entityManagerFactoryBean().getObject());
-		return transactionManager;
-	}
-
-	@Bean
-	public PersistenceAnnotationBeanPostProcessor persistenceAnnotationBeanPostProcessor() {
-		return new PersistenceAnnotationBeanPostProcessor();
-	}
-
-	@Bean
-	public PersistenceExceptionTranslationPostProcessor exceptionTranslator() {
-		return new PersistenceExceptionTranslationPostProcessor();
+	public PlatformTransactionManager tx() {
+		return new DataSourceTransactionManager(dataSource());
 	}
 	
 	@Bean
