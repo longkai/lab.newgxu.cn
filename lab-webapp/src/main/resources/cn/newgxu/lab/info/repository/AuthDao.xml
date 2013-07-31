@@ -16,15 +16,69 @@
         <result property="org" column="org" />
         <result property="about" column="about" />
         <result property="contact" column="contact" />
-        <result property="joinTime" column="join_time" />
+        <result property="joinDate" column="join_date" />
         <result property="blocked" column="blocked" />
         <result property="account" column="account" />
         <result property="password" column="password" />
         <result property="lastLoginIP" column="last_login_ip" />
-        <result property="lastLoginTime" column="last_login_time" />
+        <result property="lastLoginDate" column="last_login_date" />
+        <result property="lastModifiedDate" column="last_modified_date" />
     </resultMap>
 
-    <select id="find" parameterType="_int" resultMap="info_user">
+    <select id="find" parameterType="_long" resultMap="info_user">
         SELECT * FROM info_users WHERE id = #{id}
+    </select>
+
+    <insert id="persist" parameterType="info_user" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO info_users
+            (id, type, authed_name, org, about, contact, join_date,
+                blocked, account, password, last_login_ip, last_login_date, last_modified_date)
+        VALUES
+            (null, #{type}, #{authorizedName}, #{org}, #{about}, #{contact}, #{joinDate},
+                0, #{account}, #{password}, null, null, null)
+    </insert>
+
+    <update id="merge" parameterType="info_user">
+        UPDATE
+            info_users
+        SET
+            org = #{org},
+            about = #{about},
+            contact = #{contact},
+            password = #{password},
+            last_login_ip = #{lastLoginIP},
+            last_login_date = #{lastLoginDate},
+            last_modified_date = #{lastModifiedDate},
+            type = #{type},
+            blocked = #{blocked}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="remove" parameterType="_long">
+        DELETE FROM info_users WHERE id = #{id}
+    </delete>
+
+    <select id="size" parameterType="string" resultType="_long">
+        ${query}
+    </select>
+
+    <select id="howMany" parameterType="string" resultType="_int">
+        SELECT count(id) FROM info_users WHERE account = #{account}
+    </select>
+
+    <select id="login" resultMap="info_user">
+        SELECT * FROM info_users WHERE account = #{account} AND password = #{password}
+    </select>
+
+    <update id="update" parameterType="string">
+        ${update}
+    </update>
+
+    <select id="one" resultMap="info_user">
+        ${query}
+    </select>
+
+    <select id="list" resultMap="info_user">
+        ${query}
     </select>
 </mapper>

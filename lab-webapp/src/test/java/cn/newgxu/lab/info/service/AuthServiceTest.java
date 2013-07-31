@@ -1,166 +1,152 @@
 /*
- * Copyright (c) 2001-2013 newgxu.cn <the original author or authors>.
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * The MIT License (MIT)
+ * Copyright (c) 2013 longkai(龙凯)
  */
 package cn.newgxu.lab.info.service;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
-import javax.inject.Inject;
-
+import cn.newgxu.lab.info.entity.AuthorizedUser;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import cn.newgxu.lab.info.config.Config;
-import cn.newgxu.lab.info.entity.AuthorizedUser;
+import javax.inject.Inject;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
- * 
  * @author longkai
  * @email im.longkai@gmail.com
- * @since 2013-3-29
- * @version 0.1
+ * @since 13-7-31
+ * @version 0.1.0.173-7-31
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/config/spring.xml")
-@Transactional
 public class AuthServiceTest {
+
+	private static Logger L = LoggerFactory.getLogger(AuthServiceTest.class);
+
+	private static int TOTAL = 8;
 
 	@Inject
 	private AuthService authService;
-	
-	private AuthorizedUser au1;
-	private AuthorizedUser au2;
-	private AuthorizedUser au3;
-	
-	private String _pwd;
-	
+
+	private AuthorizedUser _u;
+
+	private long id;
+
 	@Before
-	public void init() {
-		_pwd = "123456";
-		
-		au1 = new AuthorizedUser();
-		au1.setAccount("im.longkai");
-		au1.setPassword("123456");
-		au1.setOrg("广西大学雨无声网站");
-		au1.setAuthorizedName("广西大学雨无声网站");
-		
-		au2 = new AuthorizedUser();
-		au2.setOrg("广西大学xxx");
-		au2.setAuthorizedName("xxx组织");
-		
-		au3 = new AuthorizedUser();
+	public void setUp() throws Exception {
+		_u = new AuthorizedUser();
+		_u.setOrg("test org");
+		_u.setAuthorizedName("test name");
+		_u.setContact("10086");
+		_u.setAbout("test about");
+		_u.setAccount("test account");
+		_u.setPassword("test password");
+
+		id = (long) (Math.random() * TOTAL) + 1;
 	}
-	
-	@Test
-	public void testCreate() {
-		assertThat(au1.getId() == 0L, is(true));
-		authService.create(au1, _pwd);
-		assertThat(au1.getId() != 0L, is(true));
-	}
-	
-//	测试自动生成账户
-	@Test
-	public void testCreate2() {
-		assertThat(au2.getId() == 0L, is(true));
-		authService.create(au2, null);
-		assertThat(au2.getId() != 0L, is(true));
-	}
-	
-//	测试某些字段为空的账户
-	@Test(expected = RuntimeException.class)
-	public void testCreate3() {
-		assertThat(au3.getId() == 0L, is(true));
-		authService.create(au3, null);
-	}
-	
-	@Test
-	public void testUpdate() {
-		testCreate();
-		au1.setPassword("654321");
-		authService.resetPassword(au1, "654321");
-		assertThat(authService.find(au1.getId()).getPassword(), is("c33367701511b4f6020ec61ded352059"));
-	}
-	
-	@Test(expected = RuntimeException.class)
-	public void testUpdate2() {
-		testCreate();
-		au1.setPassword("654321");
-		authService.resetPassword(au1, "654321x");
-		assertThat(authService.find(au1.getId()).getPassword(), is("c33367701511b4f6020ec61ded352059"));
+
+	@After
+	public void tearDown() throws Exception {
+//		do nothing now...
 	}
 
 	@Test
-	public void testBlock() {
-		testCreate();
-		assertThat(au1.isBlocked(), is(false));
-		authService.block(au1);
-		assertThat(au1.isBlocked(), is(true));
+	@Transactional
+	public void testCreate() throws Exception {
+		assertEquals(_u.getId(), 0L);
+		authService.create(_u, _u.getPassword());
+		assertTrue(_u.getId() > 0L);
 	}
 
 	@Test
-	public void testFind() {
-		testCreate();
-		assertThat(authService.find(au1.getId()).getAuthorizedName(), is(au1.getAuthorizedName()));
+	public void testResetPassword() throws Exception {
+		AuthorizedUser user = authService.find(id);
+		String newPwd = "_newpwd";
+		user.setPassword(newPwd);
+		authService.resetPassword(user, newPwd);
+		AuthorizedUser u = authService.login(user.getAccount(), newPwd, null);
+		assertNotNull(u);
 	}
 
 	@Test
-	public void testLogin() {
-		testCreate();
-		assertThat(authService.login(au1.getAccount(), "123456", "127.0.0.1"), notNullValue());
-	}
-	
-//	测试错误账号密码登陆
-	@Test(expected = RuntimeException.class)
-	public void testLogin2() {
-		testCreate();
-		assertThat(authService.login(au1.getAccount(), au1.getPassword(), null), notNullValue());
+	public void testUpdate() throws Exception {
+		AuthorizedUser user = authService.find(id);
+		String newContact = "10086";
+		user.setContact(newContact);
+		authService.update(user);
+		assertEquals(newContact, authService.find(id).getContact());
 	}
 
 	@Test
-	public void testTotal() {
-		assertThat(authService.total(), is(0L));
-		testCreate();
-		testCreate2();
-		assertThat(authService.total(), is(2L));
+	public void testToggleBlock() throws Exception {
+		AuthorizedUser user = authService.find(id);
+		if (user.isBlocked()) {
+			authService.toggleBlock(user, false);
+			assertEquals(false, authService.find(id).isBlocked());
+		} else {
+			authService.toggleBlock(user, true);
+			assertEquals(true, authService.find(id).isBlocked());
+		}
 	}
 
 	@Test
-	public void testExists() {
-		assertThat(authService.exists(au1.getAccount()), is(false));
-		testCreate();
-		assertThat(authService.exists(au1.getAccount()), is(true));
+	public void testFind() throws Exception {
+		AuthorizedUser user = authService.find(id);
+		assertNotNull(user);
 	}
 
 	@Test
-	public void testList() {
-		testCreate();
-		testCreate2();
-		assertThat(authService.more(0, Config.DEFAULT_USERS_COUNT).size(), is(2));
+	@Transactional
+	public void testLogin() throws Exception {
+		String pwd = _u.getPassword();
+		authService.create(_u, _u.getPassword());
+		AuthorizedUser u = authService.login(_u.getAccount(), pwd, null);
+		assertNotNull(u);
 	}
 
+	@Test
+	public void testTotal() throws Exception {
+		long total = authService.total();
+		assertEquals(TOTAL, total);
+	}
+
+	@Test
+	public void testExists() throws Exception {
+	    String account = authService.find(id).getAccount();
+		assertTrue(authService.exists(account));
+	}
+
+	@Test
+	public void testLatest() throws Exception {
+		List<AuthorizedUser> users = authService.latest((int) id);
+		assertEquals(users.size(), id);
+	}
+
+	@Test
+	public void testMore() throws Exception {
+		if (id == 1) {
+			id++;
+		}
+
+		List<AuthorizedUser> users = authService.more(id, 1);
+		assertTrue(users.get(0).getId() < id);
+	}
+
+	@Test
+	public void testAuthed() throws Exception {
+		List<AuthorizedUser> users = authService.authed();
+		assertTrue(users.size() > 0);
+	}
 }

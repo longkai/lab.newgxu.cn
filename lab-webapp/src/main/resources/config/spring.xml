@@ -2,20 +2,25 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
     <context:annotation-config />
+
+    <!--测试数据库ddl以及脚本，会删除表重新注入测试数据，务必使用在开发与测试模式下，其他情况下一定将下面的结点注释或者删除！-->
+    <jdbc:initialize-database data-source="dataSource">
+        <jdbc:script location="classpath:config/db-schema.sql" />
+        <jdbc:script location="classpath:config/db-test-data.sql" />
+    </jdbc:initialize-database>
 
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="cn.newgxu.lab.info.repository" />
     </bean>
 
     <bean class="cn.newgxu.lab.core.config.SpringBeans" />
-
 
 </beans>

@@ -22,25 +22,22 @@
  */
 package cn.newgxu.lab.info.service.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-
+import cn.newgxu.lab.core.util.Assert;
+import cn.newgxu.lab.core.util.Encryptor;
+import cn.newgxu.lab.core.util.SQLUtils;
+import cn.newgxu.lab.info.config.Config;
+import cn.newgxu.lab.info.entity.AuthorizedUser;
+import cn.newgxu.lab.info.repository.AuthDao;
+import cn.newgxu.lab.info.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import cn.newgxu.lab.core.util.Assert;
-import cn.newgxu.lab.core.util.Encryptor;
-import cn.newgxu.lab.info.config.Config;
-import cn.newgxu.lab.info.entity.AuthorizedUser;
-import cn.newgxu.lab.info.repository.AuthDao;
-import cn.newgxu.lab.info.service.AuthService;
+import javax.inject.Inject;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 认证用户对外服务的实现。
@@ -50,13 +47,13 @@ import cn.newgxu.lab.info.service.AuthService;
  * @since 2013-3-28
  * @version 0.1
  */
-//@Service
-//@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Throwable.class)
+@Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Throwable.class)
 public class AuthServiceImpl implements AuthService {
 
-	private static final Logger	L	= LoggerFactory.getLogger(AuthServiceImpl.class);
+	private static Logger L	= LoggerFactory.getLogger(AuthServiceImpl.class);
 
-//	@Inject
+	@Inject
 	private AuthDao				authDao;
 
 	/** 检测两次密码输入是否相符 */
@@ -81,16 +78,16 @@ public class AuthServiceImpl implements AuthService {
 		// 设置账号
 		Assert.hasLength("账号长度必须大于" + Config.MIN_ACCOUNT_LENGTH + "位！",
 				user.getAccount(), Config.MIN_ACCOUNT_LENGTH);
-		if (authDao.has(user.getAccount())) {
+		if (authDao.howMany(user.getAccount()) != 0) {
 			throw new RuntimeException("账号已经存在！");
 		}
 
-		user.setJoinTime(new Date());
+		user.setJoinDate(new Date());
 //		统一由管理员负责填写和认证，所以省略掉。
 		user.setBlocked(false);
 		authDao.persist(user);
 
-		L.info("用户：{} 注册成功！id：{}，账号：{}， org：{}", user.getAuthorizedName(),
+		L.info("info_user: {} register succellfully! id: {}, account: {}, org: {}", user.getAuthorizedName(),
 				user.getId(), user.getAccount(), user.getOrg());
 	}
 
@@ -100,27 +97,41 @@ public class AuthServiceImpl implements AuthService {
 		checkPassword(user.getPassword(), _pwd);
 
 		user.setPassword(Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + _pwd));
-		authDao.merge(user);
-		L.info("认证用户：{} 修改个人密码成功！", user.getAuthorizedName());
+		user.setLastModifiedDate(new Date());
+		authDao.update(SQLUtils.
+				update(AuthDao.TABLE,
+						new String[]{"password", "last_modified_date"},
+						new Object[]{user.getPassword(), user.getLastModifiedDate()},
+						"id=" + user.getId(), null));
+		L.info("info_user: {} successfully modify password.", user.getAuthorizedName());
 		return user;
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public AuthorizedUser update(AuthorizedUser au) {
-		au.setAbout(au.getAbout());
-		au.setContact(au.getContact());
-		authDao.merge(au);
-		L.info("认证用户：{} 修改个人信息成功！", au.getAuthorizedName());
+		au.setLastModifiedDate(new Date());
+		int i = authDao.update(SQLUtils
+				.update(AuthDao.TABLE,
+						new String[]{"about", "contact", "last_modified_date"},
+						new Object[]{au.getAbout(), au.getContact(), au.getLastModifiedDate()},
+						"id=" + au.getId(), null));
+		L.info("info_user: {} modify self infomation successfully! update count: {}",
+				au.getAuthorizedName(), i);
 		return au;
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public void block(AuthorizedUser user) {
-		user.setBlocked(true);
-		authDao.merge(user);
-		L.info("用户：{} 账号被成功冻结！", user.getAuthorizedName());
+	public void toggleBlock(AuthorizedUser user, boolean blocked) {
+		user.setBlocked(blocked);
+		user.setLastModifiedDate(new Date());
+		int i = authDao.update(SQLUtils
+				.update(AuthDao.TABLE,
+						new String[]{"blocked", "last_modified_date"},
+						new Object[]{blocked, user.getLastModifiedDate()},
+						"id=" + user.getId(), null));
+		L.info("info_user: {} blocked: {}. update count: {}", user.getAuthorizedName(), blocked, i);
 	}
 
 	@Override
@@ -131,50 +142,58 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public AuthorizedUser login(String account, String password, String ip) {
-		L.info("用户:{} 登录", account);
+		L.info("info_user: {} try logining...", account);
 		AuthorizedUser user = null;
 		try {
-			user = authDao.find(account,
+			user = authDao.login(account,
 					Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + password));
+			if (user == null) {
+				throw new RuntimeException("账号密码不匹配！");
+			}
 		} catch (Exception e) {
-			L.error("用户登录异常！", e);
-			throw new RuntimeException("用户名密码错误！", e);
+			L.error(String.format("info login error with account: %s", account), e);
+			throw new RuntimeException("账号密码不匹配！", e);
 		}
+
+
 		if (user.isBlocked()) {
-			throw new RuntimeException("对不起，您还没有正式向雨无声申请认证，账号现在还无法使用！请联系雨无声！");
+			throw new RuntimeException("对不起，您的账号目前处于冻结状态无法使用，请联系雨无声！");
 		}
-		if (ip != null) {
-			user.setLastLoginIP(ip);
-			user.setLastLoginTime(new Date());
-			authDao.merge(user);
-		}
+
+		user.setLastLoginIP(ip);
+		user.setLastLoginDate(new Date());
+		user.setLastModifiedDate(user.getLastLoginDate());
+		authDao.update(SQLUtils
+				.update(AuthDao.TABLE,
+						new String[]{"last_login_ip", "last_login_date", "last_modified_date"},
+						new Object[]{ip, user.getLastLoginIP(), user.getLastModifiedDate()},
+						"id=" + user.getId(), null));
 		return user;
 	}
 
 	@Override
 	public long total() {
-		return authDao.size();
+		return authDao.size(SQLUtils.selectCount(AuthDao.TABLE, null, null));
 	}
 
 	@Override
 	public boolean exists(String account) {
-		return authDao.has(account);
+		return authDao.howMany(account) >= 1;
 	}
 
 	@Override
 	public List<AuthorizedUser> latest(int count) {
-//		this.checkRange(count);
-//		return authDao.list("AuthorizedUser.list_latest", null, 0, count);
-		throw new UnsupportedOperationException();
+		return authDao.list(SQLUtils
+				.query(AuthDao.TABLE, null,
+						"blocked=?", new Boolean[]{false}, null, null, "id DESC", "" + count));
 	}
 
 	@Override
 	public List<AuthorizedUser> more(long lastUid, int count) {
-//		this.checkRange(count);
-//		Map<String, Object> param = new HashMap<String, Object>(1);
-//		param.put("last_id", lastUid);
-//		return authDao.list("AuthorizedUser.list_more", param, 0, count);
-		throw new UnsupportedOperationException();
+		return authDao.list(SQLUtils
+				.query(AuthDao.TABLE, null,
+						"id<? AND blocked=?", new Object[]{lastUid, false},
+						null, null, "id DESC", "" + count));
 	}
 	
 	/** 检查列表请求数目是否越界 */
@@ -189,17 +208,8 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public List<AuthorizedUser> authed() {
-//		return authDao.list("AuthorizedUser.list_authed", null, 0, Config.MAX_USERS_COUNT);
-		throw new UnsupportedOperationException();
+		return authDao.list(SQLUtils
+				.query(AuthDao.TABLE, null, "blocked=?", new Boolean[]{false}, null, null, "id desc", null));
 	}
 
-	@Override
-	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public void auth(long uid) {
-		AuthorizedUser user = authDao.find(uid);
-		Assert.notNull("对不起，该用户不存在！", user);
-		user.setBlocked(false);
-		authDao.merge(user);
-	}
-	
 }

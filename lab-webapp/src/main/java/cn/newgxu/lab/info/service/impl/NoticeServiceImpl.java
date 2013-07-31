@@ -29,6 +29,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import cn.newgxu.lab.core.util.SQLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -135,7 +136,7 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	public long total() {
-		return noticeDao.size();
+		return noticeDao.size(SQLUtils.selectCount(NoticeDao.TABLE, null, null));
 	}
 
 	@Override

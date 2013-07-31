@@ -52,7 +52,7 @@ public interface AuthService {
 	AuthorizedUser update(AuthorizedUser au);
 
 	/** 将一个用户账号冻结掉。*/
-	void block(AuthorizedUser user);
+	void toggleBlock(AuthorizedUser user, boolean blocked);
 	
 	AuthorizedUser find(long pk);
 	
@@ -69,8 +69,5 @@ public interface AuthService {
 	
 	/** 查看通过授权的用户 */
 	List<AuthorizedUser> authed();
-	
-	/** 给某一个用户授权 */
-	void auth(long uid);
 	
 }

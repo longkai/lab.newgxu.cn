@@ -24,19 +24,24 @@ package cn.newgxu.lab.info.repository;
 
 import cn.newgxu.lab.core.repository.CommonDao;
 import cn.newgxu.lab.info.entity.AuthorizedUser;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 认证用户数据访问接口。
  * 
- * @author longkai
- * @email im.longkai@gmail.com
- * @since 2013-3-28
- * @version 0.1
+ * @author  longkai
+ * @email   im.longkai@gmail.com
+ * @since   2013-3-28
+ * @version 0.2.0.20130730
  */
 public interface AuthDao extends CommonDao<AuthorizedUser> {
 
-	boolean has(String account);
+	String TABLE = "info_users";
+
+	int howMany(String account);
 	
-	AuthorizedUser find(String account, String password);
-	
+	AuthorizedUser login(@Param("account") String account, @Param("password") String password);
+
 }

@@ -22,6 +22,8 @@
  */
 package cn.newgxu.lab.core.repository;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +46,9 @@ public interface CommonDao<T> {
 	
 	/**
 	 * 将一个持久化的实体处于游离化。
-	 * @param entity
+	 * @param pk 主键
 	 */
-	void remove(T entity);
+	void remove(Serializable pk);
 	
 	/**
 	 * 将持久化的实体与运行时的实体合并，更新是也。
@@ -65,16 +67,27 @@ public interface CommonDao<T> {
 	 * 实体类的记录总数。
 	 * @return 记录总数
 	 */
-	long size();
-	
-//	/**
-//	 * 获取实体类对象的列表。
-//	 * @param query 查询hql
-//	 * @param params 查询参数
-//	 * @param offset 偏移量，即，从第几条记录开始取
-//	 * @param number 抓取数，即，抓取多少条记录
-//	 * @return 实体类对象列表
-//	 */
-//	List<T> list(String query, Map<String, Object> params, int offset, int number);
+	long size(@Param("query") String query);
+
+	/**
+	 * 自定义更新语句
+	 * @param update update sql
+	 * @return 更新的记录数
+	 */
+	int update(@Param("update") String update);
+
+	/**
+	 * 自定义询一个实体
+	 * @param query sql
+	 * @return
+	 */
+	T one(@Param("query") String query);
+
+	/**
+	 * 自定义列表查询.
+	 * @param query sql
+	 * @return results
+	 */
+	List<T> list(@Param("query") String query);
 	
 }

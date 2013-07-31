@@ -38,28 +38,14 @@ import java.util.Date;
  * @since 2013-3-28
  * @version 0.1
  */
-//@Entity
-//@Table(name = "info_users")
-//@NamedQueries({
-//	@NamedQuery(name = "AuthorizedUser.login", query = "FROM AuthorizedUser au WHERE au.account = :account AND au.password = :password"),
-//	@NamedQuery(name = "AuthorizedUser.account", query = "FROM AuthorizedUser au WHERE au.account = :account"),
-//	@NamedQuery(name = "AuthorizedUser.list_latest", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC"),
-//	@NamedQuery(name = "AuthorizedUser.list_more", query = "FROM AuthorizedUser au WHERE au.id < :last_id AND au.blocked IS FALSE ORDER BY au.id DESC"),
-//	@NamedQuery(name = "AuthorizedUser.list_authed", query = "FROM AuthorizedUser au WHERE au.blocked IS FALSE ORDER BY au.id DESC")
-//})
-//@JsonIgnoreProperties({"hibernateLazyInitializer"})
 @Alias("info_user")
 public class AuthorizedUser implements Serializable {
 
-//	@Id
-//	@GeneratedValue
 	private long		id;
 
-//	@Enumerated(EnumType.STRING)
 	@JsonIgnore
 	private AccountType	type	= AccountType.DEFAULT;
 
-//	@Column(name = "authed_name")
 	@JsonProperty("authed_name")
 	private String		authorizedName;
 
@@ -70,10 +56,8 @@ public class AuthorizedUser implements Serializable {
 	/** 联系方式（可选） */
 	private String		contact;
 
-//	@Column(name = "join_time")
-	@JsonProperty("join_time")
-//	@JsonSerialize(using = JsonDateSerializer.class)
-	private Date		joinTime;
+	@JsonProperty("join_date")
+	private Date        joinDate;
 
 	/** 账号是否被封 */
 	@JsonIgnore
@@ -84,14 +68,14 @@ public class AuthorizedUser implements Serializable {
 	@JsonIgnore
 	private String		password;
 
-//	@Column(name = "last_login_ip")
 	@JsonIgnore
 	private String		lastLoginIP;
 	
-//	@Column(name = "last_login_time")
 	@JsonIgnore
-//	@JsonSerialize(using = JsonDateSerializer.class)
-	private Date		lastLoginTime;
+	private Date        lastLoginDate;
+
+	@JsonProperty("last_modified_date")
+	private Date        lastModifiedDate;
 
 	public long getId() {
 		return id;
@@ -141,12 +125,12 @@ public class AuthorizedUser implements Serializable {
 		this.contact = contact;
 	}
 
-	public Date getJoinTime() {
-		return joinTime;
+	public Date getJoinDate() {
+		return joinDate;
 	}
 
-	public void setJoinTime(Date joinTime) {
-		this.joinTime = joinTime;
+	public void setJoinDate(Date joinDate) {
+		this.joinDate = joinDate;
 	}
 
 	public boolean isBlocked() {
@@ -181,12 +165,20 @@ public class AuthorizedUser implements Serializable {
 		this.lastLoginIP = lastLoginIP;
 	}
 
-	public Date getLastLoginTime() {
-		return lastLoginTime;
+	public Date getLastLoginDate() {
+		return lastLoginDate;
 	}
 
-	public void setLastLoginTime(Date lastLoginTime) {
-		this.lastLoginTime = lastLoginTime;
+	public void setLastLoginDate(Date lastLoginDate) {
+		this.lastLoginDate = lastLoginDate;
+	}
+
+	public Date getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(Date lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
 	}
 
 	@Override
@@ -219,8 +211,8 @@ public class AuthorizedUser implements Serializable {
 
 	@Override
 	public String toString() {
-		return "AuthorizedUser [id=" + id + ", authorizedName="
-				+ authorizedName + "]";
+		return String.format("{\"auth_user\":{\"id\":%d,\"auth_name\":%s}}",
+				id, authorizedName);
 	}
 
 }
