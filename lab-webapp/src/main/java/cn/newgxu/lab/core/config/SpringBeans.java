@@ -74,7 +74,7 @@ public class SpringBeans /*extends WebMvcConfigurerAdapter*/ {
 	public DataSource dataSource() {
 		final org.apache.tomcat.jdbc.pool.DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
 
-		Resources.loadProps("classpath:config/dataSource.properties", new ResourcesCallback() {
+		Resources.loadProps("classpath:config/db.properties", new ResourcesCallback() {
 
 			@Override
 			public void onSuccess(Properties props) {
@@ -84,7 +84,8 @@ public class SpringBeans /*extends WebMvcConfigurerAdapter*/ {
 				poolProperties. setPassword(props.getProperty("db.password"));
 				poolProperties.setUrl(props.getProperty("db.url"));
 				poolProperties.setDriverClassName(props.getProperty("db.driver"));
-				poolProperties.setDefaultAutoCommit(false);
+				poolProperties.setDefaultAutoCommit(Boolean.getBoolean(
+								props.getProperty("db.autoCommit", "false")));
 				dataSource.setPoolProperties(poolProperties);
 			}
 		});

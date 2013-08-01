@@ -7,11 +7,11 @@ package cn.newgxu.lab.core.config;
 
 import cn.newgxu.lab.core.util.Resources;
 import cn.newgxu.lab.core.util.ResourcesCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
@@ -40,6 +40,8 @@ import java.util.*;
 @EnableWebMvc
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
+	private static Logger L = LoggerFactory.getLogger(WebMvcConfig.class);
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		int cachePeriod = 3600 * 24 * 15;
@@ -54,15 +56,11 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 		registry.addViewController("/index").setViewName("index");
 		registry.addViewController("/home").setViewName("index");
 
-		Resources.openBufferedReader("/config/uri", new ResourcesCallback() {
-
+		Resources.loadProps("/config/uri.properties", new ResourcesCallback() {
 			@Override
-			public void onSuccess(BufferedReader br) throws IOException {
-				String s = null;
-				String[] uris = null;
-				while ((s = br.readLine()) != null) {
-					uris = s.trim().split(",");
-					registry.addViewController(uris[0]).setViewName(uris[1]);
+			public void onSuccess(Properties props) {
+				for (String uri : props.stringPropertyNames()) {
+					registry.addViewController(uri).setViewName(props.getProperty(uri, ""));
 				}
 			}
 		});

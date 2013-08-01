@@ -19,7 +19,7 @@ import java.util.Properties;
  * @email  im.longkai@gmail.com
  * @version 0.1
  */
-public class ResourcesCallback {
+public abstract class ResourcesCallback {
 
 	private static final Logger L = LoggerFactory.getLogger(ResourcesCallback.class);
 
