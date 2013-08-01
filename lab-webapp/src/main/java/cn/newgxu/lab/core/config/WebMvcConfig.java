@@ -7,14 +7,28 @@ package cn.newgxu.lab.core.config;
 
 import cn.newgxu.lab.core.util.Resources;
 import cn.newgxu.lab.core.util.ResourcesCallback;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.accept.ContentNegotiationManager;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
+import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfig;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
+import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author longkai
@@ -24,7 +38,6 @@ import java.util.List;
  */
 @Configuration
 @EnableWebMvc
-//@Import(SpringBeans.class)
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
 	@Override
@@ -59,6 +72,67 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 	public void configureContentNegotiation(
 			ContentNegotiationConfigurer configurer) {
 		configurer.favorPathExtension(true).favorParameter(false).ignoreAcceptHeader(false);
+	}
+
+	@Bean
+	public ViewResolver viewResolver() {
+		FreeMarkerViewResolver viewResolver = new FreeMarkerViewResolver();
+		viewResolver.setCache(true);
+		viewResolver.setPrefix("");
+		viewResolver.setSuffix(".html");
+		viewResolver.setContentType("text/html;charset=utf-8");
+		viewResolver.setRequestContextAttribute("request");
+		viewResolver.setExposeSpringMacroHelpers(true);
+		viewResolver.setExposeRequestAttributes(true);
+		viewResolver.setExposeSessionAttributes(true);
+		return viewResolver;
+	}
+
+	@Bean
+	public FreeMarkerConfig freeMarkerConfig() {
+		FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+		configurer.setTemplateLoaderPath("/WEB-INF/views/");
+		Properties settings = new Properties();
+		settings.setProperty("template_update_delay", "0");
+		settings.setProperty("default_encoding", "UTF-8");
+		settings.setProperty("number_format", "0.##");
+		settings.setProperty("datetime_format", "yyyy-MM-dd HH:mm:ss");
+		settings.setProperty("classic_compatible", "true");
+		settings.setProperty("template_exception_handler", "ignore");
+		settings.setProperty("auto_import", "macro.ftl as L");
+		configurer.setFreemarkerSettings(settings);
+		return configurer;
+	}
+
+	//	文件上传
+	@Bean
+	public MultipartResolver multipartResolver() {
+		return new CommonsMultipartResolver();
+	}
+
+	@Bean
+	public ContentNegotiationManager contentNegotiationManager() {
+		Map<String, MediaType> mediaTypes = new HashMap<String, MediaType>(2);
+		mediaTypes.put("json", MediaType.APPLICATION_JSON);
+		mediaTypes.put("jsonp", MediaType.parseMediaType("application/javascript"));
+		PathExtensionContentNegotiationStrategy extension = new PathExtensionContentNegotiationStrategy(mediaTypes);
+		HeaderContentNegotiationStrategy header = new HeaderContentNegotiationStrategy();
+		ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager(extension, header);
+		return contentNegotiationManager;
+	}
+
+	@Bean
+	public ContentNegotiatingViewResolver contentNegotiatingViewResolver() {
+		ContentNegotiatingViewResolver viewResolver = new ContentNegotiatingViewResolver();
+		viewResolver.setOrder(1);
+		viewResolver.setContentNegotiationManager(contentNegotiationManager());
+		List<View> defaultViews = new ArrayList<View>(2);
+		View jsonView = new MappingJacksonJsonView();
+		View jsonpView = new MappingJacksonJsonpView();
+		defaultViews.add(jsonView);
+		defaultViews.add(jsonpView);
+		viewResolver.setDefaultViews(defaultViews);
+		return viewResolver;
 	}
 
 }
