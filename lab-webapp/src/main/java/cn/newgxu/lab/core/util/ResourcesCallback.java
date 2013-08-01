@@ -7,8 +7,7 @@ package cn.newgxu.lab.core.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -27,9 +26,17 @@ public abstract class ResourcesCallback {
 		L.info("开始读写数据...");
 	}
 
-	public void onSuccess(Properties props) {}
+	protected void onSuccess(Properties props) {}
 
-	public void onSuccess(BufferedReader br) throws IOException {}
+	protected void onSuccess(BufferedReader br) throws IOException {}
+
+	protected void onSuccess(InputStream inputStream) throws IOException {}
+
+	protected void onSuccess(InputStreamReader reader)  throws IOException {}
+
+	protected void onSuccess(BufferedWriter br) throws IOException {}
+
+	protected void onSuccess(OutputStream os)  throws IOException {};
 
 	public void onError(Throwable t) {
 		L.error("读写io时出错！", t);
