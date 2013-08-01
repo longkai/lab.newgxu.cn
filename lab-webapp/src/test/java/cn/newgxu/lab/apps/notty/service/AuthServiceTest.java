@@ -2,18 +2,18 @@
  * The MIT License (MIT)
  * Copyright (c) 2013 longkai(龙凯)
  */
-package cn.newgxu.lab.info.service;
+package cn.newgxu.lab.apps.notty.service;
 
-import cn.newgxu.lab.info.entity.AuthorizedUser;
+import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 
@@ -27,10 +27,11 @@ import static org.junit.Assert.assertTrue;
  * @author longkai
  * @email im.longkai@gmail.com
  * @since 13-7-31
- * @version 0.1.0.173-7-31
+ * @version 0.1.0.13-7-31
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/config/spring.xml")
+@ContextConfiguration("/config/spring-test.xml")
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class AuthServiceTest {
 
 	private static Logger L = LoggerFactory.getLogger(AuthServiceTest.class);
@@ -63,7 +64,7 @@ public class AuthServiceTest {
 	}
 
 	@Test
-	@Transactional
+	@Rollback()
 	public void testCreate() throws Exception {
 		assertEquals(_u.getId(), 0L);
 		authService.create(_u, _u.getPassword());
@@ -71,6 +72,7 @@ public class AuthServiceTest {
 	}
 
 	@Test
+	@Rollback
 	public void testResetPassword() throws Exception {
 		AuthorizedUser user = authService.find(id);
 		String newPwd = "_newpwd";
@@ -81,6 +83,7 @@ public class AuthServiceTest {
 	}
 
 	@Test
+	@Rollback
 	public void testUpdate() throws Exception {
 		AuthorizedUser user = authService.find(id);
 		String newContact = "10086";
@@ -90,6 +93,7 @@ public class AuthServiceTest {
 	}
 
 	@Test
+	@Rollback
 	public void testToggleBlock() throws Exception {
 		AuthorizedUser user = authService.find(id);
 		if (user.isBlocked()) {
@@ -108,11 +112,10 @@ public class AuthServiceTest {
 	}
 
 	@Test
-	@Transactional
+	@Rollback
 	public void testLogin() throws Exception {
-		String pwd = _u.getPassword();
-		authService.create(_u, _u.getPassword());
-		AuthorizedUser u = authService.login(_u.getAccount(), pwd, null);
+		AuthorizedUser user = authService.find(id);
+		AuthorizedUser u = authService.login(user.getAccount(), "123456", null);
 		assertNotNull(u);
 	}
 
@@ -131,7 +134,7 @@ public class AuthServiceTest {
 	@Test
 	public void testLatest() throws Exception {
 		List<AuthorizedUser> users = authService.latest((int) id);
-		assertEquals(users.size(), id);
+		assertEquals(id, users.size());
 	}
 
 	@Test

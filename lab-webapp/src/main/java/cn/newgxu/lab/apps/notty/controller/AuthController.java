@@ -20,7 +20,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.info.controller;
+package cn.newgxu.lab.apps.notty.controller;
 
 import java.util.List;
 
@@ -42,10 +42,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.newgxu.lab.core.common.ViewConstants;
 import cn.newgxu.lab.core.util.Assert;
-import cn.newgxu.lab.info.config.AccountType;
-import cn.newgxu.lab.info.config.Config;
-import cn.newgxu.lab.info.entity.AuthorizedUser;
-import cn.newgxu.lab.info.service.AuthService;
+import cn.newgxu.lab.apps.notty.config.AccountType;
+import cn.newgxu.lab.apps.notty.config.Config;
+import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
+import cn.newgxu.lab.apps.notty.service.AuthService;
 
 /**
  * 信息发布平台认证用户的主控制器。

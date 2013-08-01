@@ -21,7 +21,7 @@ public class SQLUtils {
 
 	private static Pattern pattern = Pattern.compile("\\?");
 
-	private static String columns(String[] columns) {
+	public static final String columns(String[] columns) {
 		if (columns == null || columns.length == 0) {
 			return "*";
 		}
@@ -33,7 +33,7 @@ public class SQLUtils {
 		return seletion.substring(0, seletion.length() - 1);
 	}
 
-	private static String where(String where, Object[] args) {
+	public static final String where(String where, Object[] args) {
 		if (where == null || where.length() == 0) {
 			return null;
 		}
@@ -50,7 +50,7 @@ public class SQLUtils {
 		return _where.toString();
 	}
 
-	private static String injectArg(Object arg) {
+	public static final String injectArg(Object arg) {
 		if (arg == null) {
 			return "null";
 		}
@@ -109,7 +109,7 @@ public class SQLUtils {
 		return query.toString();
 	}
 
-	private static final String set(String[] columns, Object[] values) {
+	public static final String set(String[] columns, Object[] values) {
 		if (columns == null || values == null
 				|| columns.length == 0 || columns.length != values.length) {
 			throw new IllegalArgumentException("UPDATE columns and values NOT MATCHED or not set!");
@@ -171,6 +171,31 @@ public class SQLUtils {
 			selectCount.append(" WHERE ").append(where);
 		}
 		return selectCount.toString();
+	}
+
+	public static final String association(String tableAlias, String columnPrefix, String[] columns) {
+		if (columns == null || columns.length == 0) {
+			return "";
+		}
+//
+		StringBuilder association = new StringBuilder();
+		for (int i = 0; i < columns.length; i++) {
+			association.append(tableAlias).append(".").append(columns[i])
+					.append(" as ").append(columnPrefix).append(columns[i]).append(",");
+		}
+		return association.toString();
+	}
+//  select A.xx a, B.xx b from t1 A where xx=xx join t2 B on A.id = B.id ...
+//	select A.xx a, B.xx b from t1 A, t2 B where A.id = B.id ...
+	public static final String query(String table,
+	                          String[] associationTalbes, String[] alias,
+	                          String[] columns, String[] associationColumns,
+	                          String from, String where, Object[] args,
+	                          String groupBy, String having,
+	                          String orderBy, String limit) {
+		StringBuilder query = new StringBuilder("SELECT ");
+
+		return query.toString();
 	}
 
 }

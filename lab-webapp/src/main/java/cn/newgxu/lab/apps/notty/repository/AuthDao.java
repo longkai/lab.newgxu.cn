@@ -20,58 +20,30 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.info.service;
+package cn.newgxu.lab.apps.notty.repository;
 
-import java.util.List;
-
-import cn.newgxu.lab.info.entity.AuthorizedUser;
-import cn.newgxu.lab.info.entity.Notice;
+import cn.newgxu.lab.core.repository.CommonDao;
+import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
 
 /**
- * 信息发布平台的服务接口。
+ * 认证用户数据访问接口。
  * 
- * @author longkai
- * @email im.longkai@gmail.com
- * @since 2013-3-28
- * @version 0.1
+ * @author  longkai
+ * @email   im.longkai@gmail.com
+ * @since   2013-3-28
+ * @version 0.2.0.20130730
  */
-public interface NoticeService {
+public interface AuthDao extends CommonDao<AuthorizedUser> {
 
-	void create(Notice notice);
+	String TABLE = "info_users";
 
-	void delete(Notice notice);
+	interface Columns {
 
-	Notice update(Notice notice);
+		String c1 = "ss";
+	}
 
-	Notice find(long pk);
-	
-	/** 区别于find，这个会增加1的点击率 */
-	Notice view(long pk);
-
-	long total();
-
-	List<Notice> latest(int count);
-	
-	List<Notice> more(long lastId, int count);
-	
-	List<Notice> listByUser(AuthorizedUser au, int count);
-	
-	List<Notice> moreByUser(AuthorizedUser au, long lastId, int count);
-	
-	List<Notice> listNewer(long lastId, int count);
-	
-	/**
-	 * 屏蔽信息。
-	 * @param notice 欲屏蔽或者解蔽的信息对象
-	 * @param blocked 你懂的
-	 */
-	Notice block(Notice notice, boolean blocked);
-
-	/**
-	 * 是否有更新，判断是否有比传过来的参数更大的主键 
-	 * @param pk 客户端上最新的主键
-	 * @return number of the lastest notices
-	 */
-	int newerCount(long pk);
+//	int howMany(String account);
+//
+//	AuthorizedUser login(@Param("account") String account, @Param("password") String password);
 
 }

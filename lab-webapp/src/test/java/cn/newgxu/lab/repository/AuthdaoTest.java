@@ -5,9 +5,8 @@
 package cn.newgxu.lab.repository;
 
 import cn.newgxu.lab.core.util.SQLUtils;
-import cn.newgxu.lab.info.entity.AuthorizedUser;
-import cn.newgxu.lab.info.repository.AuthDao;
-import org.junit.Assert;
+import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
+import cn.newgxu.lab.apps.notty.repository.AuthDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +27,7 @@ import java.util.List;
  * @email im.longkai@gmail.com
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/config/spring.xml")
+@ContextConfiguration("/config/spring-test.xml")
 @Transactional
 public class AuthdaoTest {
 
@@ -62,46 +61,21 @@ public class AuthdaoTest {
 
 	@Test
 	public void testPsersit() throws Exception {
-		authDao.persist(u);
-		System.out.println(u);
-	}
-
-	@Test
-	public void testMerge() throws Exception {
-		authDao.persist(u);
-		System.out.println(u);
-		u.setAuthorizedName("intellij");
-		authDao.merge(u);
-		authDao.find(u.getId());
+		authDao.insert(u);
 		System.out.println(u);
 	}
 
 	@Test
 	public void testRemove() throws Exception {
-		authDao.persist(u);
+		authDao.insert(u);
 //		L.debug("{}", u);
 //		authDao.remove();
 	}
 
 	@Test
 	public void testSize() throws Exception {
-        long size = authDao.size(SQLUtils.selectCount(AuthDao.TABLE, null, null));
+        long size = authDao.count(null, null);
 		L.debug("size: {}", size);
-	}
-
-	@Test
-	public void testHowmany() throws Exception {
-		authDao.persist(u);
-		int i = authDao.howMany(u.getAccount());
-		L.debug("how many? {}", i);
-	}
-
-	@Test
-	public void testLogin() throws Exception {
-		authDao.persist(u);
-		AuthorizedUser login = authDao.login(u.getAccount(), u.getPassword());
-		Assert.assertNotNull(login);
-		Assert.assertNull(authDao.login("", ""));
 	}
 
 	@Test
@@ -110,8 +84,7 @@ public class AuthdaoTest {
 //		Assert.assertEquals(users.size(), 10);
 //		Assert.assertEquals(authDao.users(0, 10, true).size(), 5);
 //		List<AuthorizedUser> users = authDao.users(SQLUtils.columns(new String[]{"id", "authed_name"}));
-		List<AuthorizedUser> users = authDao.list(SQLUtils
-				.query("info_users", null, null, null, null, null, "id desc", "2,1"));
+		List<AuthorizedUser> users = authDao.query(null, null, null, null, null, "id desc", "2,1");
 		L.debug("size: {}", users.size());
 		for (int i = 0; i < users.size(); i++) {
 			L.debug("user: {}", users.get(i));
@@ -123,19 +96,23 @@ public class AuthdaoTest {
 
 	@Test
 	public void testUpdate() throws Exception {
-		authDao.persist(u);
+		authDao.insert(u);
 		L.debug("u: {}", u);
+//		int i = authDao.update(SQLUtils
+//				.update("info_users", new String[]{"authed_name"}, new Object[]{"___update"}, "id=?", new Object[]{u.getId()}));
 		int i = authDao.update(SQLUtils
-				.update("info_users", new String[]{"authed_name"}, new Object[]{"___update"}, "id=?", new Object[]{u.getId()}));
+				.set(new String[]{"authed_name"},
+						new Object[]{"___update"}),
+				"id=" + u.getId());
 //		Assert.assertEquals(i, 1);
-		                          L.debug("i:{}", i);
+		L.debug("i:{}", i);
 	}
 
 	@Test
 	public void testInit() throws Exception {
 //		AuthorizedUser user = authDao.login("ma_yun", "123456");
 //		L.debug("u:{}", user);
-		List<AuthorizedUser> users = authDao.list(SQLUtils.query(AuthDao.TABLE, null, null, null, null, null, null, null));
+		List<AuthorizedUser> users = authDao.query(null, null, null, null, null, null, null);
 		for (int i = 0; i < users.size(); i++) {
 			L.debug("u: {}", users.get(i));
 		}

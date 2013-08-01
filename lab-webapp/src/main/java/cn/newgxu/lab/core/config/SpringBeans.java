@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -62,46 +63,46 @@ import java.util.*;
  * @version 0.2.0.20130730
  */
 @Configuration
-@ComponentScan("cn.newgxu.lab")
+@ComponentScan("cn.newgxu.lab.apps")
 @EnableTransactionManagement
 //@EnableWebMvc // 假如不在web容器上测试的话，那么请注释掉此注解！
-public class SpringBeans extends WebMvcConfigurerAdapter {
+public class SpringBeans /*extends WebMvcConfigurerAdapter*/ {
 	
 	private static final Logger L = LoggerFactory.getLogger(SpringBeans.class);
 
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		int cachePeriod = 3600 * 24 * 15;
-		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/").setCachePeriod(cachePeriod);
-		registry.addResourceHandler("/favicon.ico").addResourceLocations("/").setCachePeriod(cachePeriod);
-		registry.addResourceHandler("/robots.txt").addResourceLocations("/").setCachePeriod(cachePeriod);
-	}
-
-	@Override
-	public void addViewControllers(final ViewControllerRegistry registry) {
-		registry.addViewController("/").setViewName("index");
-		registry.addViewController("/index").setViewName("index");
-		registry.addViewController("/home").setViewName("index");
-
-		Resources.openBufferedReader("/config/uri", new ResourcesCallback() {
-
-			@Override
-			public void onSuccess(BufferedReader br) throws IOException {
-				String s = null;
-				String[] uris = null;
-				while ((s = br.readLine()) != null) {
-					uris = s.trim().split(",");
-					registry.addViewController(uris[0]).setViewName(uris[1]);
-				}
-			}
-		});
-	}
-
-	@Override
-	public void configureContentNegotiation(
-			ContentNegotiationConfigurer configurer) {
-		configurer.favorPathExtension(true).favorParameter(false).ignoreAcceptHeader(false);
-	}
+//	@Override
+//	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//		int cachePeriod = 3600 * 24 * 15;
+//		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/").setCachePeriod(cachePeriod);
+//		registry.addResourceHandler("/favicon.ico").addResourceLocations("/").setCachePeriod(cachePeriod);
+//		registry.addResourceHandler("/robots.txt").addResourceLocations("/").setCachePeriod(cachePeriod);
+//	}
+//
+//	@Override
+//	public void addViewControllers(final ViewControllerRegistry registry) {
+//		registry.addViewController("/").setViewName("index");
+//		registry.addViewController("/index").setViewName("index");
+//		registry.addViewController("/home").setViewName("index");
+//
+//		Resources.openBufferedReader("/config/uri", new ResourcesCallback() {
+//
+//			@Override
+//			public void onSuccess(BufferedReader br) throws IOException {
+//				String s = null;
+//				String[] uris = null;
+//				while ((s = br.readLine()) != null) {
+//					uris = s.trim().split(",");
+//					registry.addViewController(uris[0]).setViewName(uris[1]);
+//				}
+//			}
+//		});
+//	}
+//
+//	@Override
+//	public void configureContentNegotiation(
+//			ContentNegotiationConfigurer configurer) {
+//		configurer.favorPathExtension(true).favorParameter(false).ignoreAcceptHeader(false);
+//	}
 
 	@Bean(destroyMethod = "close")
 	public DataSource dataSource() {
@@ -128,7 +129,7 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 	public SqlSessionFactoryBean sqlSessionFactory() {
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 		bean.setDataSource(dataSource());
-		bean.setTypeAliasesPackage("cn.newgxu.lab.info.entity");
+		bean.setTypeAliasesPackage("cn.newgxu.lab.apps.notty.entity");
 		return bean;
 	}
 
@@ -137,7 +138,7 @@ public class SpringBeans extends WebMvcConfigurerAdapter {
 //	@Bean
 //	public MapperScannerConfigurer mapperScannerConfigurer() {
 //		MapperScannerConfigurer configurer = new MapperScannerConfigurer();
-//		configurer.setBasePackage("cn.newgxu.lab.info.repository");
+//		configurer.setBasePackage("cn.newgxu.lab.apps.notty.repository");
 //		return configurer;
 //	}
 	

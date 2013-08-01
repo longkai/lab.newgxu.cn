@@ -20,12 +20,24 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+package cn.newgxu.lab.apps.notty.repository;
+
+import cn.newgxu.lab.core.repository.CommonDao;
+import cn.newgxu.lab.apps.notty.entity.Notice;
+
 /**
- * 雨无声实验室的 信息发布平台。
- * 是实验室上第一个应用哦！
+ * 信息发布的数据访问接口。
  * 
  * @author longkai
  * @email im.longkai@gmail.com
  * @since 2013-3-28
+ * @version 0.1
  */
-package cn.newgxu.lab.info;
+public interface NoticeDao extends CommonDao<Notice> {
+
+	String TABLE = "info_notices";
+
+	/** 比pk更新的记录数 */
+//	int newerCount(long pk);
+	
+}

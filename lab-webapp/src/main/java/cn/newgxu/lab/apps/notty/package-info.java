@@ -20,28 +20,12 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.info.repository;
-
-import cn.newgxu.lab.core.repository.CommonDao;
-import cn.newgxu.lab.info.entity.AuthorizedUser;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-
 /**
- * 认证用户数据访问接口。
+ * 雨无声实验室的 信息发布平台。
+ * 是实验室上第一个应用哦！
  * 
- * @author  longkai
- * @email   im.longkai@gmail.com
- * @since   2013-3-28
- * @version 0.2.0.20130730
+ * @author longkai
+ * @email im.longkai@gmail.com
+ * @since 2013-3-28
  */
-public interface AuthDao extends CommonDao<AuthorizedUser> {
-
-	String TABLE = "info_users";
-
-	int howMany(String account);
-	
-	AuthorizedUser login(@Param("account") String account, @Param("password") String password);
-
-}
+package cn.newgxu.lab.apps.notty;

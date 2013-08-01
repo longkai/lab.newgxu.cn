@@ -13,6 +13,7 @@
 			by default
 		-->
 		<encoder>
+            <charset>UTF-8</charset>
 			<pattern>
 				%d{HH:mm:ss.SSS} %.-1level-> %-38msg %thread\(\)@%logger{13}:%line%n
 			</pattern>
@@ -25,6 +26,7 @@
 			by default
 		-->
 		<encoder>
+            <charset>UTF-8</charset>
 			<pattern>
 				%d{HH:mm:ss.SSS} %.5level-> %-38msg %thread\(\)@%logger{13}:%line%n
 			</pattern>
@@ -59,6 +61,7 @@
 		</rollingPolicy>
 
 		<encoder>
+            <charset>UTF-8</charset>
 			<pattern>
 				%d{HH:mm:ss.SSS} %5level-> %-38msg %thread\(\)@%logger{38}:%line%n
 			</pattern>

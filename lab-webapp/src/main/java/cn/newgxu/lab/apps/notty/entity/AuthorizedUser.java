@@ -20,9 +20,9 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.info.entity;
+package cn.newgxu.lab.apps.notty.entity;
 
-import cn.newgxu.lab.info.config.AccountType;
+import cn.newgxu.lab.apps.notty.config.AccountType;
 import org.apache.ibatis.type.Alias;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;

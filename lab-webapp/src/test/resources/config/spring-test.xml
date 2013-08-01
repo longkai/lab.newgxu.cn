@@ -22,6 +22,5 @@
     </bean>
 
     <bean class="cn.newgxu.lab.core.config.SpringBeans" />
-    <bean class="cn.newgxu.lab.core.config.WebMvcConfig" />
 
 </beans>

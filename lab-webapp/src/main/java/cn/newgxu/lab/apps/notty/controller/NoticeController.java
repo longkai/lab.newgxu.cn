@@ -20,7 +20,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.info.controller;
+package cn.newgxu.lab.apps.notty.controller;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,11 +46,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import cn.newgxu.lab.core.common.ViewConstants;
 import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.core.util.RegexUtils;
-import cn.newgxu.lab.info.config.Config;
-import cn.newgxu.lab.info.entity.AuthorizedUser;
-import cn.newgxu.lab.info.entity.Notice;
-import cn.newgxu.lab.info.service.AuthService;
-import cn.newgxu.lab.info.service.NoticeService;
+import cn.newgxu.lab.apps.notty.config.Config;
+import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
+import cn.newgxu.lab.apps.notty.entity.Notice;
+import cn.newgxu.lab.apps.notty.service.AuthService;
+import cn.newgxu.lab.apps.notty.service.NoticeService;
 
 /**
  * 信息发布平台关于信息发布查看修改等的控制器。
@@ -103,7 +103,7 @@ public class NoticeController {
 		model.addAttribute("notice", notice);
 		if (modify) {
 			AuthorizedUser user = checkLogin(session);
-			if (!notice.getUser().equals(user)) {
+			if (!notice.getAuthor().equals(user)) {
 				throw new SecurityException("对不起，您无权修改这篇公告！");
 			}
 			return Config.APP + "/notice_modifying";
@@ -125,7 +125,7 @@ public class NoticeController {
 		
 		fileUpload(notice, fileName, file);
 		
-		notice.setUser(au);
+		notice.setAuthor(au);
 		notice.setContent(notice.getContent());
 		noticeService.create(notice);
 //		重定向，避免用户刷新重复提交。
@@ -145,7 +145,7 @@ public class NoticeController {
 		AuthorizedUser au = checkLogin(session);
 		Notice persistentNotice = noticeService.find(nid);
 		Assert.notNull("对不起，您所请求的资源不存在！", persistentNotice);
-		if (!persistentNotice.getUser().equals(au)) {
+		if (!persistentNotice.getAuthor().equals(au)) {
 			throw new SecurityException("对不起，您无权修改！");
 		}
 		if (!file.isEmpty()) {
@@ -177,7 +177,7 @@ public class NoticeController {
 		AuthorizedUser au = checkLogin(session);
 		
 		Notice notice = noticeService.find(nid);
-		notice.setUser(au);
+		notice.setAuthor(au);
 		if (blocked) {
 			noticeService.block(notice, true);
 		} else {
@@ -194,7 +194,7 @@ public class NoticeController {
 	public String hasNew(
 			Model model,
 			@RequestParam("local_nid") long localNid) {
-		int count = noticeService.newerCount(localNid);
+		long count = noticeService.newerCount(localNid);
 		model.addAttribute("count", count);
 		return ViewConstants.BAD_REQUEST;
 	}

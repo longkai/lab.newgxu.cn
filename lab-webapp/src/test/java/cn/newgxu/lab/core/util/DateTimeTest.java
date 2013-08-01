@@ -22,6 +22,8 @@
  */
 package cn.newgxu.lab.core.util;
 
+import static cn.newgxu.lab.core.util.DateTime.getRelativeTime;
+import static java.util.Calendar.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -29,6 +31,8 @@ import java.util.Calendar;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -38,6 +42,8 @@ import org.junit.Test;
  * @version 0.1
  */
 public class DateTimeTest {
+
+	private static Logger L = LoggerFactory.getLogger(DateTimeTest.class);
 
 	private Calendar now;
 	private Calendar seconds;
@@ -55,30 +61,41 @@ public class DateTimeTest {
 		seconds.setTimeInMillis(now.getTimeInMillis() - 20000);
 		
 		minutes = Calendar.getInstance();
-		minutes.set(2013, Calendar.APRIL, 18, 20, 30, 0);
+		minutes.set(now.get(YEAR),
+			 now.get(MONTH), now.get(DATE),
+			     now.get(HOUR_OF_DAY), now.get(MINUTE) - 23, now.get(SECOND));
 		
 		hours = Calendar.getInstance();
-		hours.set(2013, Calendar.APRIL, 18, 17, 00, 00);
+		hours.set(now.get(YEAR),
+				now.get(MONTH), now.get(DATE),
+				now.get(HOUR_OF_DAY) - 13, now.get(MINUTE), now.get(SECOND));
 		
 		days = Calendar.getInstance();
-		days.set(2013, Calendar.APRIL, 17, 20, 30, 0);
+		days.set(now.get(YEAR),
+				now.get(MONTH), now.get(DATE) - 3,
+				now.get(HOUR_OF_DAY) - 13, now.get(MINUTE), now.get(SECOND));
 		
 		months =  Calendar.getInstance();
-		months.set(2013, Calendar.JANUARY, 19, 23, 1, 1);
+		months.set(now.get(YEAR),
+				now.get(MONTH) - 7, now.get(DATE),
+				now.get(HOUR_OF_DAY), now.get(MINUTE), now.get(SECOND));
 		
 		years = Calendar.getInstance();
-		years.set(2010, Calendar.DECEMBER, 17, 00, 00, 00);
+		years.set(now.get(YEAR) - 43,
+				now.get(MONTH), now.get(DATE),
+				now.get(HOUR_OF_DAY) - 13, now.get(MINUTE), now.get(SECOND));
 	}
 	
 	@Test
 	public void testGetRelativeTime() {
-		assertThat(DateTime.getRelativeTime(now.getTimeInMillis()).contains("刚"), is(true));
-		assertThat(DateTime.getRelativeTime(seconds.getTimeInMillis()).contains("秒"), is(true));
-		assertThat(DateTime.getRelativeTime(minutes.getTimeInMillis()).contains("分钟"), is(true));
-		assertThat(DateTime.getRelativeTime(hours.getTimeInMillis()).contains("小时"), is(true));
-		assertThat(DateTime.getRelativeTime(days.getTimeInMillis()).contains("天"), is(true));
-		assertThat(DateTime.getRelativeTime(months.getTimeInMillis()).contains("月"), is(true));
-		assertThat(DateTime.getRelativeTime(years.getTimeInMillis()).contains("年"), is(true));
+		L.debug("now is: [}", now.getTime());
+		assertThat(getRelativeTime(now.getTimeInMillis()).contains("刚"), is(true));
+		assertThat(getRelativeTime(seconds.getTimeInMillis()).contains("秒"), is(true));
+		assertThat(getRelativeTime(minutes.getTimeInMillis()).contains("分钟"), is(true));
+		assertThat(getRelativeTime(hours.getTimeInMillis()).contains("小时"), is(true));
+		assertThat(getRelativeTime(days.getTimeInMillis()).contains("天"), is(true));
+		assertThat(getRelativeTime(months.getTimeInMillis()).contains("月"), is(true));
+		assertThat(getRelativeTime(years.getTimeInMillis()).contains("年"), is(true));
 	}
 
 }

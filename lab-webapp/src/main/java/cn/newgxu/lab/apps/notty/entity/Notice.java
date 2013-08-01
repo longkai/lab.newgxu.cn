@@ -20,7 +20,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.info.entity;
+package cn.newgxu.lab.apps.notty.entity;
 
 import org.apache.ibatis.type.Alias;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -31,62 +31,40 @@ import java.util.Date;
 
 /**
  * 信息。
- * 
+ *
  * @author longkai
  * @email im.longkai@gmail.com
  * @since 2013-3-28
- * @version 0.1
+ * @version 0.2.0.13-7-31
  */
-//@Entity
-//@Table(name = "info_notices")
-//@NamedQueries({
-//	@NamedQuery(name = "Notice.newer_count", query = "SELECT COUNT(*) FROM Notice i WHERE i.id > :last_id AND i.blocked IS FALSE"),
-//	@NamedQuery(name = "Notice.list_newer", query = "FROM Notice i WHERE i.id > :last_id ORDER BY i.id DESC"),
-//	@NamedQuery(name = "Notice.latest", query = "FROM Notice i WHERE i.blocked IS FALSE ORDER BY i.id DESC"),
-//	@NamedQuery(name = "Notice.list_more", query = "FROM Notice i WHERE i.id < :last_id AND i.blocked IS FALSE ORDER BY i.id DESC"),
-//	@NamedQuery(name = "Notice.list_user_latest", query = "FROM Notice i WHERE i.user = :user ORDER BY i.id DESC"),
-//	@NamedQuery(name = "Notice.list_user_more", query = "FROM Notice i WHERE i.user = :user AND i.id < :last_id ORDER BY i.id DESC")
-//})
-@Alias("info_notices")
+@Alias("info_notice")
 public class Notice implements Serializable {
 
-//	@Id
-//	@GeneratedValue
 	private long			id;
-	
+
 	private String			title;
-	
-//	@Column(length = 10000)
+
 	private String			content;
-	
-//	@Column(name = "click_times")
+
 	@JsonProperty("click_times")
 	private long			clickTimes;
-	
-//	@Column(name = "add_date")
+
 	@JsonProperty("add_date")
-//	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date			addDate;
-	
-//	@Column(name = "last_modified_date")
+
 	@JsonProperty("last_modified_date")
-//	@JsonSerialize(using = JsonDateSerializer.class)
 	private Date			lastModifiedDate;
 
 	/** 是否被屏蔽 */
 	@JsonIgnore
 	private boolean			blocked;
 
-//	@ManyToOne(fetch = FetchType.EAGER)
-//	@JoinColumn(name = "auth_user_id")
-	private AuthorizedUser	user;
+	private AuthorizedUser  author;
 
 	/** 上传文档的存放路径 */
-//	@Column(name = "doc_url")
 	@JsonProperty("doc_url")
 	private String			docUrl;
 
-//	@Column(name = "doc_name")
 	@JsonProperty("doc_name")
 	private String			docName;
 
@@ -146,12 +124,12 @@ public class Notice implements Serializable {
 		this.blocked = blocked;
 	}
 
-	public AuthorizedUser getUser() {
-		return user;
+	public AuthorizedUser getAuthor() {
+		return author;
 	}
 
-	public void setUser(AuthorizedUser user) {
-		this.user = user;
+	public void setAuthor(AuthorizedUser author) {
+		this.author = author;
 	}
 
 	public String getDocUrl() {
@@ -194,7 +172,8 @@ public class Notice implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Notice [id=" + id + ", title=" + title + "]";
+		return String.format("{\"class\":%s,\"id\":%d,\"title\":%s}",
+				Notice.class.getSimpleName(), id, title);
 	}
 
 }

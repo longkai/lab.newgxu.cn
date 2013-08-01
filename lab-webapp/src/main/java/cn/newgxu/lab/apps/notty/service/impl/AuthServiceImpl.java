@@ -20,15 +20,15 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.info.service.impl;
+package cn.newgxu.lab.apps.notty.service.impl;
 
 import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.core.util.Encryptor;
 import cn.newgxu.lab.core.util.SQLUtils;
-import cn.newgxu.lab.info.config.Config;
-import cn.newgxu.lab.info.entity.AuthorizedUser;
-import cn.newgxu.lab.info.repository.AuthDao;
-import cn.newgxu.lab.info.service.AuthService;
+import cn.newgxu.lab.apps.notty.config.Config;
+import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
+import cn.newgxu.lab.apps.notty.repository.AuthDao;
+import cn.newgxu.lab.apps.notty.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -66,6 +66,10 @@ public class AuthServiceImpl implements AuthService {
 		}
 	}
 
+	private long howManyAccount(String account) {
+		return authDao.count(null, SQLUtils.where("account=?", new String[]{account}));
+	}
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void create(AuthorizedUser user, String _pwd) {
@@ -78,14 +82,18 @@ public class AuthServiceImpl implements AuthService {
 		// 设置账号
 		Assert.hasLength("账号长度必须大于" + Config.MIN_ACCOUNT_LENGTH + "位！",
 				user.getAccount(), Config.MIN_ACCOUNT_LENGTH);
-		if (authDao.howMany(user.getAccount()) != 0) {
+//		if (authDao.howMany(user.getAccount()) != 0) {
+//			throw new RuntimeException("账号已经存在！");
+//		}
+
+		if (howManyAccount(user.getAccount()) > 0) {
 			throw new RuntimeException("账号已经存在！");
 		}
 
 		user.setJoinDate(new Date());
 //		统一由管理员负责填写和认证，所以省略掉。
 		user.setBlocked(false);
-		authDao.persist(user);
+		authDao.insert(user);
 
 		L.info("info_user: {} register succellfully! id: {}, account: {}, org: {}", user.getAuthorizedName(),
 				user.getId(), user.getAccount(), user.getOrg());
@@ -98,12 +106,17 @@ public class AuthServiceImpl implements AuthService {
 
 		user.setPassword(Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + _pwd));
 		user.setLastModifiedDate(new Date());
-		authDao.update(SQLUtils.
-				update(AuthDao.TABLE,
-						new String[]{"password", "last_modified_date"},
-						new Object[]{user.getPassword(), user.getLastModifiedDate()},
-						"id=" + user.getId(), null));
-		L.info("info_user: {} successfully modify password.", user.getAuthorizedName());
+//		authDao.update(SQLUtils.
+//				update(AuthDao.TABLE,
+//						new String[]{"password", "last_modified_date"},
+//						new Object[]{user.getPassword(), user.getLastModifiedDate()},
+//						"id=" + user.getId(), null));
+		int i = authDao.update(SQLUtils
+				.set(new String[]{"password", "last_modified_date"},
+						new Object[]{user.getPassword(), user.getLastModifiedDate()})
+				, "id=" + user.getId());
+		L.info("info_user: {} successfully modify password. update count: {}",
+				 user.getAuthorizedName(), i);
 		return user;
 	}
 
@@ -111,11 +124,15 @@ public class AuthServiceImpl implements AuthService {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public AuthorizedUser update(AuthorizedUser au) {
 		au.setLastModifiedDate(new Date());
+//		int i = authDao.update(SQLUtils
+//				.update(AuthDao.TABLE,
+//						new String[]{"about", "contact", "last_modified_date"},
+//						new Object[]{au.getAbout(), au.getContact(), au.getLastModifiedDate()},
+//						"id=" + au.getId(), null));
 		int i = authDao.update(SQLUtils
-				.update(AuthDao.TABLE,
-						new String[]{"about", "contact", "last_modified_date"},
-						new Object[]{au.getAbout(), au.getContact(), au.getLastModifiedDate()},
-						"id=" + au.getId(), null));
+				.set(new String[]{"about", "contact", "last_modified_date"},
+						new Object[]{au.getAbout(), au.getContact(), au.getLastModifiedDate()}),
+				"id=" + au.getId());
 		L.info("info_user: {} modify self infomation successfully! update count: {}",
 				au.getAuthorizedName(), i);
 		return au;
@@ -126,11 +143,15 @@ public class AuthServiceImpl implements AuthService {
 	public void toggleBlock(AuthorizedUser user, boolean blocked) {
 		user.setBlocked(blocked);
 		user.setLastModifiedDate(new Date());
+//		int i = authDao.update(SQLUtils
+//				.update(AuthDao.TABLE,
+//						new String[]{"blocked", "last_modified_date"},
+//						new Object[]{blocked, user.getLastModifiedDate()},
+//						"id=" + user.getId(), null));
 		int i = authDao.update(SQLUtils
-				.update(AuthDao.TABLE,
-						new String[]{"blocked", "last_modified_date"},
-						new Object[]{blocked, user.getLastModifiedDate()},
-						"id=" + user.getId(), null));
+				.set(new String[]{"blocked", "last_modified_date"},
+						new Object[]{blocked, user.getLastModifiedDate()}),
+				"id=" + user.getId());
 		L.info("info_user: {} blocked: {}. update count: {}", user.getAuthorizedName(), blocked, i);
 	}
 
@@ -139,19 +160,25 @@ public class AuthServiceImpl implements AuthService {
 		return authDao.find(pk);
 	}
 
+	private AuthorizedUser login(String account, String password) {
+		return authDao.findOne(null, null,
+				SQLUtils.where("account=? AND password=?",
+					new String[]{account, password}));
+	}
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public AuthorizedUser login(String account, String password, String ip) {
 		L.info("info_user: {} try logining...", account);
 		AuthorizedUser user = null;
 		try {
-			user = authDao.login(account,
+			user = this.login(account,
 					Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + password));
 			if (user == null) {
 				throw new RuntimeException("账号密码不匹配！");
 			}
 		} catch (Exception e) {
-			L.error(String.format("info login error with account: %s", account), e);
+			L.error(String.format("notty login error with account: %s", account), e);
 			throw new RuntimeException("账号密码不匹配！", e);
 		}
 
@@ -163,37 +190,48 @@ public class AuthServiceImpl implements AuthService {
 		user.setLastLoginIP(ip);
 		user.setLastLoginDate(new Date());
 		user.setLastModifiedDate(user.getLastLoginDate());
+//		authDao.update(SQLUtils
+//				.update(AuthDao.TABLE,
+//						new String[]{"last_login_ip", "last_login_date", "last_modified_date"},
+//						new Object[]{ip, user.getLastLoginIP(), user.getLastModifiedDate()},
+//						"id=" + user.getId(), null));
 		authDao.update(SQLUtils
-				.update(AuthDao.TABLE,
-						new String[]{"last_login_ip", "last_login_date", "last_modified_date"},
-						new Object[]{ip, user.getLastLoginIP(), user.getLastModifiedDate()},
-						"id=" + user.getId(), null));
+				.set(new String[]{"last_login_ip", "last_login_date", "last_modified_date"},
+						new Object[]{ip, user.getLastLoginIP(), user.getLastModifiedDate()}),
+				"id=" + user.getId());
 		return user;
 	}
 
 	@Override
 	public long total() {
-		return authDao.size(SQLUtils.selectCount(AuthDao.TABLE, null, null));
+//		return authDao.count(SQLUtils.selectCount(AuthDao.TABLE, null, null));
+		return authDao.count(null, null);
 	}
 
 	@Override
 	public boolean exists(String account) {
-		return authDao.howMany(account) >= 1;
+		return this.howManyAccount(account) > 0;
 	}
 
 	@Override
 	public List<AuthorizedUser> latest(int count) {
-		return authDao.list(SQLUtils
-				.query(AuthDao.TABLE, null,
-						"blocked=?", new Boolean[]{false}, null, null, "id DESC", "" + count));
+//		return authDao.list(SQLUtils
+//				.query(AuthDao.TABLE, null,
+//						"blocked=?", new Boolean[]{false}, null, null, "id DESC", "" + count));
+		return authDao.query(null, null,
+				 SQLUtils.where("blocked=?", new Boolean[]{false}),
+				  null, null, "id DESC", "" + count);
 	}
 
 	@Override
 	public List<AuthorizedUser> more(long lastUid, int count) {
-		return authDao.list(SQLUtils
-				.query(AuthDao.TABLE, null,
-						"id<? AND blocked=?", new Object[]{lastUid, false},
-						null, null, "id DESC", "" + count));
+//		return authDao.list(SQLUtils
+//				.query(AuthDao.TABLE, null,
+//						"id<? AND blocked=?", new Object[]{lastUid, false},
+//						null, null, "id DESC", "" + count));
+		return authDao.query(null, null,
+				 SQLUtils.where("id<? AND blocked=?", new Object[]{lastUid, false}),
+					null, null, "id DESC", "" + count);
 	}
 	
 	/** 检查列表请求数目是否越界 */
@@ -208,8 +246,11 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public List<AuthorizedUser> authed() {
-		return authDao.list(SQLUtils
-				.query(AuthDao.TABLE, null, "blocked=?", new Boolean[]{false}, null, null, "id desc", null));
+//		return authDao.list(SQLUtils
+//				.query(AuthDao.TABLE, null, "blocked=?", new Boolean[]{false}, null, null, "id desc", null));
+		return authDao.query(null, null,
+					SQLUtils.where("blocked=?", new Boolean[]{false}),
+					null, null, "id DESC", null);
 	}
 
 }

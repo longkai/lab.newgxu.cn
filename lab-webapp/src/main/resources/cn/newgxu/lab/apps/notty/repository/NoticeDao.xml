@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  ~ The MIT License (MIT)
+  ~ Copyright (c) 2013 longkai(龙凯)
+  -->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.newgxu.lab.apps.notty.repository.NoticeDao">
+    <cache />
+
+    <resultMap id="notice" type="info_notice">
+        <id property="id" column="id" javaType="_long" />
+        <result property="addDate" column="add_date" />
+        <result property="blocked" column="blocked" />
+        <result property="clickTimes" column="click_times" />
+        <result property="content" column="content" />
+        <result property="docName" column="doc_name" />
+        <result property="docUrl" column="doc_url" />
+        <result property="lastModifiedDate" column="last_modified_date" />
+        <result property="title" column="title" />
+        <association property="author" resultMap="author" />
+    </resultMap>
+
+    <resultMap id="author" type="info_user">
+        <id property="id" column="uid" />
+        <result property="type" column="u_type" />
+        <result property="authorizedName" column="u_authed_name" />
+        <result property="org" column="u_org" />
+        <result property="about" column="u_about" />
+        <result property="contact" column="u_contact" />
+        <result property="joinDate" column="u_join_date" />
+        <result property="blocked" column="u_blocked" />
+        <result property="account" column="u_account" />
+        <result property="password" column="u_password" />
+        <result property="lastLoginIP" column="u_last_login_ip" />
+        <result property="lastLoginDate" column="u_last_login_date" />
+        <result property="lastModifiedDate" column="u_last_modified_date" />
+    </resultMap>
+
+    <sql id="info_notice_columns">
+        N.id,
+        N.add_date,
+        N.blocked,
+        N.click_times,
+        N.content,
+        N.doc_name,
+        N.doc_url,
+        N.last_modified_date,
+        N.title
+    </sql>
+    
+    <sql id="info_user_columns">
+        U.id as uid,
+        U.type as u_type,
+        U.authed_name as u_authed_name,
+        U.org as u_org,
+        U.about as u_about,
+        U.contact as u_contact,
+        U.join_date as u_join_date,
+        U.join_date as u_join_date,
+        U.blocked as u_blocked,
+        U.account as u_account,
+        U.password as u_password,
+        U.last_login_ip as u_last_login_ip,
+        U.last_login_date as u_last_login_date,
+        U.last_modified_date as u_last_modified_date
+    </sql>
+
+    <insert id="insert" parameterType="info_notice" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO info_notices
+            (id, add_date, blocked, click_times, content, doc_name, doc_url, last_modified_date, title, uid)
+        VALUES
+            (null, #{addDate}, 0, 0, #{content}, #{docName}, #{docUrl}, null, #{title}, #{author.id})
+    </insert>
+
+    <select id="find" parameterType="_int" resultMap="notice">
+        SELECT
+        <include refid="info_notice_columns" />
+        ,
+        <include refid="info_user_columns" />
+        FROM
+            info_notices N JOIN info_users U ON N.uid = U.id
+        WHERE N.id = #{id}
+    </select>
+
+    <select id="count" resultType="_long">
+        SELECT COUNT(1) FROM
+        <choose>
+            <when test="from != null">
+                ${from}
+            </when>
+            <otherwise>
+                info_notices
+            </otherwise>
+        </choose>
+        <if test="where != null">
+            WHERE ${where}
+        </if>
+    </select>
+
+    <delete id="delete">
+        DELETE FROM
+        <choose>
+            <when test="from != null">
+                ${from}
+            </when>
+            <otherwise>
+                info_notices
+            </otherwise>
+        </choose>
+        <if test="where != null">
+            WHERE ${where}
+        </if>
+    </delete>
+
+    <update id="update">
+        UPDATE info_notices SET ${update} WHERE ${where}
+    </update>
+
+    <select id="findOne" resultMap="notice">
+        SELECT
+        <choose>
+            <when test="columns != null">
+                ${columns}
+            </when>
+            <otherwise>
+                *
+            </otherwise>
+        </choose>
+        FROM
+        <choose>
+            <when test="from != null">
+                ${from}
+            </when>
+            <otherwise>
+                info_notices
+            </otherwise>
+        </choose>
+        <if test="where != null">
+            WHERE ${where}
+        </if>
+    </select>
+
+    <select id="query" resultMap="notice">
+        SELECT
+        <choose>
+            <when test="columns == null">
+                <include refid="info_notice_columns" />
+                ,
+                <include refid="info_user_columns" />
+            </when>
+            <when test="columns == '\\*'">
+                *
+            </when>
+            <otherwise>
+                ${columns}
+            </otherwise>
+        </choose>
+        FROM
+        <choose>
+            <when test="from == null">
+                info_notices N
+            </when>
+            <otherwise>
+                ${from}
+            </otherwise>
+        </choose>
+        <if test="where != null">
+            WHERE ${where}
+        </if>
+        <if test="groupBy != null">
+            GROUP BY ${groupBy}
+        </if>
+        <if test="having != null">
+            HAVING ${having}
+        </if>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="limit != null">
+            LIMIT ${limit}
+        </if>
+    </select>
+</mapper>

@@ -15,7 +15,7 @@ CREATE TABLE info_users (
     last_modified_date datetime DEFAULT NULL,
     org VARCHAR(30) NOT NULL,
     password CHAR(32) NOT NULL,
-    type VARCHAR(10) DEFAULT 'DEFAULT',
+    type VARCHAR(10) NOT NULL DEFAULT 'DEFAULT',
     CONSTRAINT PK_INFO_USERS PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8;
 
@@ -24,7 +24,7 @@ CREATE TABLE info_notices (
     add_date datetime NOT NULL,
     blocked tinyint(1) DEFAULT 0,
     click_times bigint(20) DEFAULT 0,
-    conttent VARCHAR(20000) NOT NULL,
+    content VARCHAR(20000) NOT NULL,
     doc_name VARCHAR(255) DEFAULT NULL,
     doc_url VARCHAR(255) DEFAULT NULL,
     last_modified_date datetime DEFAULT NULL,

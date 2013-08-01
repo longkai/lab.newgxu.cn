@@ -20,54 +20,18 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.info.service;
-
-import java.util.List;
-
-import cn.newgxu.lab.info.entity.AuthorizedUser;
+package cn.newgxu.lab.apps.notty.config;
 
 /**
- * 认证用户的对外服务接口。
+ * 认证账号的类型。
  * 
  * @author longkai
  * @email im.longkai@gmail.com
  * @since 2013-3-28
  * @version 0.1
  */
-public interface AuthService {
-	
-	/** 查询最新的列表 */
-	int LIST_LATEST = 1;
-	
-	/** 用于获取更多用户 */
-	int LIST_MORE = 2;
-	
-	/** 创建用户，假如没有明确账号密码，那么系统就会自动生成唯一的账号与密码。 */
-	void create(AuthorizedUser user, String _pwd);
-	
-	/** 修改密码 */
-	AuthorizedUser resetPassword(AuthorizedUser user, String _pwd);
-	
-	/** 修改个人信息 */
-	AuthorizedUser update(AuthorizedUser au);
+public enum AccountType {
 
-	/** 将一个用户账号冻结掉。*/
-	void toggleBlock(AuthorizedUser user, boolean blocked);
-	
-	AuthorizedUser find(long pk);
-	
-	AuthorizedUser login(String account, String password, String ip);
-	
-	long total();
-	
-	/** 账号名是否存在 */
-	boolean exists(String account);
-	
-	List<AuthorizedUser> latest(int count);
-	
-	List<AuthorizedUser> more(long lastUid, int count);
-	
-	/** 查看通过授权的用户 */
-	List<AuthorizedUser> authed();
+	DEFAULT, ADMIN
 	
 }
