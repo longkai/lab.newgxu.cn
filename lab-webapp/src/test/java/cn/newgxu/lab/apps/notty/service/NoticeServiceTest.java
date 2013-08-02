@@ -95,7 +95,9 @@ public class NoticeServiceTest {
 
 	@Test
 	public void testFind() throws Exception {
-		assertNotNull(noticeService.find(nid));
+		Notice notice = noticeService.find(nid);
+		L.debug("notice: {}", notice);
+		assertNotNull(notice);
 	}
 
 	@Test(expected = RuntimeException.class)
@@ -142,8 +144,8 @@ public class NoticeServiceTest {
 	public void testListByUser() throws Exception {
 		AuthorizedUser u = authService.find(uid);
 		List<Notice> notices = noticeService.listByUser(u, 10);
-		for (int i = 0; i < notices.size(); i++) {
-			assertTrue(notices.get(i).getAuthor().equals(u));
+		for (Notice notice : notices) {
+			assertTrue(notice.getAuthor().equals(u));
 		}
 	}
 
@@ -162,8 +164,8 @@ public class NoticeServiceTest {
 	@Test
 	public void testListNewer() throws Exception {
 		List<Notice> notices = noticeService.listNewer(nid, 5);
-		for (int i = 0; i < notices.size(); i++) {
-			assertTrue(notices.get(i).getId() > nid);
+		for (Notice notice : notices) {
+			assertTrue(notice.getId() > nid);
 		}
 	}
 

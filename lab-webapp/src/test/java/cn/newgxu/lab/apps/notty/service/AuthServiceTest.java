@@ -108,6 +108,7 @@ public class AuthServiceTest {
 	@Test
 	public void testFind() throws Exception {
 		AuthorizedUser user = authService.find(id);
+		L.debug("u: {}", user.toJsonObject());
 		assertNotNull(user);
 	}
 

@@ -21,4 +21,21 @@ public class TextUtils {
 		return trim ? isEmpty(text.toString().trim()) : isEmpty(text);
 	}
 
+	public static final String getter(String name) {
+		return getterOrsetter(name, true);
+	}
+
+	public static final String setter(String name) {
+		return getterOrsetter(name, false);
+	}
+
+	public static String getterOrsetter(String str, boolean toGetter) {
+		char c = str.charAt(0);
+		if ('a' <= c && c <= 'z') {
+			c = Character.toUpperCase(c);
+			str =  c + str.substring(1);
+		}
+		return toGetter ? "get" + str : "set" + str;
+	}
+
 }
