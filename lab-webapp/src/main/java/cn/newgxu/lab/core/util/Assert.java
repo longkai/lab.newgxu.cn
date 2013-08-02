@@ -60,6 +60,21 @@ public class Assert {
 			throw new IllegalArgumentException(message);
 		}
 	}
+
+	/**
+	 * 断言字符串是否在指定的区间，同样的，会主动截取两边的空白符。
+	 * @param message
+	 * @param str
+	 * @param min
+	 * @param max
+	 */
+	public static void between(String message, String str, int min, int max) {
+		notNull(message, str);
+		str = str.trim();
+		if (str.length() < min || str.length() > max) {
+			throw new IllegalArgumentException(message);
+		}
+	}
 	
 	/**
 	 * 断言对象不为空。

@@ -22,30 +22,23 @@
  */
 package cn.newgxu.lab.apps.notty.controller;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
+import cn.newgxu.lab.apps.notty.service.AuthService;
+import cn.newgxu.lab.core.common.ViewConstants;
+import cn.newgxu.lab.core.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import cn.newgxu.lab.core.common.ViewConstants;
-import cn.newgxu.lab.core.util.Assert;
-import cn.newgxu.lab.apps.notty.config.AccountType;
-import cn.newgxu.lab.apps.notty.config.Config;
-import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
-import cn.newgxu.lab.apps.notty.service.AuthService;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.List;
+
+import static cn.newgxu.lab.apps.notty.Notty.*;
 
 /**
  * 信息发布平台认证用户的主控制器。
@@ -56,12 +49,11 @@ import cn.newgxu.lab.apps.notty.service.AuthService;
  * @version 0.1
  */
 @Controller
-@RequestMapping("/" + Config.APP)
+@RequestMapping("/info")
 @Scope("session")
 public class AuthController {
 
-	private static final Logger	L =
-			LoggerFactory.getLogger(AuthController.class);
+	private static Logger L = LoggerFactory.getLogger(AuthController.class);
 	
 	/** 更新用户信息 */
 	public static final int		MODIFY_PROFILE			= 1;
@@ -91,7 +83,7 @@ public class AuthController {
 			HttpServletRequest request,
 			@ModelAttribute("user") AuthorizedUser au,
 			@RequestParam(value = "_pwd", defaultValue = "") String _pwd) {
-		L.info("尝试认证用户！单位（组织）：{}，名称：{}", au.getOrg(), au.getAuthorizedName());
+		L.info("trying registeration: org: {}, name: {}", au.getOrg(), au.getAuthorizedName());
 		checkAdmin(request.getSession(false));
 		authService.create(au, _pwd);
 		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
@@ -103,7 +95,7 @@ public class AuthController {
 	@RequestMapping(value = "/auth", method = RequestMethod.GET)
 	public String auth(HttpServletRequest request) {
 		checkAdmin(request.getSession(false));
-		return Config.APP + "/auth";
+		return "info" + "/auth";
 	}
 	
 //	管理员给用户重置密码
@@ -115,7 +107,7 @@ public class AuthController {
 			@RequestParam("pwd") String pwd) {
 		checkAdmin(request.getSession(false));
 		AuthorizedUser au = authService.find(uid);
-		Assert.notNull("对不起，您所要查找的用户不存在！", au);
+		Assert.notNull(getMessage(NOT_FOUND), au);
 //		这里，因为是由于管理员负责的，所以就从简了
 		au.setPassword(pwd);
 		authService.resetPassword(au, pwd);
@@ -139,7 +131,7 @@ public class AuthController {
 			@RequestParam("account") String account) {
 		String ip = request.getRemoteAddr();
 		AuthorizedUser au = authService.login(account, password, ip);
-		request.getSession().setAttribute(Config.SESSION_USER, au);
+		request.getSession().setAttribute(R.getString(SESSION_USER.name()), au);
 //		这里，登录异常交给全局异常处理！
 		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
 		model.addAttribute("user", au);
@@ -196,7 +188,7 @@ public class AuthController {
 		AuthorizedUser sau = checkLogin(session);
 //		首页验证一下是否为同一人
 		if (sau.getId() != uid) {
-			throw new SecurityException("对不起，您无权修改该用户的信息！");
+			throw new SecurityException(getMessage(NO_PERMISSION));
 		}
 //		然后验证一下密码是否正确。
 		authService.login(sau.getAccount(), password, null);
@@ -212,8 +204,7 @@ public class AuthController {
 			authService.update(sau);
 			break;
 		default:
-			throw new IllegalArgumentException(
-					"对不起，不存在[type = " + type + "]的选项！");
+			throw new IllegalArgumentException(getMessage(NOT_SUPPORT) + " [type=" + type + "]");
 		}
 		return ViewConstants.JSON_STATUS_OK;
 	}
@@ -238,16 +229,16 @@ public class AuthController {
 //		如果请求修改信息，那我们返回html视图
 		if (modify) {
 			au = checkLogin(session);
-			Assert.notNull("对不起，请登陆后再操作！", au);
+			Assert.notNull(getMessage(REQUIRED_LOGIN), au);
 			if (au.getId() != uid) {
-				throw new SecurityException("对不起，您无权修改该用户的信息！");
+				throw new SecurityException(getMessage(NO_PERMISSION));
 			}
 			model.addAttribute("user", au);
-			return Config.APP + "/user_modifying";
+			return "info" + "/user_modifying";
 		}
 //		简单的查看用户信息
 		au = authService.find(uid);
-		Assert.notNull("对不起，您所查看的用户不存在！", au);
+		Assert.notNull(getMessage(NOT_FOUND), au);
 		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
 		model.addAttribute("user", au);
 		return ViewConstants.BAD_REQUEST;
@@ -283,10 +274,10 @@ public class AuthController {
 			checkAdmin(request.getSession(false));
 			users = authService.authed();
 			model.addAttribute("users", users);
-			return Config.APP + "/users"; // 暂时用于授权，内部使用，提前返回
+			return "info" + "/users"; // 暂时用于授权，内部使用，提前返回
 		default:
 			throw new IllegalArgumentException(
-					"对不起，不存在[type = " + type + "]的选项！");
+					getMessage(NOT_SUPPORT) + " [type=" + type + "]");
 		}
 		model.addAttribute("users", users);
 		return ViewConstants.BAD_REQUEST;
@@ -294,18 +285,18 @@ public class AuthController {
 	
 	/** TODO: 由于使用了REST API，原有的拦截器已经不适用了，故暂时使用这一方法，为接下来的spring security做准备 */
 	private AuthorizedUser checkLogin(HttpSession session) {
-		Assert.notNull("对不起，您没有登陆或者登陆超时！请您登陆后再操作！", session);
+		Assert.notNull(getMessage(REQUIRED_LOGIN), session);
 		AuthorizedUser user =
-				(AuthorizedUser) session.getAttribute(Config.SESSION_USER);
-		Assert.notNull("对不起，请您登陆后再操作！", user);
+				(AuthorizedUser) session.getAttribute(R.getString(SESSION_USER.name()));
+		Assert.notNull(getMessage(REQUIRED_LOGIN), user);
 		return user;
 	}
 	
 	/** 同上，这回是管理员的登陆拦截 */
 	private AuthorizedUser checkAdmin(HttpSession session) {
 		AuthorizedUser user = this.checkLogin(session);
-		if (!user.getType().equals(AccountType.ADMIN)) {
-			throw new SecurityException("对不起，您没有权限进行此操作！");
+		if (!user.getType().equals(AuthorizedUser.AccountType.ADMIN)) {
+			throw new SecurityException(getMessage(NO_PERMISSION));
 		}
 		return user;
 	}

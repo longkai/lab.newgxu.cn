@@ -3,6 +3,9 @@ package cn.newgxu.lab.core.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.Json;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
 import java.io.*;
 import java.net.URL;
 import java.util.Locale;
@@ -23,6 +26,46 @@ public class Resources {
 	private static final String DEFAULT_CHARSET = "UTF-8";
 
 	public static final Pattern TCP_IP_PROTOCAL = Pattern.compile("^[\\w|:]{3,}://");
+
+	public static final JsonValue getJsonValue(String uri) {
+		return getJsonValue(uri, null);
+	}
+
+	public static final JsonValue getJsonValue(String uri, Locale locale) {
+		InputStream in = null;
+		JsonReader reader = null;
+		JsonValue jsonValue = null;
+		try {
+			in = getInputStream(uri, locale);
+			reader = Json.createReader(in);
+			jsonValue = reader.read();
+		} catch (IOException e) {
+			throw new RuntimeException("get input stream error!", e);
+		} finally {
+			close(null, reader, in);
+		}
+		return jsonValue;
+	}
+
+
+	public static final void readJson(String uri, ResourcesCallback callback) {
+		readJson(uri, null, callback);
+	}
+
+	public static final void readJson(String uri, Locale locale, ResourcesCallback callback) {
+		callback.onStart();
+		InputStream in = null;
+		try {
+			in = getInputStream(uri, locale);
+			JsonValue json = Json.createReader(in).read();
+			callback.onSuccess(json);
+		} catch (IOException e) {
+			callback.onError(e);
+		} finally {
+			close(callback, in);
+		}
+		callback.onFinish();
+	}
 
 	public static final void loadProps(String uri, ResourcesCallback callback) {
 		loadProps(uri, null, callback);
@@ -192,13 +235,17 @@ public class Resources {
 		return uri;
 	}
 
-	private static void close(ResourcesCallback callback, Closeable...ios) {
+	public static void close(ResourcesCallback callback, Closeable...ios) {
 		for (Closeable io : ios) {
 			if (io != null) {
 				try {
 					io.close();
 				} catch (IOException e) {
-					callback.onCloseFail(e);
+					if (callback != null) {
+						callback.onCloseFail(e);
+					} else {
+						throw new RuntimeException("fail to close io", e);
+					}
 				}
 			}
 		}

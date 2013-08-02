@@ -22,10 +22,14 @@
  */
 package cn.newgxu.lab.apps.notty.entity;
 
+import cn.newgxu.lab.core.util.JsonBuilder;
 import org.apache.ibatis.type.Alias;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -172,8 +176,26 @@ public class Notice implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("{\"class\":%s,\"id\":%d,\"title\":%s}",
-				Notice.class.getSimpleName(), id, title);
+		return toJsonObject().toString();
+	}
+
+	public JsonObject toJsonObject() {
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder
+			.add("id", id)
+			.add("title", title)
+			.add("click_imes", clickTimes)
+			.add("add_date", addDate.getTime())
+			.add("blocked", blocked);
+
+		new JsonBuilder(builder)
+			.lazy("content", content)
+			.eager("last_modified_date", lastModifiedDate)
+			.eager("doc_url", docUrl)
+			.eager("doc_name", docName)
+			.lazy("author", author.toJsonObject());
+
+		return builder.build();
 	}
 
 }

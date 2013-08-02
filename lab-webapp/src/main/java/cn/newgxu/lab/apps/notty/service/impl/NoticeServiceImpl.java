@@ -22,26 +22,26 @@
  */
 package cn.newgxu.lab.apps.notty.service.impl;
 
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.List;
-
-import cn.newgxu.lab.core.util.SQLUtils;
+import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
+import cn.newgxu.lab.apps.notty.entity.Notice;
 import cn.newgxu.lab.apps.notty.repository.AuthDao;
+import cn.newgxu.lab.apps.notty.repository.NoticeDao;
+import cn.newgxu.lab.apps.notty.service.NoticeService;
+import cn.newgxu.lab.core.util.Assert;
+import cn.newgxu.lab.core.util.SQLUtils;
+import cn.newgxu.lab.core.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import cn.newgxu.lab.core.util.Assert;
-import cn.newgxu.lab.apps.notty.config.Config;
-import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
-import cn.newgxu.lab.apps.notty.entity.Notice;
-import cn.newgxu.lab.apps.notty.repository.NoticeDao;
-import cn.newgxu.lab.apps.notty.service.NoticeService;
-
 import javax.inject.Inject;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.List;
+
+import static cn.newgxu.lab.apps.notty.Notty.*;
 
 /**
  * 信息发布对外服务接口的实现。
@@ -62,19 +62,15 @@ public class NoticeServiceImpl implements NoticeService {
 	
 	/** 简单地验证信息是否合法 */
 	private void validate(Notice info) {
-		Assert.notNull("认证用户不能为空！", info.getAuthor());
-		Assert.notEmpty("信息标题不能为空！", info.getTitle());
-		Assert.notEmpty("信息内容不能为空！", info.getContent());
+		Assert.notNull(getMessage(USER_NOT_NULL), info.getAuthor());
+		Assert.notEmpty(getMessage(TITLE_NOT_NULL), info.getTitle());
+		Assert.notEmpty(getMessage(CONTENT_NOT_NULL), info.getContent());
 //		文件名和路径绝对不能是空串
-		if (info.getDocName() != null) {
-			if (info.getDocName().trim().equals("")) {
-				throw new IllegalArgumentException("文件名不能是空的啊亲！");
-			}
+		if (TextUtils.isEmpty(info.getDocName(), true)) {
+				throw new IllegalArgumentException(getMessage(FILE_NAME_NOT_NULL));
 		}
-		if (info.getDocUrl() != null) {
-			if (info.getDocUrl().trim().equals("")) {
-				throw new IllegalArgumentException("文件路径不能是空的啊亲！");
-			}
+		if (TextUtils.isEmpty(info.getDocUrl(), true)) {
+				throw new IllegalArgumentException(getMessage(FILE_URL_NOT_NULL));
 		}
 	}
 	
@@ -92,7 +88,7 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	public void delete(Notice notice) {
-		throw new UnsupportedOperationException("对不起，暂不支持此操作！");
+		throw new UnsupportedOperationException(getMessage(NOT_SUPPORT));
 	}
 
 	@Override
@@ -121,14 +117,14 @@ public class NoticeServiceImpl implements NoticeService {
 							new Object[]{i.getLastModifiedDate(), i.getTitle(), i.getContent(),
 									i.getDocName(), i.getDocUrl()}),
 					"id=" + i.getId());
-		L.info("信息：{} 修改成功！", notice.getTitle());
+		L.info("notices：{} modified successfully！", notice.getTitle());
 		return notice;
 	}
 
 	@Override
 	public Notice find(long pk) {
 		Notice n = noticeDao.find(pk);
-		Assert.notNull("对不起，您要查看的信息不存在！", n);
+		Assert.notNull(getMessage(NOT_FOUND), n);
 		return n;
 	}
 	
@@ -137,7 +133,6 @@ public class NoticeServiceImpl implements NoticeService {
 	public Notice view(long pk) {
 		Notice notice = find(pk);
 		notice.setClickTimes(notice.getClickTimes() + 1);
-//		noticeDao.merge(notice);
 		noticeDao.update("click_times=click_times+1", "id=" + pk);
 		return notice;
 	}
@@ -155,20 +150,12 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	public List<Notice> more(long lastId, int count) {
-//		this.checkRange(count);
-//		Map<String, Object> param = new HashMap<String, Object>();
-//		param.put("last_id", lastId);
-//		return noticeDao.list("Notice.list_more", param, 0, count);
 		String from = MessageFormat.format("{0} as N JOIN {1} as U ON N.uid=U.id", NoticeDao.TABLE, AuthDao.TABLE);
 		return noticeDao.query(null, from, "N.blocked=0 AND N.id<" + lastId, null, null, "id DESC", "" + count);
 	}
 
 	@Override
 	public List<Notice> listByUser(AuthorizedUser au, int count) {
-//		this.checkRange(count);
-//		Map<String, Object> param = new HashMap<String, Object>(1);
-//		param.put("user", au);
-//		return noticeDao.list("Notice.list_user_latest", param, 0, count);
 		String from = MessageFormat.format("{0} as N JOIN {1} as U ON N.uid=U.id", NoticeDao.TABLE, AuthDao.TABLE);
 		return noticeDao.query(null, from, "N.blocked=0 AND N.uid=" + au.getId(), null, null, "id DESC", "" + count);
 	}
@@ -176,11 +163,6 @@ public class NoticeServiceImpl implements NoticeService {
 	@Override
 	public List<Notice> moreByUser(AuthorizedUser au, long lastId,
 			int count) {
-//		this.checkRange(count);
-//		Map<String, Object> params = new HashMap<String, Object>(2);
-//		params.put("user", au);
-//		params.put("last_id", lastId);
-//		return noticeDao.list("Notice.list_user_more", params, 0, count);
 		String from = MessageFormat.format("{0} as N JOIN {1} as U ON N.uid=U.id", NoticeDao.TABLE, AuthDao.TABLE);
 		String where = String.format("N.blocked=0 AND N.id<%d AND N.uid=%d", lastId, au.getId());
 		return noticeDao.query(null, from, where, null, null, "id DESC", "" + count);
@@ -188,10 +170,6 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	public List<Notice> listNewer(long lastId, int count) {
-//		this.checkRange(count);
-//		Map<String, Object> param = new HashMap<String, Object>(1);
-//		param.put("last_id", lastId);
-//		return noticeDao.list("Notice.list_newer", param, 0, count);
 		String from = MessageFormat.format("{0} as N JOIN {1} as U ON N.uid=U.id", NoticeDao.TABLE, AuthDao.TABLE);
 		return noticeDao.query(null, from, "N.blocked=0 AND N.id>" + lastId, null, null, null, "" + count);
 	}
@@ -211,12 +189,11 @@ public class NoticeServiceImpl implements NoticeService {
 			notice.setBlocked(false);
 		}
 
-//		noticeDao.merge(i);
 		noticeDao.update(SQLUtils
 					.set(new String[]{"blocked"}, new Boolean[]{blocked}),
 				 "id=" + i.getId());
 
-		L.info("信息：{} 屏蔽?：{}成功！", i.getTitle(), blocked);
+		L.info("notice: {} block? -> {} successfully!", i.getTitle(), blocked);
 		return notice;
 	}
 
@@ -228,10 +205,10 @@ public class NoticeServiceImpl implements NoticeService {
 	 */
 	private void assertBelong(Notice notice, Notice i)
 			throws SecurityException {
-		Assert.notNull("对不起，您所访问的信息不存在！", i);
+		Assert.notNull(getMessage(NOT_FOUND), i);
 
 		if (!i.getAuthor().equals(notice.getAuthor())) {
-			throw new SecurityException("对不起，这条信息不是您发布的，您无权对其进行操作！");
+			throw new SecurityException(getMessage(NO_PERMISSION));
 		}
 	}
 
@@ -241,10 +218,8 @@ public class NoticeServiceImpl implements NoticeService {
 	}
 
 	private void checkRange(int count) {
-		if (count < 1) {
-			throw new IllegalArgumentException("请求的列表数目不能是负数啊亲！");
-		} else if (count > Config.MAX_NOTICES_COUNT) {
-			throw new IllegalArgumentException("请求的列表数目不能超过 " + Config.MAX_NOTICES_COUNT + " 条！");
+		if (count < 1 || count > R.getInt(MAX_NOTICES_COUNT.name())) {
+			throw new IllegalArgumentException(getMessage(NOTICES_ARG_ERROR));
 		}
 	}
 

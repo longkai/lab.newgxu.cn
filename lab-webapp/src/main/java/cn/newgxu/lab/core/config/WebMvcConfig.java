@@ -7,6 +7,7 @@ package cn.newgxu.lab.core.config;
 
 import cn.newgxu.lab.core.util.Resources;
 import cn.newgxu.lab.core.util.ResourcesCallback;
+import freemarker.template.TemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -26,8 +27,13 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.stream.JsonParser;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -56,11 +62,29 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 		registry.addViewController("/index").setViewName("index");
 		registry.addViewController("/home").setViewName("index");
 
-		Resources.loadProps("/config/uri.properties", new ResourcesCallback() {
+		Resources.openInputStream("classpath:uri.json", new ResourcesCallback() {
 			@Override
-			public void onSuccess(Properties props) {
-				for (String uri : props.stringPropertyNames()) {
-					registry.addViewController(uri).setViewName(props.getProperty(uri, ""));
+			protected void onSuccess(InputStream inputStream) throws IOException {
+				JsonParser parser = Json.createParser(inputStream);
+				String url = null;
+				String res = null;
+				int i = 0;
+				while (parser.hasNext()) {
+					switch (parser.next()) {
+					case KEY_NAME:
+						url = parser.getString();
+						i++;
+						break;
+					case VALUE_STRING:
+						res = parser.getString();
+						i++;
+						break;
+					default:
+						break;
+					}
+					if (i != 0 && i % 2 == 0) {
+						registry.addViewController(url).setViewName(res);
+					}
 				}
 			}
 		});
@@ -88,17 +112,25 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
 	@Bean
 	public FreeMarkerConfig freeMarkerConfig() {
-		FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
-		configurer.setTemplateLoaderPath("/WEB-INF/views/");
-		Properties settings = new Properties();
-		settings.setProperty("template_update_delay", "0");
-		settings.setProperty("default_encoding", "UTF-8");
-		settings.setProperty("number_format", "0.##");
-		settings.setProperty("datetime_format", "yyyy-MM-dd HH:mm:ss");
-		settings.setProperty("classic_compatible", "true");
-		settings.setProperty("template_exception_handler", "ignore");
-		settings.setProperty("auto_import", "macro.ftl as L");
-		configurer.setFreemarkerSettings(settings);
+		final FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+		Resources.openInputStream("classpath:freemarker.json", new ResourcesCallback() {
+			@Override
+			protected void onSuccess(InputStream inputStream) throws IOException {
+				JsonReader reader = Json.createReader(inputStream);
+				JsonObject jsonObject = reader.readObject();
+				configurer.setTemplateLoaderPath(
+					jsonObject.getString("template_loader_path", "/WEB-INF/views/"));
+
+				Properties settings = new Properties();
+				for (String key : jsonObject.keySet()) {
+					if (key.equals("template_loader_path"))
+						continue;
+					settings.setProperty(key, jsonObject.getString(key));
+				}
+				configurer.setFreemarkerSettings(settings);
+				reader.close();
+			}
+		});
 		return configurer;
 	}
 

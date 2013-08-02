@@ -5,8 +5,8 @@ DROP TABLE IF EXISTS info_users;
 CREATE TABLE info_users (
     id bigint(20) auto_increment,
     about VARCHAR(255) DEFAULT NULL,
-    account VARCHAR(30) NOT NULL,
-    authed_name VARCHAR(30) NOT NULL,
+    account VARCHAR(32) NOT NULL,
+    authed_name VARCHAR(32) NOT NULL,
     blocked tinyint(1) NOT NULL DEFAULT 0,
     contact VARCHAR(50) NOT NULL,
     join_date datetime NOT NULL,

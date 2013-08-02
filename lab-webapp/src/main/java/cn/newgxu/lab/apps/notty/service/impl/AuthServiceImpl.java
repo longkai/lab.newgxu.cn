@@ -22,10 +22,10 @@
  */
 package cn.newgxu.lab.apps.notty.service.impl;
 
+import cn.newgxu.lab.apps.notty.Notty;
 import cn.newgxu.lab.core.util.Assert;
 import cn.newgxu.lab.core.util.Encryptor;
 import cn.newgxu.lab.core.util.SQLUtils;
-import cn.newgxu.lab.apps.notty.config.Config;
 import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
 import cn.newgxu.lab.apps.notty.repository.AuthDao;
 import cn.newgxu.lab.apps.notty.service.AuthService;
@@ -38,6 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
+
+import static cn.newgxu.lab.apps.notty.Notty.*;
 
 /**
  * 认证用户对外服务的实现。
@@ -59,10 +61,14 @@ public class AuthServiceImpl implements AuthService {
 	/** 检测两次密码输入是否相符 */
 	private void checkPassword(String p1, String p2) {
 		// 检测一次就好
-		Assert.hasLength("用户密码不能为空或者少于" + Config.MIN_PASSWORD_LENGTH + "位！",
-				p1, Config.MIN_PASSWORD_LENGTH);
+
+		Assert.between(
+			Notty.getMessage(PASSWORD_RANGE),
+			p1,
+			R.getInt(MIN_PASSWORD_LENGTH.name()),
+			R.getInt(MAX_PASSWORD_LENGTH.name()));
 		if (!p1.equals(p2)) {
-			throw new IllegalArgumentException("两次输入密码不一致！");
+			throw new IllegalArgumentException(Notty.getMessage(PASSWORDS_NOT_EQUALS));
 		}
 	}
 
@@ -73,21 +79,22 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void create(AuthorizedUser user, String _pwd) {
-		Assert.notEmpty("组织或者单位不能为空！", user.getOrg());
-		Assert.notEmpty("显示名称不能为空！", user.getAuthorizedName());
+		Assert.notEmpty(Notty.getMessage(ORG_NOT_NULL), user.getOrg());
+		Assert.notEmpty(Notty.getMessage(AUTHED_NAME_NOT_NULL), user.getAuthorizedName());
 
 		// 设置密码
 		checkPassword(user.getPassword(), _pwd);
-		user.setPassword(Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + _pwd));
+		user.setPassword(Encryptor.MD5(R.getString(PASSWORD_PRIVATE_KEY.name()) + _pwd));
 		// 设置账号
-		Assert.hasLength("账号长度必须大于" + Config.MIN_ACCOUNT_LENGTH + "位！",
-				user.getAccount(), Config.MIN_ACCOUNT_LENGTH);
-//		if (authDao.howMany(user.getAccount()) != 0) {
-//			throw new RuntimeException("账号已经存在！");
-//		}
+		Assert.between(
+			Notty.getMessage(ACCOUNT_RANGE),
+			user.getAccount(),
+			R.getInt(MIN_ACCOUNT_LENGTH.name()),
+			R.getInt(MAX_ACCOUNT_LENGTH.name())
+		);
 
 		if (howManyAccount(user.getAccount()) > 0) {
-			throw new RuntimeException("账号已经存在！");
+			throw new RuntimeException(Notty.getMessage(ACCOUNT_EXISTS));
 		}
 
 		user.setJoinDate(new Date());
@@ -104,13 +111,8 @@ public class AuthServiceImpl implements AuthService {
 	public AuthorizedUser resetPassword(AuthorizedUser user, String _pwd) {
 		checkPassword(user.getPassword(), _pwd);
 
-		user.setPassword(Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + _pwd));
+		user.setPassword(Encryptor.MD5(R.getString(PASSWORD_PRIVATE_KEY.name()) + _pwd));
 		user.setLastModifiedDate(new Date());
-//		authDao.update(SQLUtils.
-//				update(AuthDao.TABLE,
-//						new String[]{"password", "last_modified_date"},
-//						new Object[]{user.getPassword(), user.getLastModifiedDate()},
-//						"id=" + user.getId(), null));
 		int i = authDao.update(SQLUtils
 				.set(new String[]{"password", "last_modified_date"},
 						new Object[]{user.getPassword(), user.getLastModifiedDate()})
@@ -124,11 +126,6 @@ public class AuthServiceImpl implements AuthService {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public AuthorizedUser update(AuthorizedUser au) {
 		au.setLastModifiedDate(new Date());
-//		int i = authDao.update(SQLUtils
-//				.update(AuthDao.TABLE,
-//						new String[]{"about", "contact", "last_modified_date"},
-//						new Object[]{au.getAbout(), au.getContact(), au.getLastModifiedDate()},
-//						"id=" + au.getId(), null));
 		int i = authDao.update(SQLUtils
 				.set(new String[]{"about", "contact", "last_modified_date"},
 						new Object[]{au.getAbout(), au.getContact(), au.getLastModifiedDate()}),
@@ -143,11 +140,6 @@ public class AuthServiceImpl implements AuthService {
 	public void toggleBlock(AuthorizedUser user, boolean blocked) {
 		user.setBlocked(blocked);
 		user.setLastModifiedDate(new Date());
-//		int i = authDao.update(SQLUtils
-//				.update(AuthDao.TABLE,
-//						new String[]{"blocked", "last_modified_date"},
-//						new Object[]{blocked, user.getLastModifiedDate()},
-//						"id=" + user.getId(), null));
 		int i = authDao.update(SQLUtils
 				.set(new String[]{"blocked", "last_modified_date"},
 						new Object[]{blocked, user.getLastModifiedDate()}),
@@ -172,29 +164,25 @@ public class AuthServiceImpl implements AuthService {
 		L.info("info_user: {} try logining...", account);
 		AuthorizedUser user = null;
 		try {
-			user = this.login(account,
-					Encryptor.MD5(Config.PASSWORD_PRIVATE_KEY + password));
+			user = this.login(
+					account,
+					Encryptor.MD5(R.getString(PASSWORD_PRIVATE_KEY.name()) + password));
 			if (user == null) {
-				throw new RuntimeException("账号密码不匹配！");
+				throw new RuntimeException(Notty.getMessage(PASSWORDS_NOT_EQUALS));
 			}
 		} catch (Exception e) {
 			L.error(String.format("notty login error with account: %s", account), e);
-			throw new RuntimeException("账号密码不匹配！", e);
+			throw new RuntimeException(Notty.getMessage(ACCOUNT_PASSWORD_NOT_MATCHS), e);
 		}
 
 
 		if (user.isBlocked()) {
-			throw new RuntimeException("对不起，您的账号目前处于冻结状态无法使用，请联系雨无声！");
+			throw new RuntimeException(Notty.getMessage(ACCOUNT_BLOCKED));
 		}
 
 		user.setLastLoginIP(ip);
 		user.setLastLoginDate(new Date());
 		user.setLastModifiedDate(user.getLastLoginDate());
-//		authDao.update(SQLUtils
-//				.update(AuthDao.TABLE,
-//						new String[]{"last_login_ip", "last_login_date", "last_modified_date"},
-//						new Object[]{ip, user.getLastLoginIP(), user.getLastModifiedDate()},
-//						"id=" + user.getId(), null));
 		authDao.update(SQLUtils
 				.set(new String[]{"last_login_ip", "last_login_date", "last_modified_date"},
 						new Object[]{ip, user.getLastLoginIP(), user.getLastModifiedDate()}),
@@ -204,7 +192,6 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public long total() {
-//		return authDao.count(SQLUtils.selectCount(AuthDao.TABLE, null, null));
 		return authDao.count(null, null);
 	}
 
@@ -215,9 +202,6 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public List<AuthorizedUser> latest(int count) {
-//		return authDao.list(SQLUtils
-//				.query(AuthDao.TABLE, null,
-//						"blocked=?", new Boolean[]{false}, null, null, "id DESC", "" + count));
 		return authDao.query(null, null,
 				 SQLUtils.where("blocked=?", new Boolean[]{false}),
 				  null, null, "id DESC", "" + count);
@@ -225,10 +209,6 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public List<AuthorizedUser> more(long lastUid, int count) {
-//		return authDao.list(SQLUtils
-//				.query(AuthDao.TABLE, null,
-//						"id<? AND blocked=?", new Object[]{lastUid, false},
-//						null, null, "id DESC", "" + count));
 		return authDao.query(null, null,
 				 SQLUtils.where("id<? AND blocked=?", new Object[]{lastUid, false}),
 					null, null, "id DESC", "" + count);
@@ -236,18 +216,13 @@ public class AuthServiceImpl implements AuthService {
 	
 	/** 检查列表请求数目是否越界 */
 	private void checkRange(int count) {
-		if (count < 1) {
-			throw new IllegalArgumentException("请求列表数目不能为负数！");
-		} else if (count > Config.MAX_USERS_COUNT) {
-			throw new IllegalArgumentException(
-					"您请求列表数目超过限制，最大条数为 " + Config.MAX_USERS_COUNT);
+		if (count < 1 || count > R.getInt(MAX_USERS_COUNT.name())) {
+			throw new IllegalArgumentException(Notty.getMessage(USERS_ARG_ERROR));
 		}
 	}
 
 	@Override
 	public List<AuthorizedUser> authed() {
-//		return authDao.list(SQLUtils
-//				.query(AuthDao.TABLE, null, "blocked=?", new Boolean[]{false}, null, null, "id desc", null));
 		return authDao.query(null, null,
 					SQLUtils.where("blocked=?", new Boolean[]{false}),
 					null, null, "id DESC", null);

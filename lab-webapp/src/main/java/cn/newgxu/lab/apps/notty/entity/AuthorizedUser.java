@@ -22,11 +22,14 @@
  */
 package cn.newgxu.lab.apps.notty.entity;
 
-import cn.newgxu.lab.apps.notty.config.AccountType;
+import cn.newgxu.lab.core.util.JsonBuilder;
 import org.apache.ibatis.type.Alias;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -211,8 +214,34 @@ public class AuthorizedUser implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("{\"auth_user\":{\"id\":%d,\"auth_name\":%s}}",
-				id, authorizedName);
+		return toJsonObject().toString();
+	}
+
+	public JsonObject toJsonObject() {
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder
+			.add("id", id)
+			.add("type", type.name())
+			.add("authed_name", authorizedName)
+			.add("org", org)
+			.add("abount", about)
+			.add("contact", contact)
+			.add("join_date", joinDate.getTime())
+			.add("blocked", blocked)
+			.add("account", account);
+//			.add("password", password);
+
+		new JsonBuilder(builder)
+			.lazy("last_login_ip", lastLoginIP)
+			.lazy("last_login_date", lastLoginDate)
+			.lazy("last_modified_date", lastModifiedDate);
+		return builder.build();
+	}
+
+	public static enum AccountType {
+
+		DEFAULT, ADMIN
+
 	}
 
 }

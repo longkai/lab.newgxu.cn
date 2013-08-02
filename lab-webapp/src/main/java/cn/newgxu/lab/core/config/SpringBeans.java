@@ -50,6 +50,8 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
 
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -73,20 +75,15 @@ public class SpringBeans /*extends WebMvcConfigurerAdapter*/ {
 	@Bean(destroyMethod = "close")
 	public DataSource dataSource() {
 		final org.apache.tomcat.jdbc.pool.DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
-
-		Resources.loadProps("classpath:config/db.properties", new ResourcesCallback() {
-
+		Resources.readJson("classpath:db.json", new ResourcesCallback() {
 			@Override
-			public void onSuccess(Properties props) {
-				PoolProperties poolProperties = new PoolProperties();
-
-				poolProperties.setUsername(props.getProperty("db.username"));
-				poolProperties. setPassword(props.getProperty("db.password"));
-				poolProperties.setUrl(props.getProperty("db.url"));
-				poolProperties.setDriverClassName(props.getProperty("db.driver"));
-				poolProperties.setDefaultAutoCommit(Boolean.getBoolean(
-								props.getProperty("db.autoCommit", "false")));
-				dataSource.setPoolProperties(poolProperties);
+			protected void onSuccess(JsonValue json) {
+				JsonObject db = (JsonObject) json;
+				dataSource.setPassword(db.getString("password"));
+				dataSource.setUsername(db.getString("username"));
+				dataSource.setDriverClassName(db.getString("driver"));
+				dataSource.setUrl(db.getString("url"));
+				dataSource.setDefaultAutoCommit(db.getBoolean("auto_commit", false));
 			}
 		});
 		return dataSource;

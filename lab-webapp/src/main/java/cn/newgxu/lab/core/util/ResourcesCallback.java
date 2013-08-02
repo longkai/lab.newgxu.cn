@@ -7,6 +7,7 @@ package cn.newgxu.lab.core.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.JsonValue;
 import java.io.*;
 import java.util.Properties;
 
@@ -25,6 +26,8 @@ public abstract class ResourcesCallback {
 	public void onStart() {
 		L.info("开始读写数据...");
 	}
+
+	protected void onSuccess(JsonValue json) {}
 
 	protected void onSuccess(Properties props) {}
 

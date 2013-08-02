@@ -1,0 +1,10 @@
+{
+    "template_loader_path": "/WEB-INF/views/",
+    "template_update_delay": "3600",
+    "default_encoding": "utf-8",
+    "number_format": "0.##",
+    "datetime_format": "yyyy-MM-dd HH:mm:ss",
+    "classic_compatible": "true",
+    "template_exception_handler": "ignore",
+    "auto_import": "macro.ftl as L"
+}

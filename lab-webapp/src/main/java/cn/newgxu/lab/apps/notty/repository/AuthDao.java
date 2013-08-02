@@ -37,13 +37,4 @@ public interface AuthDao extends CommonDao<AuthorizedUser> {
 
 	String TABLE = "info_users";
 
-	interface Columns {
-
-		String c1 = "ss";
-	}
-
-//	int howMany(String account);
-//
-//	AuthorizedUser login(@Param("account") String account, @Param("password") String password);
-
 }
