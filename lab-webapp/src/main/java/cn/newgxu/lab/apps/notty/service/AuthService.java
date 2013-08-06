@@ -41,33 +41,48 @@ public interface AuthService {
 	
 	/** 用于获取更多用户 */
 	int LIST_MORE = 2;
-	
-	/** 创建用户，假如没有明确账号密码，那么系统就会自动生成唯一的账号与密码。 */
-	void create(AuthorizedUser user, String _pwd);
+
+	/** 查询最新的用户列表列表（不包括屏蔽的） */
+	int LATEST = 1;
+
+	/** 只查看被屏蔽用户列表 */
+	int BLOCKED = 2;
+
+	/** 所有用户的列表（包含屏蔽和未被屏蔽的）*/
+	int ALL = 3;
+
+	/** 默认按照注册时间降序 */
+	String DEFAULT_ORDER_BY = "id DESC";
+
+
+	void create(AuthorizedUser user, String confirmedPassword);
 	
 	/** 修改密码 */
-	AuthorizedUser resetPassword(AuthorizedUser user, String _pwd);
+	void resetPassword(AuthorizedUser user, String newPassword, String confirmPassword, String oldPassword);
 	
 	/** 修改个人信息 */
-	AuthorizedUser update(AuthorizedUser au);
+	void update(AuthorizedUser user, String plainPassword);
 
 	/** 将一个用户账号冻结掉。*/
-	void toggleBlock(AuthorizedUser user, boolean blocked);
+	void toggleBlock(AuthorizedUser user);
 	
 	AuthorizedUser find(long pk);
 	
 	AuthorizedUser login(String account, String password, String ip);
 	
 	long total();
-	
-	/** 账号名是否存在 */
-	boolean exists(String account);
-	
-	List<AuthorizedUser> latest(int count);
-	
-	List<AuthorizedUser> more(long lastUid, int count);
-	
-	/** 查看通过授权的用户 */
-	List<AuthorizedUser> authed();
+
+//	List<AuthorizedUser> latest(int count);
+//
+//	List<AuthorizedUser> more(long lastUid, int count);
+//
+//	/** 查看通过授权的用户 */
+//	List<AuthorizedUser> authed();
+
+	List<AuthorizedUser> users(int type, int count);
+
+	List<AuthorizedUser> users(int type, int count, boolean append, long offset);
+
+	List<AuthorizedUser> sync(long lastTimestamp, int count);
 	
 }

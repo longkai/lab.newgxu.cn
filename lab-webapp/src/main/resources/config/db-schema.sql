@@ -1,8 +1,8 @@
 -- generate by longkai@2013-07-31
-DROP TABLE IF EXISTS info_notices;
-DROP TABLE IF EXISTS info_users;
+DROP TABLE IF EXISTS notices;
+DROP TABLE IF EXISTS auth_users;
 
-CREATE TABLE info_users (
+CREATE TABLE auth_users (
     id bigint(20) auto_increment,
     about VARCHAR(255) DEFAULT NULL,
     account VARCHAR(32) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE info_users (
     CONSTRAINT PK_INFO_USERS PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8;
 
-CREATE TABLE info_notices (
+CREATE TABLE notices (
     id bigint(20) auto_increment,
     add_date datetime NOT NULL,
     blocked tinyint(1) DEFAULT 0,
@@ -31,5 +31,5 @@ CREATE TABLE info_notices (
     title VARCHAR (255) NOT NULL,
     uid bigint(20) NOT NULL,
     CONSTRAINT PK_INFO_NOTICES PRIMARY KEY (id),
-    CONSTRAINT FK_INFO_NOTICES FOREIGN KEY (uid) REFERENCES info_users(id)
+    CONSTRAINT FK_INFO_NOTICES FOREIGN KEY (uid) REFERENCES auth_users(id)
 ) DEFAULT CHARSET=utf8;

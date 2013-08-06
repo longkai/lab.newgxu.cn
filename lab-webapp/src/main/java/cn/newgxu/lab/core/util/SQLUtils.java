@@ -50,6 +50,23 @@ public class SQLUtils {
 		return _where.toString();
 	}
 
+	public static final String like(String like, String... args) {
+		if (like == null || like.length() == 0) {
+			return null;
+		}
+		if (args == null || args.length == 0) {
+			return like;
+		}
+
+		StringBuffer _where = new StringBuffer();
+		Matcher matcher = pattern.matcher(like);
+		for (int i = 0; matcher.find(); i++) {
+			matcher.appendReplacement(_where, args[i]);
+		}
+		matcher.appendTail(_where);
+		return _where.toString();
+	}
+
 	public static final String injectArg(Object arg) {
 		if (arg == null) {
 			return "null";

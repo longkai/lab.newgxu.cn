@@ -35,6 +35,6 @@ import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
  */
 public interface AuthDao extends CommonDao<AuthorizedUser> {
 
-	String TABLE = "info_users";
+	String TABLE = "auth_users";
 
 }

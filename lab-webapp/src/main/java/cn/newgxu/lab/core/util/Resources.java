@@ -1,5 +1,14 @@
+/*
+ * The MIT License (MIT)
+ * Copyright (c) 2013 longkai(龙凯)
+ *
+ * The software shall be used for good, not evil.
+ */
+
 package cn.newgxu.lab.core.util;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

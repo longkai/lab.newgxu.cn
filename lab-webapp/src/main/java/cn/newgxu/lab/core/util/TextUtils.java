@@ -18,7 +18,8 @@ public class TextUtils {
 	}
 
 	public static final boolean isEmpty(CharSequence text, boolean trim) {
-		return trim ? isEmpty(text.toString().trim()) : isEmpty(text);
+		if (text == null) return true;
+		return trim ? isEmpty(text.toString().trim()) : text.length() == 0;
 	}
 
 	public static final String getter(String name) {
@@ -36,6 +37,16 @@ public class TextUtils {
 			str =  c + str.substring(1);
 		}
 		return toGetter ? "get" + str : "set" + str;
+	}
+
+	/**
+	 * return the file extension by the given file name, if not found, return the file name itslef.
+	 * @param fileName
+	 * @return the file extension name like .java .zip etc. or the original name if not defined
+	 */
+	public static String getFileExt(String fileName) {
+		int index = fileName.lastIndexOf(".");
+		return index == -1 ? fileName : fileName.substring(index);
 	}
 
 }

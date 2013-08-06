@@ -1,7 +1,7 @@
 {
-    "driver": "com.mysql.jdbc.Driver",
-    "url": "jdbc:mysql://localhost:3306/lab",
-    "username": "root",
-    "password": "root",
-    "auto_commit": false
-}
+     "driver": "com.mysql.jdbc.Driver",
+     "url": "jdbc:mysql://localhost:3306/lab",
+     "username": "root",
+     "password": "root",
+     "auto_commit": false
+ }

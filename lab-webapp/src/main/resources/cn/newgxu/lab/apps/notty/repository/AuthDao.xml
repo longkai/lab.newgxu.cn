@@ -9,7 +9,7 @@
 <mapper namespace="cn.newgxu.lab.apps.notty.repository.AuthDao">
     <cache />
 
-    <resultMap id="info_user" type="info_user">
+    <resultMap id="auth_user" type="auth_user">
         <id property="id" column="id" />
         <result property="type" column="type" />
         <result property="authorizedName" column="authed_name" />
@@ -25,12 +25,12 @@
         <result property="lastModifiedDate" column="last_modified_date" />
     </resultMap>
 
-    <select id="find" parameterType="_long" resultMap="info_user">
-        SELECT * FROM info_users WHERE id = #{id}
+    <select id="find" parameterType="_long" resultMap="auth_user">
+        SELECT * FROM auth_users WHERE id = #{id}
     </select>
 
-    <insert id="insert" parameterType="info_user" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-        INSERT INTO info_users
+    <insert id="insert" parameterType="auth_user" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO auth_users
             (id, type, authed_name, org, about, contact, join_date,
                 blocked, account, password, last_login_ip, last_login_date, last_modified_date)
         VALUES
@@ -45,7 +45,7 @@
                 ${from}
             </when>
             <otherwise>
-                info_users
+                auth_users
             </otherwise>
         </choose>
         <if test="where != null">
@@ -60,7 +60,7 @@
                 ${from}
             </when>
             <otherwise>
-                info_users
+                auth_users
             </otherwise>
         </choose>
         <if test="where != null">
@@ -69,10 +69,10 @@
     </delete>
 
     <update id="update">
-        UPDATE info_users SET ${update} WHERE ${where}
+        UPDATE auth_users SET ${update} WHERE ${where}
     </update>
 
-    <select id="findOne" resultMap="info_user">
+    <select id="findOne" resultMap="auth_user">
         SELECT
         <choose>
             <when test="columns != null">
@@ -88,7 +88,7 @@
                 ${from}
             </when>
             <otherwise>
-                info_users
+                auth_users
             </otherwise>
         </choose>
         <if test="where != null">
@@ -96,7 +96,7 @@
         </if>
     </select>
 
-    <select id="query" resultMap="info_user">
+    <select id="query" resultMap="auth_user">
         SELECT
         <choose>
             <when test="columns == null or columns == '\\*'">
@@ -112,7 +112,7 @@
                 ${from}
             </when>
             <otherwise>
-                info_users
+                auth_users
             </otherwise>
         </choose>
         <if test="where != null">

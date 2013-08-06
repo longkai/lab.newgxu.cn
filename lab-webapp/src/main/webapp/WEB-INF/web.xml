@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
                       http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-	version="3.0">
+         version="3.0"
+         metadata-complete="true">
 
-	<!-- The front controller of this Spring Web application, responsible for 
+	<!-- The front controller of this Spring Web application, responsible for
 		handling all application requests -->
 	<servlet>
 		<servlet-name>springDispatcherServlet</servlet-name>
@@ -12,8 +14,15 @@
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
 			<!--<param-value>/WEB-INF/spring/*.xml</param-value>-->
-            <param-value>classpath:/config/spring.xml</param-value>
+            <param-value>classpath:spring.xml</param-value>
 		</init-param>
+        <multipart-config>
+            <!-- 50MB max -->
+            <location>E:/home/Dropbox/projects/java/lab.newgxu.cn/lab-webapp/src/main/webapp/resources/upload/</location><!---->
+            <max-file-size>52428800</max-file-size>
+            <max-request-size>52428800</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 

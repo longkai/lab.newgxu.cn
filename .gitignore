@@ -11,3 +11,4 @@ rebel.xml
 # idea
 .idea/
 *.iml
+libs/

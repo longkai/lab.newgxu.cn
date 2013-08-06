@@ -23,9 +23,9 @@
 package cn.newgxu.lab.apps.notty.entity;
 
 import cn.newgxu.lab.core.util.JsonBuilder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.ibatis.type.Alias;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -41,7 +41,7 @@ import java.util.Date;
  * @since 2013-3-28
  * @version 0.1
  */
-@Alias("info_user")
+@Alias("auth_user")
 public class AuthorizedUser implements Serializable {
 
 	private long		id;
@@ -66,7 +66,7 @@ public class AuthorizedUser implements Serializable {
 	@JsonIgnore
 	private boolean		blocked;
 
-	@JsonIgnore
+//	@JsonIgnore
 	private String		account;
 	@JsonIgnore
 	private String		password;
@@ -214,29 +214,43 @@ public class AuthorizedUser implements Serializable {
 
 	@Override
 	public String toString() {
-		return toJsonObject().toString();
+		return "AuthorizedUser{" +
+				"id=" + id +
+				", type=" + type +
+				", authorizedName='" + authorizedName + '\'' +
+				", org='" + org + '\'' +
+				", about='" + about + '\'' +
+				", contact='" + contact + '\'' +
+				", joinDate=" + joinDate +
+				", blocked=" + blocked +
+				", account='" + account + '\'' +
+				", password='" + password + '\'' +
+				", lastLoginIP='" + lastLoginIP + '\'' +
+				", lastLoginDate=" + lastLoginDate +
+				", lastModifiedDate=" + lastModifiedDate +
+				'}';
 	}
 
-	public JsonObject toJsonObject() {
-		JsonObjectBuilder builder = Json.createObjectBuilder();
-		builder
-			.add("id", id)
-			.add("type", type.name())
-			.add("authed_name", authorizedName)
-			.add("org", org)
-			.add("abount", about)
-			.add("contact", contact)
-			.add("join_date", joinDate.getTime())
-			.add("blocked", blocked)
-			.add("account", account);
-//			.add("password", password);
-
-		new JsonBuilder(builder)
-			.lazy("last_login_ip", lastLoginIP)
-			.lazy("last_login_date", lastLoginDate)
-			.lazy("last_modified_date", lastModifiedDate);
-		return builder.build();
-	}
+//	public JsonObject toJsonObject() {
+//		JsonObjectBuilder builder = Json.createObjectBuilder();
+//		builder
+//			.add("id", id)
+//			.add("type", type.name())
+//			.add("authed_name", authorizedName)
+//			.add("org", org)
+//			.add("abount", about)
+//			.add("contact", contact)
+//			.add("join_date", joinDate.getTime())
+//			.add("blocked", blocked)
+//			.add("account", account);
+////			.add("password", password);
+//
+//		new JsonBuilder(builder)
+//			.lazy("last_login_ip", lastLoginIP)
+//			.lazy("last_login_date", lastLoginDate)
+//			.lazy("last_modified_date", lastModifiedDate);
+//		return builder.build();
+//	}
 
 	public static enum AccountType {
 

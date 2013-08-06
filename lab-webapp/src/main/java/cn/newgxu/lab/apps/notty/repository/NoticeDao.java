@@ -35,7 +35,7 @@ import cn.newgxu.lab.apps.notty.entity.Notice;
  */
 public interface NoticeDao extends CommonDao<Notice> {
 
-	String TABLE = "info_notices";
+	String TABLE = "notices";
 
 	/** 比pk更新的记录数 */
 //	int newerCount(long pk);

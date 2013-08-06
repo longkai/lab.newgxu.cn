@@ -9,7 +9,7 @@
 <mapper namespace="cn.newgxu.lab.apps.notty.repository.NoticeDao">
     <cache />
 
-    <resultMap id="notice" type="info_notice">
+    <resultMap id="notice" type="notice">
         <id property="id" column="id" javaType="_long" />
         <result property="addDate" column="add_date" />
         <result property="blocked" column="blocked" />
@@ -22,7 +22,7 @@
         <association property="author" resultMap="author" />
     </resultMap>
 
-    <resultMap id="author" type="info_user">
+    <resultMap id="author" type="auth_user">
         <id property="id" column="uid" />
         <result property="type" column="u_type" />
         <result property="authorizedName" column="u_authed_name" />
@@ -38,7 +38,7 @@
         <result property="lastModifiedDate" column="u_last_modified_date" />
     </resultMap>
 
-    <sql id="info_notice_columns">
+    <sql id="notice_columns">
         N.id,
         N.add_date,
         N.blocked,
@@ -50,7 +50,7 @@
         N.title
     </sql>
     
-    <sql id="info_user_columns">
+    <sql id="auth_user_columns">
         U.id as uid,
         U.type as u_type,
         U.authed_name as u_authed_name,
@@ -67,8 +67,8 @@
         U.last_modified_date as u_last_modified_date
     </sql>
 
-    <insert id="insert" parameterType="info_notice" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-        INSERT INTO info_notices
+    <insert id="insert" parameterType="notice" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO notices
             (id, add_date, blocked, click_times, content, doc_name, doc_url, last_modified_date, title, uid)
         VALUES
             (null, #{addDate}, 0, 0, #{content}, #{docName}, #{docUrl}, null, #{title}, #{author.id})
@@ -76,11 +76,11 @@
 
     <select id="find" parameterType="_int" resultMap="notice">
         SELECT
-        <include refid="info_notice_columns" />
+        <include refid="notice_columns" />
         ,
-        <include refid="info_user_columns" />
+        <include refid="auth_user_columns" />
         FROM
-            info_notices N JOIN info_users U ON N.uid = U.id
+            notices N JOIN auth_users U ON N.uid = U.id
         WHERE N.id = #{id}
     </select>
 
@@ -91,7 +91,7 @@
                 ${from}
             </when>
             <otherwise>
-                info_notices
+                notices
             </otherwise>
         </choose>
         <if test="where != null">
@@ -106,7 +106,7 @@
                 ${from}
             </when>
             <otherwise>
-                info_notices
+                notices
             </otherwise>
         </choose>
         <if test="where != null">
@@ -115,7 +115,7 @@
     </delete>
 
     <update id="update">
-        UPDATE info_notices SET ${update} WHERE ${where}
+        UPDATE notices SET ${update} WHERE ${where}
     </update>
 
     <select id="findOne" resultMap="notice">
@@ -134,7 +134,7 @@
                 ${from}
             </when>
             <otherwise>
-                info_notices
+                notices
             </otherwise>
         </choose>
         <if test="where != null">
@@ -146,9 +146,9 @@
         SELECT
         <choose>
             <when test="columns == null">
-                <include refid="info_notice_columns" />
+                <include refid="notice_columns" />
                 ,
-                <include refid="info_user_columns" />
+                <include refid="auth_user_columns" />
             </when>
             <when test="columns == '\\*'">
                 *
@@ -160,7 +160,7 @@
         FROM
         <choose>
             <when test="from == null">
-                info_notices N
+                notices N
             </when>
             <otherwise>
                 ${from}

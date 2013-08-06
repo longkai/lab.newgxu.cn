@@ -62,13 +62,13 @@ var notty = (function($) {
 				type: settings.method,
 				data: data,
 				dataType: 'json',
-				success: function(json) {
-					if (json.status === settings.successCode) {
+				success: function(user) {
+					if (user.id) {
 						location.reload();
 					} else {
 						$(settings.errorHint).children().remove();
 						window.scrollTo(0, 0);
-						var html = '<p class="text-center"><span id="status">登陆失败！</span><span id="info">' + json.msg + '</span></p>';
+						var html = '<p class="text-center"><span id="status">登陆失败！</span><span id="info">' + user.msg + '</span></p>';
 						$('<div>').addClass('alert alert-error').html(html).css({'font-size': '20px', 'margin': '10px 0'}).appendTo(settings.errorHint);
 					}
 				},
@@ -84,8 +84,8 @@ var notty = (function($) {
 			options = $.extend({
 				event: null,
 				userService: '#user_service',
-				method: 'PUT',
-				url: '/info/users/',
+				method: 'GET',
+				url: '/notice/logout',
 				itemAttr: 'uid'
 			}, options || {});
 			// console && console.log(options);
@@ -94,9 +94,9 @@ var notty = (function($) {
 			var uid = $(options.userService).attr(options.itemAttr);
 			$.ajax({
 				type: options.method,
-				url: options.url + uid
+				url: options.url
 			})
-			location.href = '/info/';
+			location.href = '/notice';
 		}
 	}
 })(jQuery);

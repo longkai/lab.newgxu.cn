@@ -37,11 +37,14 @@ import cn.newgxu.lab.apps.notty.entity.Notice;
  */
 public interface NoticeService {
 
+//	int LATEST = 1;
+//	int AUTHOR = 2;
+
 	void create(Notice notice);
 
 	void delete(Notice notice);
 
-	Notice update(Notice notice);
+	void update(Notice notice, long uid);
 
 	Notice find(long pk);
 	
@@ -50,22 +53,12 @@ public interface NoticeService {
 
 	long total();
 
-	List<Notice> latest(int count);
-	
-	List<Notice> more(long lastId, int count);
-	
-	List<Notice> listByUser(AuthorizedUser au, int count);
-	
-	List<Notice> moreByUser(AuthorizedUser au, long lastId, int count);
-	
-	List<Notice> listNewer(long lastId, int count);
-	
 	/**
-	 * 屏蔽信息。
-	 * @param notice 欲屏蔽或者解蔽的信息对象
-	 * @param blocked 你懂的
+	 * 屏蔽屏蔽或者解蔽信息。
+	 * @param nid 欲屏蔽或者解蔽的信息对象
+	 * @param uid
 	 */
-	Notice block(Notice notice, boolean blocked);
+	Notice toggleBlock(long nid, long uid);
 
 	/**
 	 * 是否有更新，判断是否有比传过来的参数更大的主键 
@@ -73,5 +66,18 @@ public interface NoticeService {
 	 * @return number of the lastest notices
 	 */
 	long newerCount(long pk);
+
+	List<Notice> latest(int count);
+
+	List<Notice> latest(long uid, int count);
+
+	List<Notice> notices(long offset, boolean append, int count);
+
+	List<Notice> notices(long uid, long offset, boolean append, int count);
+
+	List<Notice> sync(long lastTimestamp, int count);
+
+	// only return title and id!
+	List<Notice> search(String keywords, int count);
 
 }

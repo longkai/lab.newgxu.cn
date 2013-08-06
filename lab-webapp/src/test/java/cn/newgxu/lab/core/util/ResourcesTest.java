@@ -7,6 +7,7 @@ package cn.newgxu.lab.core.util;
 
 import org.junit.*;
 
+import javax.json.JsonValue;
 import java.io.*;
 import java.util.Properties;
 import java.util.Scanner;
@@ -20,13 +21,26 @@ import java.util.Scanner;
 public class ResourcesTest {
 
 	@Test
+	public void testReadJson() throws Exception {
+		String uri = "classpath:db.json";
+		Resources.readJson(uri, new ResourcesCallback() {
+			@Override
+			protected void onSuccess(JsonValue json) {
+				System.out.println(json);
+				org.junit.Assert.assertNotNull(json);
+			}
+		});
+	}
+
+	@Test
 	public void testLoadProps() throws Exception {
-		 Resources.loadProps("classpath:/config/db.properties", new ResourcesCallback() {
-			 @Override
-			 protected void onSuccess(Properties props) {
-				 org.junit.Assert.assertNotNull(props.getProperty("db.username"));
-			 }
-		 });
+//		 because we use json to config, so this no use any more
+//		 Resources.loadProps("classpath:/config/db.properties", new ResourcesCallback() {
+//			 @Override
+//			 protected void onSuccess(Properties props) {
+//				 org.junit.Assert.assertNotNull(props.getProperty("db.username"));
+//			 }
+//		 });
 	}
 
 	@Test

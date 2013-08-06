@@ -1,6 +1,6 @@
-<#include "info/macro.ftl" />
+<#include "notty/macro.ftl" />
 <@L.html>
-<@L.head title="信息发布平台 - 雨无声实验室">
+<@L.head title="校园信息 - 雨无声实验室">
 <style type="text/css">
 body {
 	padding-top: 60px;
@@ -63,7 +63,7 @@ body {
 		<div class="control-group">
 			<label class="control-label" for="inputPassword">确认密码</label>
 			<div class="controls">
-				<input type="password" id="inputPassword" name="_pwd" placeholder="不少于6个字符" maxlength="20" />
+				<input type="password" id="inputPassword" name="confirmed_password" placeholder="不少于6个字符" maxlength="20" />
 			</div>
 		</div>
 		<div class="control-group">
@@ -102,22 +102,22 @@ body {
 </div>
 </body>
 <@L.script>
-<script type="text/javascript" src="/resources/js/info/notty.js"></script>
+<script type="text/javascript" src="/resources/notty/js/notty.js"></script>
 <script type="text/javascript">
 $(function() {
 	$('#yes').click(function() {
 		$('.alert').hide();
 		$.ajax({
-			url: 		'/info/users',
+			url: 		'/auth_users/create',
 			type: 		'POST',
 			data: 		$('#auth_form').serialize(),
 			dataType: 	'json',
 			success: function(data) {
-				if (data.status === 1) {
+				if (data.id) {
 					$('#success').fadeIn();
 				} else if (data.status === 0) {
 					$('#info').text(data.msg);
-					$('#reason').text('原因：' + data.reason);
+					// $('#reason').text('原因：' + data.reason);
 					$('#error').fadeIn();
 				} else {
 					$('#error').fadeIn();

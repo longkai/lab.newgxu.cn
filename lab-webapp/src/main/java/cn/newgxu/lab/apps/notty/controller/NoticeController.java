@@ -24,35 +24,31 @@ package cn.newgxu.lab.apps.notty.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.json.JsonArray;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
 import cn.newgxu.lab.apps.notty.Notty;
+import cn.newgxu.lab.core.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.*;
 
-import cn.newgxu.lab.core.common.ViewConstants;
 import cn.newgxu.lab.core.util.Assert;
-import cn.newgxu.lab.core.util.RegexUtils;
 import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
 import cn.newgxu.lab.apps.notty.entity.Notice;
 import cn.newgxu.lab.apps.notty.service.AuthService;
 import cn.newgxu.lab.apps.notty.service.NoticeService;
 
-import static cn.newgxu.lab.apps.notty.Notty.*;
+import static cn.newgxu.lab.core.common.ViewConstants.*;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
  * 信息发布平台关于信息发布查看修改等的控制器。
@@ -63,28 +59,10 @@ import static cn.newgxu.lab.apps.notty.Notty.*;
  * @since 2013-3-29
  */
 @Controller
-@RequestMapping("/info")
 @Scope("session")
 public class NoticeController {
 
 	private static Logger L = LoggerFactory.getLogger(NoticeController.class);
-
-	/**
-	 * 最新信息
-	 */
-	private static final int LATEST = 1;
-	/**
-	 * 更多信息
-	 */
-	private static final int MORE_NOTICES = 2;
-	/**
-	 * 某个授权用户的更多信息
-	 */
-	private static final int MORE_NOTICES_FROM_A_USER = 3;
-	/**
-	 * 抓取最新的信息更新
-	 */
-	private static final int FETCH_UPDATE_NOTICES = 4;
 
 	@Inject
 	private NoticeService noticeService;
@@ -92,228 +70,210 @@ public class NoticeController {
 	@Inject
 	private AuthService authService;
 
-	@RequestMapping(value = {"/", "index", "home", ""}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/notice", "/info"}, method = GET)
 	public String index(Model model) {
-		List<Notice> notices = noticeService.latest(R.getInt(DEFAULT_NOTICES_COUNT.name()));
-		List<AuthorizedUser> users = authService.latest(R.getInt(DEFAULT_USERS_COUNT.name()));
+		List<Notice> notices = noticeService.latest(Notty.DEFAULT_NOTICES_COUNT);
+		List<AuthorizedUser> users = authService.users(AuthService.LATEST, Notty.DEFAULT_USERS_COUNT);
 		model.addAttribute("users", users);
 		model.addAttribute("notices", notices);
-		return "info" + "/index";
+		return Notty.APP + "/index";
 	}
 
-	@RequestMapping(value = "/notices/{notice_id}", method = RequestMethod.GET)
-	public String get(
-			Model model,
-			HttpSession session,
-			@PathVariable("notice_id") long id,
-			@RequestParam(value = "modify", required = false, defaultValue = "false")
-			boolean modify) {
-		Notice notice = noticeService.view(id);
+	@RequestMapping(value = "/notices/{id}", method = GET)
+	public String notice(Model model, @PathVariable("id") long id) {
+		model.addAttribute("notice", noticeService.view(id));
+		return Notty.APP + "/notice";
+	}
+
+	@RequestMapping(value = "/notices/{id}/modify", method = GET)
+	public String notice(Model model, HttpServletRequest request,
+						 @PathVariable("id") long id) {
+		AuthorizedUser user = checkLogin(request.getSession(false));
+		Notice notice = noticeService.find(id);
+		L.info("auth_user: {} requiring modify notice: {}",
+				user.getAuthorizedName(), notice.getId(), user.getAuthorizedName());
 		model.addAttribute("notice", notice);
-		if (modify) {
-			AuthorizedUser user = checkLogin(session);
-			if (!notice.getAuthor().equals(user)) {
-				throw new SecurityException(getMessage(NO_PERMISSION));
-			}
-			return "info" + "/notice_modifying";
-		}
-		return "info" + "/notice";
+		return Notty.APP + "/notice_modifying";
 	}
 
-	@RequestMapping(
-			value = "/notices",
-			method = RequestMethod.POST
-	)
-	public String create(
-			Notice notice,
-			HttpSession session,
-			RedirectAttributes attributes,
-			@RequestParam(value = "file", required = false) MultipartFile file,
-			@RequestParam(value = "file_name", required = false) String fileName) {
-		AuthorizedUser au = checkLogin(session);
-
-		fileUpload(notice, fileName, file);
-
-		notice.setAuthor(au);
-		notice.setContent(notice.getContent());
+	@RequestMapping(value = "/notices/create", method = POST)
+	@ResponseBody
+	public Notice create(Notice notice, HttpServletRequest request) {
+		AuthorizedUser user = checkLogin(request.getSession(false));
+		notice.setAuthor(user);
 		noticeService.create(notice);
-//		重定向，避免用户刷新重复提交。
-		attributes.addAttribute("from", -1);
-		attributes.addAttribute("status", ViewConstants.OK);
-		return "redirect:/" + "info" + "/notices/" + notice.getId();
+		return notice;
 	}
 
-	@RequestMapping(value = "/notices/{notice_id}", method = RequestMethod.POST)
-	public String modify(
-			Notice notice,
-			HttpSession session,
-			RedirectAttributes attributes,
-			@PathVariable("notice_id") long nid,
-			@RequestParam("name") String fileName,
-			@RequestParam("file") MultipartFile file) {
-		AuthorizedUser au = checkLogin(session);
-		Notice persistentNotice = noticeService.find(nid);
-		Assert.notNull(getMessage(NOT_FOUND), persistentNotice);
-		if (!persistentNotice.getAuthor().equals(au)) {
-			throw new SecurityException(getMessage(NO_PERMISSION));
-		}
-		if (!file.isEmpty()) {
-			fileDelete(persistentNotice);
-		}
-		persistentNotice.setTitle(notice.getTitle());
-		persistentNotice.setContent(notice.getContent());
-
-		fileUpload(notice, fileName, file);
-		persistentNotice.setDocName(notice.getDocName());
-		persistentNotice.setDocUrl(notice.getDocUrl());
-
-		noticeService.update(persistentNotice);
-
-		attributes.addAttribute("from", -1);
-		attributes.addAttribute("status", ViewConstants.OK);
-		return "redirect:/" + "info" + "/notices/" + nid;
+//	bug fix of jquery file upload.
+	@RequestMapping(value = "/notices/{id}/upload_file", method = GET)
+	public String bug(Model model, HttpServletRequest request, @PathVariable("id") long id) {
+		checkLogin(request.getSession(false));
+		Notice notice = noticeService.find(id);
+		model.addAttribute("notice", notice);
+		return Notty.APP + "/file_upload";
 	}
 
-	@RequestMapping(
-			value = "/notices/{notice_id}",
-			method = RequestMethod.DELETE
-	)
+	@RequestMapping(value = "/notices/{id}/upload_file", method = POST)
+	@ResponseBody
+	public String upload(HttpServletRequest request,
+						@PathVariable("id") long id,
+						@RequestPart("file") Part file) {
+		AuthorizedUser user = checkLogin(request.getSession(false));
+		Notice notice = noticeService.find(id);
+//		delete the orignal file if necessary.
+		if (notice.getDocUrl() != null) {
+			fileDelete(notice);
+		}
+		String fileName = resolvedFileName(file.getHeader("content-disposition"));
+		String uri = fileUpload(file, fileName);
+		notice.setDocUrl(uri);
+		notice.setDocName(fileName);
+		noticeService.update(notice, user.getId());
+		return JSON_STATUS_OK;
+	}
+
+	@RequestMapping(value = "/notices/{id}/modify", method = PUT)
+	@ResponseBody
+	public Notice modify(
+			HttpServletRequest request,
+			@RequestParam("title") String title,
+			@RequestParam("content") String content,
+			@PathVariable("id") long id) {
+		AuthorizedUser user = checkLogin(request.getSession(false));
+		Notice notice = noticeService.find(id);
+		notice.setTitle(title);
+		notice.setContent(content);
+		noticeService.update(notice, user.getId());
+		return notice;
+	}
+
+	@RequestMapping(value = "/notices/{id}/block", method = PUT)
+	@ResponseBody
 	public String block(
 			Model model,
-			HttpSession session,
-			@PathVariable("notice_id") long nid,
-			@RequestParam("blocked") boolean blocked) {
-		AuthorizedUser au = checkLogin(session);
-
-		Notice notice = noticeService.find(nid);
-		notice.setAuthor(au);
-		if (blocked) {
-			noticeService.block(notice, true);
-		} else {
-			noticeService.block(notice, false);
-		}
-		model.addAttribute(ViewConstants.AJAX_STATUS, ViewConstants.OK);
-		return ViewConstants.BAD_REQUEST;
+			HttpServletRequest request,
+			@PathVariable("id") long id) {
+		AuthorizedUser user = checkLogin(request.getSession(false));
+		noticeService.toggleBlock(id, user.getId());
+		return JSON_STATUS_OK;
 	}
 
-	@RequestMapping(
-			method = RequestMethod.GET,
-			value = "/notices/newer_than"
-	)
+	@RequestMapping(method = GET, value = "/notices/newer_than", produces = MEDIA_TYPE_JSON)
+	@ResponseBody
 	public String hasNew(
 			Model model,
 			@RequestParam("local_nid") long localNid) {
 		long count = noticeService.newerCount(localNid);
-		model.addAttribute("count", count);
-		return ViewConstants.BAD_REQUEST;
+		return String.format("{\"count\":%d}", count);
 	}
 
-	@RequestMapping(
-			value = "/notices",
-			method = RequestMethod.GET
-	)
-	public String notices(
-			Model model,
-			HttpServletRequest request,
-			@RequestParam("type") int type,
-			@RequestParam(value = "count", defaultValue = "20") int count,
-			@RequestParam(value = "last_nid", defaultValue = "9999") long lastNid,
-			@RequestParam(value = "uid", defaultValue = "0") long uid,
-			@RequestParam(value = "local_nid", defaultValue = "-1") long localNid) {
-		List<Notice> notices = null;
+	@RequestMapping(value = "/notices", method = GET, produces = MEDIA_TYPE_JSON)
+	@ResponseBody
+	public List<Notice> notices(Model model,
+						  @RequestParam("count") int count,
+						  @RequestParam("type") int type,
+						  @RequestParam(value = "uid", defaultValue = "0") long uid,
+						  @RequestParam(value = "nid", defaultValue = "0") long nid,
+						  @RequestParam(value = "append", defaultValue = "false") boolean append) {
+		List<Notice> notices;
 		switch (type) {
-			case LATEST:
-				notices = noticeService.latest(count);
+			case 1:
+				notices = noticeService.latest(uid, count);
 				break;
-			case MORE_NOTICES:
-				notices = noticeService.more(lastNid, count);
+			case 2:
+				notices = noticeService.notices(nid, append, count);
 				break;
-			case MORE_NOTICES_FROM_A_USER:
-				AuthorizedUser au = checkLogin(request.getSession(false));
-				if (count == 20) {
-//				没有提供count，说明用户查看自己已经的发表的信息
-					notices = noticeService.listByUser(au, R.getInt(DEFAULT_NOTICES_COUNT.name()));
-					model.addAttribute("notices", notices);
-					return "info" + "/notices";
-				}
-				notices = noticeService.moreByUser(au, lastNid, count);
-				break;
-			case FETCH_UPDATE_NOTICES:
-//			判断一下，如果客户端没有提供本地的最新的id，并且也请求更新，那么我们返回最新的
-				if (localNid == -1) {
-					notices = noticeService.latest(count);
-				} else {
-					notices = noticeService.listNewer(localNid, count);
-				}
+			case 3:
+				notices = noticeService.notices(uid, nid, append, count);
 				break;
 			default:
-				throw new IllegalArgumentException(getMessage(NOT_SUPPORT) + " [type=" + type + "]");
+				notices = noticeService.latest(count);
+				break;
 		}
+		return notices;
+	}
+
+	@RequestMapping(value = "/notices/my", method = GET)
+	public String myNotices(Model model, HttpServletRequest request) {
+		AuthorizedUser user = checkLogin(request.getSession(false));
+		List<Notice> notices = noticeService.latest(user.getId(), Notty.MAX_NOTICES_COUNT);
+//		List<Notice> notices = noticeService.latest(user.getId(), 2);
 		model.addAttribute("notices", notices);
-		return ViewConstants.BAD_REQUEST;
+		return Notty.APP + "/notices";
 	}
 
-	private boolean uploadable(MultipartFile file) {
-		if (file.getSize() > R.getJsonNumber(MAX_FILE_SIZE.name()).longValue()) {
-			throw new IllegalArgumentException(getMessage(FILE_SIZE_OVERFLOW));
-		}
-
-		String fileName = file.getOriginalFilename();
-		if (RegexUtils.uploadable(fileName)) {
-			return true;
-		}
-		throw new IllegalArgumentException(getMessage(FILE_TYPE_NOT_ALLOW));
+	@RequestMapping(value = "/notices/q", method = GET, produces = MEDIA_TYPE_JSON)
+	@ResponseBody
+	public List<Notice> search(Model model, @RequestParam("q") String q, @RequestParam("count") int count) {
+		return noticeService.search(q, count);
 	}
 
-	private void fileUpload(Notice info, String fileName,
-	                        MultipartFile file) {
-		try {
-			if (!file.isEmpty()) {
-				uploadable(file);
-				String originName = file.getOriginalFilename();
-				Calendar now = Calendar.getInstance();
-				String path = now.get(Calendar.YEAR)
-						+ "/" + (now.get(Calendar.MONTH) + 1);
-				File dir = new File(R.getString(UPLOAD_ABSOLUTE_DIR.name())
-						+ R.getString(UPLOAD_RELATIVE_DIR.name()) + path + "/");
-				if (!dir.exists()) {
-					if (!dir.mkdirs()) {
-						throw new RuntimeException("写入文件时出错！请联系管理员！");
-					}
-				}
+	@RequestMapping(value = "/notices/sync", method = GET, produces = MEDIA_TYPE_JSON)
+	@ResponseBody
+	public List<Notice> sync(@RequestParam("last_timestamp") long last, @RequestParam("count") int count) {
+		return noticeService.sync(last, count);
+	}
 
-				String savedFileName = now.getTimeInMillis()
-						+ RegexUtils.getFileExt(originName);
-				file.transferTo(new File(dir.getAbsolutePath()
-						+ "/" + savedFileName));
-				info.setDocUrl(R.getString(UPLOAD_RELATIVE_DIR.name())
-						+ path + "/" + savedFileName);
-				info.setDocName(fileName);
+	private static String resolvedFileName(String header) {
+		int a = header.indexOf("filename");
+		return header.substring(a + 10, header.length() - 1);
+	}
+
+	private boolean uploadable(Part file) {
+//		check file size first...
+		if (file.getSize() > Notty.MAX_FILE_SIZE) {
+			throw new IllegalArgumentException(Notty.FILE_SIZE_OVERFLOW);
+		}
+//		check file type, just check the filename, not content type
+		String header = file.getHeader("content-disposition");
+		L.info("header:{}", header);
+//		filename="windows8.1.zip"
+		String ext = TextUtils.getFileExt(resolvedFileName(header));
+		JsonArray types = Notty.ACCEPT_FILE_TYPE;
+		for (int i = 0; i < types.size(); i++) {
+			if (ext.equalsIgnoreCase(types.getString(i))) {
+				return true;
 			}
-		} catch (IllegalStateException e) {
-			L.error(R.getString(FILE_UPLOAD_FAIL.name()), e);
-			throw new RuntimeException(R.getString(FILE_UPLOAD_FAIL.name()), e);
-		} catch (IOException e) {
-			L.error(R.getString(FILE_UPLOAD_FAIL.name()), e);
-			throw new RuntimeException(R.getString(FILE_UPLOAD_FAIL.name()), e);
 		}
+		throw new IllegalArgumentException(Notty.FILE_TYPE_NOT_ALLOW);
+	}
+
+	private String fileUpload(Part file, String fileName) {
+		if (file.getSize() < 0) {
+			try {
+				file.delete();
+			} catch (IOException e) {
+				// do nothing
+			}
+			return null;
+		}
+		uploadable(file);
+		String savedFileName = System.currentTimeMillis()
+			+ TextUtils.getFileExt(resolvedFileName(file.getHeader("content-disposition")));
+		try {
+			file.write(savedFileName);
+		} catch (IOException e) {
+			throw new RuntimeException(Notty.FILE_UPLOAD_FAIL, e);
+		}
+		return Notty.UPLOAD_RELATIVE_DIR + savedFileName;
 	}
 
 	private void fileDelete(Notice notice) throws RuntimeException {
-		if (notice.getDocUrl() != null) {
-			File f = new File(R.getString(UPLOAD_ABSOLUTE_DIR.name()) + notice.getDocUrl());
+			File f = new File(Notty.UPLOAD_ABSOLUTE_DIR + notice.getDocUrl());
 			if (!f.delete()) {
-				throw new RuntimeException(getMessage(DELETE_FILE_ERROR));
+				throw new RuntimeException(Notty.DELETE_FILE_ERROR);
 			}
-		}
+			notice.setDocName(null);
+			notice.setDocUrl(null);
 	}
 
 	/**
 	 * 由于使用了REST API，原有的拦截器已经不适用了，故暂时使用这一方法，为接下来的spring security做准备
 	 */
 	private AuthorizedUser checkLogin(HttpSession session) {
-		Object attribute = session.getAttribute(R.getString(SESSION_USER.name()));
-		Assert.notNull(getMessage(REQUIRED_LOGIN), attribute);
+		Object attribute = session.getAttribute(Notty.SESSION_USER);
+		Assert.notNull(Notty.REQUIRED_LOGIN, attribute);
 		return (AuthorizedUser) attribute;
 	}
 

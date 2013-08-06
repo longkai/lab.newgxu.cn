@@ -1,34 +1,33 @@
 /*
- * The MIT License (MIT)
- * Copyright (c) 2013 longkai(龙凯)
- */
-package cn.newgxu.lab.repository;
+* The MIT License (MIT)
+* Copyright (c) 2013 longkai(龙凯)
+*/
+package cn.newgxu.lab.apps.notty.repository;
 
 import cn.newgxu.lab.core.util.SQLUtils;
 import cn.newgxu.lab.apps.notty.entity.AuthorizedUser;
-import cn.newgxu.lab.apps.notty.repository.AuthDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
 /**
- * @author longkai
- * @version 0.1.0
- * @date 13-7-30
- * @email im.longkai@gmail.com
- */
+* @author longkai
+* @version 0.1.0
+* @date 13-7-30
+* @email im.longkai@gmail.com
+*/
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/config/spring-test.xml")
-@Transactional
+@ContextConfiguration("/spring-test.xml")
 public class AuthdaoTest {
 
 	private static Logger L = LoggerFactory.getLogger(AuthdaoTest.class);
@@ -60,12 +59,16 @@ public class AuthdaoTest {
 	}
 
 	@Test
+//	@Rollback
+	@DirtiesContext
 	public void testPsersit() throws Exception {
 		authDao.insert(u);
 		System.out.println(u);
 	}
 
 	@Test
+//	@Rollback
+	@DirtiesContext
 	public void testRemove() throws Exception {
 		authDao.insert(u);
 //		L.debug("{}", u);
@@ -95,6 +98,8 @@ public class AuthdaoTest {
 	}
 
 	@Test
+//	@Rollback
+	@DirtiesContext
 	public void testUpdate() throws Exception {
 		authDao.insert(u);
 		L.debug("u: {}", u);

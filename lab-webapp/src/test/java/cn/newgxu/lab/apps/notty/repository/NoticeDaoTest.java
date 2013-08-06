@@ -13,8 +13,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -31,7 +33,8 @@ import static org.junit.Assert.*;
  * @since 13-7-31
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/config/spring-test.xml")
+@ContextConfiguration("/spring-test.xml")
+//@TransactionConfiguration
 public class NoticeDaoTest {
 
 	private static Logger L = LoggerFactory.getLogger(NoticeDaoTest.class);
@@ -65,11 +68,14 @@ public class NoticeDaoTest {
 	}
 
 	@Test
-	@Transactional
+//	@Rollback
+@Transactional
 	public void testPersist() throws Exception {
 		noticeDao.insert(n);
 		L.debug("n: {}", n);
-		assertTrue(n.getId() > 0);
+		long id1 = n.getId();
+		System.out.println(id1);
+		assertTrue(id1 > 0);
 	}
 
 	@Test
@@ -83,7 +89,7 @@ public class NoticeDaoTest {
 	}
 
 	@Test
-	@Transactional
+	@Rollback
 	public void testUpdate() throws Exception {
 		noticeDao.insert(n);
 		L.debug("n:{}", n);
@@ -94,7 +100,7 @@ public class NoticeDaoTest {
 	}
 
 	@Test
-	@Transactional
+	@Rollback
 	public void testRemove() throws Exception {
 		noticeDao.insert(n);
 		L.debug("n: {}", n);

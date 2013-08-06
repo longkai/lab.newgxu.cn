@@ -11,9 +11,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.annotation.Rollback;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.AfterTransaction;
 
 import javax.inject.Inject;
 
@@ -30,8 +31,9 @@ import static org.junit.Assert.assertTrue;
  * @version 0.1.0.13-7-31
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/config/spring-test.xml")
+@ContextConfiguration("/spring-test.xml")
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+//@Transactional
 public class AuthServiceTest {
 
 	private static Logger L = LoggerFactory.getLogger(AuthServiceTest.class);
@@ -61,10 +63,17 @@ public class AuthServiceTest {
 	@After
 	public void tearDown() throws Exception {
 //		do nothing now...
+		System.err.println("done.");
+	}
+
+@AfterTransaction
+	public void xxx() {
+		System.out.println(123);
 	}
 
 	@Test
-	@Rollback()
+//	@Rollback()
+	@DirtiesContext
 	public void testCreate() throws Exception {
 		assertEquals(_u.getId(), 0L);
 		authService.create(_u, _u.getPassword());
@@ -72,35 +81,41 @@ public class AuthServiceTest {
 	}
 
 	@Test
-	@Rollback
+//	@Rollback
+	@DirtiesContext()
 	public void testResetPassword() throws Exception {
 		AuthorizedUser user = authService.find(id);
+		if (user.isBlocked()) {
+			return;
+		}
 		String newPwd = "_newpwd";
-		user.setPassword(newPwd);
-		authService.resetPassword(user, newPwd);
+//		all the string params password are plain text.
+		authService.resetPassword(user, newPwd, newPwd, null);
 		AuthorizedUser u = authService.login(user.getAccount(), newPwd, null);
 		assertNotNull(u);
 	}
 
 	@Test
-	@Rollback
+//	@Rollback
+	@DirtiesContext
 	public void testUpdate() throws Exception {
 		AuthorizedUser user = authService.find(id);
 		String newContact = "10086";
 		user.setContact(newContact);
-		authService.update(user);
+		authService.update(user, "123456");
 		assertEquals(newContact, authService.find(id).getContact());
 	}
 
 	@Test
-	@Rollback
+//	@Rollback
+	@DirtiesContext
 	public void testToggleBlock() throws Exception {
 		AuthorizedUser user = authService.find(id);
 		if (user.isBlocked()) {
-			authService.toggleBlock(user, false);
+			authService.toggleBlock(user);
 			assertEquals(false, authService.find(id).isBlocked());
 		} else {
-			authService.toggleBlock(user, true);
+			authService.toggleBlock(user);
 			assertEquals(true, authService.find(id).isBlocked());
 		}
 	}
@@ -108,14 +123,18 @@ public class AuthServiceTest {
 	@Test
 	public void testFind() throws Exception {
 		AuthorizedUser user = authService.find(id);
-		L.debug("u: {}", user.toJsonObject());
+		L.debug("u: {}", user);
 		assertNotNull(user);
 	}
 
 	@Test
-	@Rollback
+//	@Rollback
+	@DirtiesContext
 	public void testLogin() throws Exception {
 		AuthorizedUser user = authService.find(id);
+		if (user.isBlocked()) {
+			return;
+		}
 		AuthorizedUser u = authService.login(user.getAccount(), "123456", null);
 		assertNotNull(u);
 	}
@@ -126,31 +145,67 @@ public class AuthServiceTest {
 		assertEquals(TOTAL, total);
 	}
 
-	@Test
-	public void testExists() throws Exception {
-	    String account = authService.find(id).getAccount();
-		assertTrue(authService.exists(account));
-	}
 
 	@Test
-	public void testLatest() throws Exception {
-		List<AuthorizedUser> users = authService.latest((int) id);
-		assertEquals(id, users.size());
-	}
-
-	@Test
-	public void testMore() throws Exception {
-		if (id == 1) {
-			id++;
+	public void testList() throws Exception {
+		L.debug("id={}", id);
+		List<AuthorizedUser> users = authService.users(AuthService.LATEST, (int)id);
+		for (AuthorizedUser u : users) {
+			L.debug("uid: {}, name: {}", u.getId(), u.getAuthorizedName());
 		}
 
-		List<AuthorizedUser> users = authService.more(id, 1);
-		assertTrue(users.get(0).getId() < id);
+		users = authService.users(AuthService.BLOCKED, (int) id);
+		for (AuthorizedUser u : users) {
+			L.debug("uid: {}, name: {}", u.getId(), u.getAuthorizedName());
+		}
+
+		users = authService.users(AuthService.ALL, (int) id);
+		for (AuthorizedUser u : users) {
+			L.debug("uid: {}, name: {}", u.getId(), u.getAuthorizedName());
+		}
 	}
 
 	@Test
-	public void testAuthed() throws Exception {
-		List<AuthorizedUser> users = authService.authed();
-		assertTrue(users.size() > 0);
+	public void testList2() throws Exception {
+		L.debug("id={}", id);
+		List<AuthorizedUser> users = authService.users(AuthService.LATEST, (int) id, true, id);
+		for (AuthorizedUser u : users) {
+			L.debug("uid: {}, name: {}", u.getId(), u.getAuthorizedName());
+		}
+		users = authService.users(AuthService.LATEST, (int) id, false, id);
+		for (AuthorizedUser u : users) {
+			L.debug("uid: {}, name: {}", u.getId(), u.getAuthorizedName());
+		}
+
+		users = authService.users(AuthService.BLOCKED, (int) id, true, id);
+		for (AuthorizedUser u : users) {
+			L.debug("uid: {}, name: {}", u.getId(), u.getAuthorizedName());
+		}
+
+		users = authService.users(AuthService.BLOCKED, (int) id, false, id);
+		for (AuthorizedUser u : users) {
+			L.debug("uid: {}, name: {}", u.getId(), u.getAuthorizedName());
+		}
+
+		users = authService.users(AuthService.ALL, (int) id, true, id);
+		for (AuthorizedUser u : users) {
+			L.debug("uid: {}, name: {}", u.getId(), u.getAuthorizedName());
+		}
+
+		users = authService.users(AuthService.ALL, (int) id, false, id);
+		for (AuthorizedUser u : users) {
+			L.debug("uid: {}, name: {}", u.getId(), u.getAuthorizedName());
+		}
+	}
+
+	@Test
+	public void testSync() throws Exception {
+		AuthorizedUser user = authService.find(id);
+		L.debug("id:{}, last timestdamp:{}", id, user.getJoinDate().getTime());
+		List<AuthorizedUser> users = authService.sync(user.getJoinDate().getTime(), (int) id);
+		for (AuthorizedUser u : users) {
+			L.debug("u:{}", u);
+		}
+
 	}
 }

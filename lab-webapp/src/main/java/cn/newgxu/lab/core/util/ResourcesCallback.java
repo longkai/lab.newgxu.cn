@@ -39,7 +39,7 @@ public abstract class ResourcesCallback {
 
 	protected void onSuccess(BufferedWriter br) throws IOException {}
 
-	protected void onSuccess(OutputStream os)  throws IOException {};
+	protected void onSuccess(OutputStream os)  throws IOException {}
 
 	public void onError(Throwable t) {
 		L.error("读写io时出错！", t);

@@ -89,7 +89,7 @@
 	</appender>
 
 	<logger name="cn.newgxu" level="TRACE" additivity="true" />
-	<logger name="org" level="INFO" />
+	<!--<logger name="org" level="INFO" />-->
 
 	<!-- local -->
 

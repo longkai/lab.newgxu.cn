@@ -42,7 +42,6 @@ public class RegexUtilsTest {
 		String file2 = "你好.DOC";
 		String file3 = "ps.hello.psd";
 		String file4 = "test.js.jpeg";
-		
 		assertThat(RegexUtils.uploadable(file1), is(true));
 		assertThat(RegexUtils.uploadable(file2), is(true));
 		assertThat(RegexUtils.uploadable(file3), is(false));

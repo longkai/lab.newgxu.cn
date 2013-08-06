@@ -23,13 +23,13 @@
 package cn.newgxu.lab.apps.notty.entity;
 
 import cn.newgxu.lab.core.util.JsonBuilder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.ibatis.type.Alias;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
+//import org.codehaus.jackson.annotate.JsonIgnore;
+//import org.codehaus.jackson.annotate.JsonProperty;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
+import javax.json.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -41,7 +41,7 @@ import java.util.Date;
  * @since 2013-3-28
  * @version 0.2.0.13-7-31
  */
-@Alias("info_notice")
+@Alias("notice")
 public class Notice implements Serializable {
 
 	private long			id;
@@ -176,26 +176,37 @@ public class Notice implements Serializable {
 
 	@Override
 	public String toString() {
-		return toJsonObject().toString();
+		return "Notice{" +
+				"id=" + id +
+				", title='" + title + '\'' +
+				", content='" + content + '\'' +
+				", clickTimes=" + clickTimes +
+				", addDate=" + addDate +
+				", lastModifiedDate=" + lastModifiedDate +
+				", blocked=" + blocked +
+				", author=" + author +
+				", docUrl='" + docUrl + '\'' +
+				", docName='" + docName + '\'' +
+				'}';
 	}
 
-	public JsonObject toJsonObject() {
-		JsonObjectBuilder builder = Json.createObjectBuilder();
-		builder
-			.add("id", id)
-			.add("title", title)
-			.add("click_imes", clickTimes)
-			.add("add_date", addDate.getTime())
-			.add("blocked", blocked);
-
-		new JsonBuilder(builder)
-			.lazy("content", content)
-			.eager("last_modified_date", lastModifiedDate)
-			.eager("doc_url", docUrl)
-			.eager("doc_name", docName)
-			.lazy("author", author.toJsonObject());
-
-		return builder.build();
-	}
+//	public JsonObject toJsonObject() {
+//		JsonObjectBuilder builder = Json.createObjectBuilder();
+//		builder
+//			.add("id", id)
+//			.add("title", title)
+//			.add("click_imes", clickTimes)
+//			.add("add_date", addDate.getTime())
+//			.add("blocked", blocked);
+//
+//		new JsonBuilder(builder)
+//			.lazy("content", content)
+//			.eager("last_modified_date", lastModifiedDate)
+//			.eager("doc_url", docUrl)
+//			.eager("doc_name", docName)
+//			.lazy("author", author.toJsonObject());
+//
+//		return builder.build();
+//	}
 
 }

@@ -28,7 +28,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 /**
  * 将试图映射成为jsonp的数据类型，继承了MappingJacksonJsonView。
@@ -44,11 +44,13 @@ import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
  * @since 2013-4-13
  * @version 0.1
  */
-public class MappingJacksonJsonpView extends MappingJacksonJsonView {
+public class MappingJackson2JsonpView extends MappingJackson2JsonView {
 
 	public static final String DEFAULT_CONTENT_TYPE = "application/javascript";
+	public static final String CALLBACK = "callback";
+	private static final byte[] jS_CATCH_BLOCK = ");}catch(e){}".getBytes();
 	
-	public MappingJacksonJsonpView() {
+	public MappingJackson2JsonpView() {
 //		这里，我们只需要在构造函数设置内容类型即可，字符编码已经在spirng的encoding filter中强制转码了
 		setContentType(DEFAULT_CONTENT_TYPE);
 	}
@@ -63,17 +65,18 @@ public class MappingJacksonJsonpView extends MappingJacksonJsonView {
 	public void render(Map<String, ?> model, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		if (request.getMethod().toUpperCase().equals("GET")) {
-			if (request.getParameterMap().containsKey("callback")) {
+			if (request.getParameterMap().containsKey(CALLBACK)) {
 				ServletOutputStream ostream = response.getOutputStream();
 //				这里，出于安全性考虑，用try包围了异常
-				ostream.write(new String("try{"
-						+ request.getParameter("callback") + "(").getBytes());
+				ostream.write(
+					String.format("try{%s(",
+						 request.getParameter(CALLBACK)).getBytes());
 				super.render(model, request, response);
-				ostream.write(new String(");}catch(e){}").getBytes());
+				ostream.write(jS_CATCH_BLOCK);
 //				这里，其实我也不清楚要不要close和flush，spring会替我们关掉吗？
 //				自己打开的资源应该还是自己关闭的好。
-				ostream.flush();
-				ostream.close();
+//				ostream.flush();
+//				ostream.close();
 			} else {
 				super.render(model, request, response);
 			}

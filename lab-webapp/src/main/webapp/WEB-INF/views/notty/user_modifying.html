@@ -1,4 +1,4 @@
-<#include "info/macro.ftl" />
+<#include "notty/macro.ftl" />
 <@L.html>
 <@L.head title="修改认证信息 - 雨无声实验室">
 <style type="text/css">
@@ -75,19 +75,19 @@ footer {
 		<div class="control-group">
 			<label class="control-label" for="password">旧密码</label>
 			<div class="controls">
-				<input type="password" id="password" name="password" placeholder="" required />
+				<input type="password" id="password" name="old_password" placeholder="" required />
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label" for="pwd1">新密码</label>
 			<div class="controls">
-				<input type="password" id="pwd1" name="pwd1" placeholder="密码至少6位" required />
+				<input type="password" id="pwd1" name="new_password" placeholder="密码至少6位" required />
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label" for="pwd2">确认新密码</label>
 			<div class="controls">
-				<input type="password" id="pwd2" name="pwd2" placeholder="密码至少6位" required />
+				<input type="password" id="pwd2" name="confirmed_password" placeholder="密码至少6位" required />
 			</div>
 		</div>
 		<div class="control-group">
@@ -99,12 +99,12 @@ footer {
 </div>
 <div class="container">
 	<footer>
-		<p>&copy; 2001-2013 <a href="//www.newgxu.cn">newgxu.cn</a> &middot;All Rights Reserved.</p>
+		<p>&copy; 2001-2013 <a href="//www.newgxu.cn">newgxu.cn</a> Yws. All Rights Reserved.</p>
 	</footer>
 </div>
 </body>
 <@L.script>
-<script type="text/javascript" src="/resources/js/info/notty.js"></script>
+<script type="text/javascript" src="/resources/notty/js/notty.js"></script>
 <script type="text/javascript">
 $(function() {
 	$('#logout').click(function(e) {
@@ -117,7 +117,7 @@ $(function() {
 		$('.alert').hide();
 		var uid = $('#user_service').attr('uid');
 		$.ajax({
-			url: '/info/users/' + uid + '?type=2',
+			url: '/auth_users/' + uid + '/password',
 			type: 'PUT',
 			data: $('#pwd_update').serialize(),
 			dataType: 'json',
@@ -127,7 +127,7 @@ $(function() {
 					$('#success').show();
 				} else if (data.status === 0) {
 					$('#msg').text(data.msg);
-					$('#reason').text(data.reason);
+					// $('#reason').text(data.reason);
 					$('#error').show();
 				} else {
 					$('#error').show();
@@ -145,7 +145,7 @@ $(function() {
 		$('.alert').hide();
 		var uid = $('#user_service').attr('uid');
 		$.ajax({
-			url: '/info/users/' + uid + '?type=1',
+			url: '/auth_users/' + uid + '/profile',
 			type: 'PUT',
 			data: $('#profile_form').serialize(),
 			dataType: 'json',
@@ -154,7 +154,7 @@ $(function() {
 					$('#success').show();
 				} else if (data.status === 0) {
 					$('#msg').text(data.msg);
-					$('#reason').text(data.reason);
+					// $('#reason').text(data.reason);
 					$('#error').show();
 				} else {
 					$('#error').show();

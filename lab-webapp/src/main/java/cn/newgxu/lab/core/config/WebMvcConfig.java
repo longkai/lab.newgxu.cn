@@ -7,17 +7,18 @@ package cn.newgxu.lab.core.config;
 
 import cn.newgxu.lab.core.util.Resources;
 import cn.newgxu.lab.core.util.ResourcesCallback;
-import freemarker.template.TemplateException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
@@ -25,13 +26,13 @@ import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfig;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
-import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.stream.JsonParser;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -43,10 +44,14 @@ import java.util.*;
  * @version 0.1.0.13-8-1
  */
 @Configuration
+@Import(SpringBeans.class)
 @EnableWebMvc
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
 	private static Logger L = LoggerFactory.getLogger(WebMvcConfig.class);
+
+	@Inject
+	private ApplicationContext ctx;
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -135,9 +140,14 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 	}
 
 	//	文件上传
+//	@Bean
+//	public MultipartResolver multipartResolver() {
+//		return new CommonsMultipartResolver();
+//	}
+
 	@Bean
-	public MultipartResolver multipartResolver() {
-		return new CommonsMultipartResolver();
+	public StandardServletMultipartResolver servletMultipartResolver() {
+		return new StandardServletMultipartResolver();
 	}
 
 	@Bean
@@ -156,9 +166,13 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 		ContentNegotiatingViewResolver viewResolver = new ContentNegotiatingViewResolver();
 		viewResolver.setOrder(1);
 		viewResolver.setContentNegotiationManager(contentNegotiationManager());
+
 		List<View> defaultViews = new ArrayList<View>(2);
-		View jsonView = new MappingJacksonJsonView();
-		View jsonpView = new MappingJacksonJsonpView();
+		MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
+		jsonView.setObjectMapper(ctx.getBean(ObjectMapper.class));
+		MappingJackson2JsonpView jsonpView = new MappingJackson2JsonpView();
+		jsonpView.setObjectMapper(ctx.getBean(ObjectMapper.class));
+
 		defaultViews.add(jsonView);
 		defaultViews.add(jsonpView);
 		viewResolver.setDefaultViews(defaultViews);

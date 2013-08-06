@@ -20,7 +20,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package cn.newgxu.lab.core.controller;
+package cn.newgxu.lab.apps;
 
 import static cn.newgxu.lab.core.common.ViewConstants.AJAX_MESSAGE;
 import static cn.newgxu.lab.core.common.ViewConstants.AJAX_STATUS;
@@ -40,8 +40,8 @@ import org.springframework.web.servlet.ModelAndView;
  * 
  * @author longkai
  * @email im.longkai@gmail.com
- * @since 2013-3-29
- * @version 0.1
+ * @since 2013-8-3
+ * @version 0.2.0-13-8-3
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -66,5 +66,7 @@ public class GlobalExceptionHandler {
 		}
 		return mav;
 	}
+
+//	@ex
 	
 }

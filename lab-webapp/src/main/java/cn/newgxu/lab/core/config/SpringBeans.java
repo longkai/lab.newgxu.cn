@@ -22,10 +22,15 @@
  */
 package cn.newgxu.lab.core.config;
 
+import cn.newgxu.lab.apps.notty.Notty;
 import cn.newgxu.lab.core.util.Resources;
 import cn.newgxu.lab.core.util.ResourcesCallback;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +38,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -87,6 +93,17 @@ public class SpringBeans /*extends WebMvcConfigurerAdapter*/ {
 			}
 		});
 		return dataSource;
+	}
+
+	@Bean
+	public ObjectMapper objectMapperFactoryBean() {
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+		objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+		Jackson2ObjectMapperFactoryBean bean = new Jackson2ObjectMapperFactoryBean();
+		bean.setObjectMapper(objectMapper);
+//		bean.setFeaturesToEnable(JsonParser.Feature.ALLOW_COMMENTS);
+		return bean.getObject();
 	}
 
 	@Bean
