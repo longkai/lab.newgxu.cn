@@ -4,12 +4,7 @@
 我希望在这个实验室里毕业出很多优秀的产品。
 
 ## 开发技术
-Java(springmvc, jpa等)
-
-## 设计理念
-采用了插件式的设计理念，任何一个项目在实验室上都是以即插即用的形式使用。
-每一个插件都有自己独立的命名空间（config，entity，repository，service，controller等）
-有点“伪”，但是确实实现了:)
+Java(springmvc, mybatis, javascript等)
 
 ## 联系作者
 有任何问题或者想法请联系 龙凯
